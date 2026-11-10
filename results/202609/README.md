@@ -1,4 +1,4 @@
-# Tables of milestone 1, CRSP vintage 202609
+# Tables of milestone 1, Ken French's files of vintage 202609
 
 The tables notebooks 01 and 02 wrote to `outputs/` on 10 November 2026, from Ken French's files of vintage 202609, copied here with the provenance record so that every number of the milestone resolves to a file at a named commit. `provenance_french.json` records each file's address, the SHA-256 of its zip and the vintage line. Each notebook regenerates its files at run time into `outputs/`, the run directory; two runs on the same files give the same tables byte for byte. French revises history, so a run on a later vintage, cut at August 2026, is a confirmation run and need not reproduce every digit.
 
