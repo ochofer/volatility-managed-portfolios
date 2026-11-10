@@ -1,0 +1,90 @@
+[
+  {
+    "download_time_local": "2026-11-10T20:39:29+01:00",
+    "download_time_utc": "2026-11-10T19:39:29+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Research_Data_Factors_CSV.zip",
+    "key": "factors3",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip",
+    "vintage_line": "This file was created using the 202609 CRSP database.",
+    "zip_bytes": 13078,
+    "zip_sha256": "b03d39e4bb253dda0f14893db3b78e64b40b8d6549a0fc0fd4111dae84c98618"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:30+01:00",
+    "download_time_utc": "2026-11-10T19:39:30+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Research_Data_Factors_daily_CSV.zip",
+    "key": "factors3_daily",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+    "vintage_line": "This file was created by using the 202609 CRSP database.",
+    "zip_bytes": 178326,
+    "zip_sha256": "96c23b88e651cbfff3740a53f8225e59ee39893371e96385a1d8125ec2cd9c89"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:31+01:00",
+    "download_time_utc": "2026-11-10T19:39:31+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Research_Data_5_Factors_2x3_CSV.zip",
+    "key": "factors5",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_CSV.zip",
+    "vintage_line": "This file was created using the 202609 CRSP database.",
+    "zip_bytes": 11971,
+    "zip_sha256": "17d7a575e71d6764a70ddec3f8d887756c0eebf3a60f64d6ba95d2adde3fed26"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:32+01:00",
+    "download_time_utc": "2026-11-10T19:39:32+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",
+    "key": "factors5_daily",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",
+    "vintage_line": "This file was created by using the 202609 CRSP database.",
+    "zip_bytes": 150489,
+    "zip_sha256": "e58577223032aa45071a46686f7068900c371b516c9eb04e28e974c34264f84f"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:34+01:00",
+    "download_time_utc": "2026-11-10T19:39:34+00:00",
+    "fetched_this_run": true,
+    "filename": "10_Portfolios_Prior_12_2_CSV.zip",
+    "key": "mom10",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_CSV.zip",
+    "vintage_line": "This file was created using the 202609 CRSP database.",
+    "zip_bytes": 119215,
+    "zip_sha256": "688467caa28578a8dca70698537c4f03c406b246350b6f3e9c396e15e1e7964f"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:35+01:00",
+    "download_time_utc": "2026-11-10T19:39:35+00:00",
+    "fetched_this_run": true,
+    "filename": "10_Portfolios_Prior_12_2_Daily_CSV.zip",
+    "key": "mom10_daily",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+    "vintage_line": "This file was created using the 202609 CRSP database.",
+    "zip_bytes": 901149,
+    "zip_sha256": "a02527825827d42ac23f6a9e0ec0a27bdaa22ac7274262005053dd96d65189ed"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:32+01:00",
+    "download_time_utc": "2026-11-10T19:39:32+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Momentum_Factor_CSV.zip",
+    "key": "momentum",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_CSV.zip",
+    "vintage_line": "This file was created using the 202609 CRSP database.",
+    "zip_bytes": 5603,
+    "zip_sha256": "27ed60e5b2caa9ea334a261cddfa864a9926f6bf45e9677c95dfd835c5abb315"
+  },
+  {
+    "download_time_local": "2026-11-10T20:39:33+01:00",
+    "download_time_utc": "2026-11-10T19:39:33+00:00",
+    "fetched_this_run": true,
+    "filename": "F-F_Momentum_Factor_daily_CSV.zip",
+    "key": "momentum_daily",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+    "vintage_line": "This file was created by using the 202609 CRSP database.",
+    "zip_bytes": 85338,
+    "zip_sha256": "e56d5bc845544e2993e77353b12c611cfce3149ef754f9b59fc67904ddadd369"
+  }
+]

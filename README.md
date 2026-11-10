@@ -20,6 +20,7 @@ From a checkout: `pip install -r requirements.txt`, then `python3 -m pytest test
 - **real-time combination**: Cederburg, O'Doherty, Wang and Yan's construction, a mix of the volatility-managed and the original factor whose weights are estimated each month from the months before it.
 - **the signal**: last month's realised variance of a factor, and nothing else.
 - **realised variance**: the variance of a factor computed from the daily returns of one month, each paper with its own definition, given in `src/sq/constants.py`.
+- **position**: the multiple of the factor held in a month; the papers call a position above 1 leverage.
 - **WML**: winners minus losers, the top momentum decile's return minus the bottom decile's, Barroso and Santa-Clara's momentum series.
 - **trading day**: a day on which the New York Stock Exchange traded, one row of French's daily files.
 - **vintage**: the version of French's files on the download date, named by the CRSP release they were built from.
@@ -33,8 +34,10 @@ LICENSE                  the MIT licence
 src/sq/constants.py      every pre-committed number, with its source and date
 src/sq/published.py      the published numbers of the three papers, with page and table
 src/sq/french_loader.py  download, provenance, parsing of French's files, the study's series
+src/sq/managed.py        the signal under each paper's definition, the volatility-managed factor, the real-time combination
 notebooks/               one concept per notebook, run in order
 outputs/                 written at run time: each notebook's tables and the provenance record (not committed)
+results/202609/          the tables the milestones cite, copied from outputs/, with the provenance record
 tests/                   known-answer checks that run without network
 ```
 

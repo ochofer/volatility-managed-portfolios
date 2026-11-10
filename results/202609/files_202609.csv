@@ -1,0 +1,9 @@
+file,block,rows,first,last,columns
+factors3,(untitled block 0),1202,1926-07,2026-08,"Mkt-RF, SMB, HML, RF"
+factors3_daily,(untitled block 0),26317,1926-07-01,2026-08-31,"Mkt-RF, SMB, HML, RF"
+factors5,(untitled block 0),758,1963-07,2026-08,"Mkt-RF, SMB, HML, RMW, CMA, RF"
+factors5_daily,(untitled block 0),15897,1963-07-01,2026-08-31,"Mkt-RF, SMB, HML, RMW, CMA, RF"
+momentum,(untitled block 0),1196,1927-01,2026-08,Mom
+momentum_daily,(untitled block 0),26216,1926-11-03,2026-08-31,Mom
+mom10,Value Weight Returns -- Monthly,1196,1927-01,2026-08,"Lo PRIOR, PRIOR 2, PRIOR 3, PRIOR 4, PRIOR 5, PRIOR 6, PRIOR 7, PRIOR 8, PRIOR 9, Hi PRIOR"
+mom10_daily,Average Value Weighted Returns -- Daily,26216,1926-11-03,2026-08-31,"Lo PRIOR, PRIOR 2, PRIOR 3, PRIOR 4, PRIOR 5, PRIOR 6, PRIOR 7, PRIOR 8, PRIOR 9, Hi PRIOR"
