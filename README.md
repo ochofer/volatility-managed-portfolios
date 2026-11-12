@@ -1,4 +1,4 @@
-In build: milestone 2 of 4, the three replications judged. The study's own question, the months after the sample, is not answered yet.
+In build: milestone 3 of 4, the replications and the months after the sample judged. The write-up, the note and the dashboard come next.
 
 # Volatility-managed portfolios: a replication, the real-time critique, and the months after the sample
 
