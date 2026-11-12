@@ -1,0 +1,3 @@
+series,Sharpe published,Sharpe computed,Sharpe within 0.05,maximum drawdown published (%),maximum drawdown computed (%),drawdown within five points
+WML,0.53,0.5418762209826051,True,-96.69,-95.5552056750382,True
+WML scaled,0.97,0.9958104220753049,True,-45.2,-43.83007987618094,True

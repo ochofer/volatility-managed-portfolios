@@ -23,7 +23,13 @@ The real-time combination (Cederburg et al., section 4.3, pp. 106-107) mixes
 the volatility-managed and the original factor with mean-variance weights
 estimated each month from the months before it only. Its position in the
 original factor is y_t = x_sigma c_t / RV_{t-1} + x, truncated at plus or
-minus the cap (p. 107: "a leverage constraint of |y_t| <= 5").
+minus the cap (p. 107: "a leverage constraint of |y_t| <= 5"). The ex post
+optimal combination (Table 5, p. 106) holds one pair of weights, set with the
+means and the covariance of the same months it is applied to.
+
+Barroso and Santa-Clara's scaled momentum (equation 6, p. 115) holds WML at a
+weight of a 12 per cent target volatility over the volatility of the last 126
+trading days.
 
 All returns are monthly decimal excess returns indexed by a monthly Period;
 daily returns are indexed by a daily Period.
@@ -140,6 +146,32 @@ def real_time(f: pd.Series, rv: pd.Series, first: str, end: str, k: int = C.REAL
     out = pd.DataFrame(rows).set_index("month")
     out.index = pd.PeriodIndex(out.index, freq="M")
     return out
+
+
+def ex_post_combination(managed: pd.Series, original: pd.Series, gamma: float = C.REALTIME_GAMMA):
+    """Cederburg et al.'s ex post optimal combination, S3 (Table 5, p. 106): one pair of weights
+    (x_sigma, x) = (1 / gamma) Sigma^-1 mu from the means and the covariance of the managed and the
+    original factor over the months given, held in every one of those months. The weights use the
+    months they are applied to, which no investor could have done. No cap is applied: the Table 5 note
+    limits the sum of the absolute weights on the two factors to 5, and gamma = 5 keeps these weights
+    far below it. The scale of the managed factor (its c) changes x_sigma and leaves the returns as
+    they are. Returns (the monthly return series, the weights)."""
+    both = pd.concat([managed.rename("managed"), original.rename("original")], axis=1).dropna()
+    w = mean_variance_weights(both.to_numpy(), gamma)
+    return pd.Series(both.to_numpy() @ w, index=both.index, name="s3"), w
+
+
+def scaled_momentum(wml: pd.Series, rv: pd.Series, start: str, end: str,
+                    target: float = C.BSC_TARGET_VOL_MONTHLY) -> pd.DataFrame:
+    """Barroso and Santa-Clara's scaled momentum (equation 6, p. 115) on the months start to end: WML
+    times target / sigma_hat, sigma_hat the square root of the variance of equation 5 at the end of the
+    month before (rv_bsc, lagged one month), target the monthly volatility of 12 per cent a year. The
+    frame holds WML, sigma_hat, the weight target / sigma_hat and the scaled return."""
+    sigma = np.sqrt(lagged(rv)).rename("sigma_hat")
+    df = pd.concat([wml.rename("wml"), sigma], axis=1).loc[start:end].dropna()
+    df["weight"] = target / df["sigma_hat"]
+    df["scaled"] = df["weight"] * df["wml"]
+    return df
 
 
 def percentiles(s: pd.Series, levels=(5, 50, 95)) -> dict:

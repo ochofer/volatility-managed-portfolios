@@ -8,7 +8,7 @@ source of truth for the code. Each notebook writes the modules it needs into
 src/sq/ with %%writefile cells, so it runs standalone in Colab from a blank
 runtime, and the same modules run from the repository checkout.
 
-Run:  python3 build_notebooks.py
+Run:  python3 build_notebooks.py [03 04 ...]
 Notebooks are written without outputs. Never commit a notebook with outputs.
 """
 from __future__ import annotations
@@ -558,7 +558,699 @@ What could be wrong:
 """),
 ]
 
+# ---------------------------------------------------------------------------
+# 03: Moreira and Muir's Table I
+# ---------------------------------------------------------------------------
+
+NB03 = [
+    md("""
+# 03. Moreira and Muir's Table I on their sample: every published number beside the computed one (E1)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns: Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Realised variance | the variance of a factor computed from the daily returns of one month; last month's is the signal |
+| Volatility-managed factor | Moreira and Muir's construction: the factor's return times c divided by last month's realised variance, built in notebook 02 |
+| Regression | the straight line through the months that best predicts one series from another, here the volatility-managed factor from the original factor, fitted by least squares (the line that makes the sum of squared misses smallest) |
+| Beta | the slope of that line: how much the volatility-managed factor moves, on average, when the original factor moves by 1 |
+| Alpha | the intercept of that line: the average monthly return of the volatility-managed factor that the original factor does not account for. Here it is a property of the regression and nothing more |
+| Residual | the month's miss: the volatility-managed return minus the line's prediction |
+| RMSE | the standard deviation of the residuals, with the two estimated coefficients taken into account (the sum of squared residuals divided by N - 2, square-rooted) |
+| N | the number of months in the regression |
+| Standard error | how far an estimate would typically move if the same months were drawn again; a small one means a precise estimate |
+| White standard error | a standard error that allows the size of the residuals to change from month to month (White 1980). Moreira and Muir's Table I uses it |
+| Newey-West standard error | a standard error that also allows each month's residual to be correlated with the previous months' (Newey and West 1987), here with 12 months |
+| t-statistic | the estimate divided by its standard error |
+| 5 per cent significance | a t-statistic further from 0 than 1.96. If the true alpha were 0, a t-statistic that far out would occur in 5 months out of 100 by chance |
+| Appraisal ratio | alpha divided by the RMSE: the extra return per unit of the risk the original factor does not explain |
+| Excess return | a return minus the one-month Treasury bill rate over the same period; every factor is one |
+| Sharpe ratio | the average excess return divided by its standard deviation |
+| Annualised | turned from a monthly figure into a yearly one: means times 12, standard deviations and Sharpe ratios times the square root of 12 |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+
+**What this notebook does.** It builds the volatility-managed version of each of the six factors on Moreira and Muir's sample, regresses it on the original factor, and puts every number of their Table I (p. 1619) beside the computed one: beta, alpha, the standard error of alpha, N, R² and RMSE. It computes the appraisal ratio from both, and the market's volatility-managed Sharpe ratio for comparison with their Table V (p. 1626). It then judges E1.
+
+**Why it comes at this point.** This is the paper's main table. A replication that matches it shows that the data, the signal and the construction of notebooks 01 and 02 are those of the paper; every later notebook builds on them. A replication that misses it stops the study until the miss is explained.
+
+**The expectation it judges: E1**, fixed in `src/sq/constants.py` before this notebook's code was written:
+
+1. On Moreira and Muir's sample (each factor's first month to April 2015), for at least five of the six factors:
+    - the alpha's sign matches Table I's;
+    - its 5 per cent significance category matches Table I's, with White standard errors, the paper's own;
+    - the alpha lies within one published standard error of the published alpha;
+    - the appraisal ratio, computed from Table I's alpha and RMSE with footnote 11's annualisation (p. 1620), lies within 0.05 of the paper's figure.
+2. For the market, the volatility-managed Sharpe ratio also lies within 0.05 of 0.52 (Table V, Panel A), and the market counts as matching only if it does.
+
+**Why these levels.** They are the replication criterion fixed on 6 September 2026, before the study's design: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
+
+**What I expect to see, and where it comes from.** E1 met. The published Table I, Panel A, for the six factors (alpha and its standard error in per cent a year, from monthly returns times 12):
+
+| | Mkt-RF | SMB | HML | Mom | RMW | CMA |
+|---|---|---|---|---|---|---|
+| beta | 0.61 | 0.62 | 0.57 | 0.47 | 0.62 | 0.68 |
+| alpha | 4.86 | -0.58 | 1.97 | 12.51 | 2.44 | 0.38 |
+| standard error of alpha | 1.56 | 0.91 | 1.02 | 1.71 | 0.83 | 0.67 |
+| t-statistic | 3.12 | -0.64 | 1.93 | 7.32 | 2.94 | 0.57 |
+| N | 1,065 | 1,065 | 1,065 | 1,060 | 621 | 621 |
+| R² | 0.37 | 0.38 | 0.32 | 0.22 | 0.38 | 0.46 |
+| RMSE | 51.39 | 30.44 | 34.92 | 50.37 | 20.16 | 17.55 |
+| appraisal ratio (alpha / RMSE times the square root of 12) | 0.33 | -0.07 | 0.20 | 0.86 | 0.42 | 0.08 |
+
+Three things to watch. HML's published t-statistic, 1.93, sits 0.03 below the 1.96 line, so a small change in its alpha or standard error moves it across. SMB's and CMA's alphas are small next to their standard errors, so their sign can differ while the alpha still lies within one standard error. The N are known to match from notebook 01.
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and the volatility-managed factors are built on Moreira and Muir's sample.
+2. The regressions: the computed Table I.
+3. One factor worked from monthly numbers to the paper's units.
+4. The computed and the published numbers side by side, and E1 judged.
+5. White and Newey-West standard errors compared.
+6. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+monthly = fl.factors("monthly")
+daily = fl.factors("daily")
+pd.set_option("display.width", 200)
+
+vm = {}
+for f in C.FACTORS:
+    rv = M.rv_mm(daily[f].dropna())               # Moreira and Muir's definition, equation 2
+    vm[f], _ = M.volatility_managed(monthly[f], rv, C.FACTOR_FIRST_MONTH[f], C.MM_SAMPLE_END)
+print({f: len(vm[f]) for f in C.FACTORS})
+"""),
+    md("""
+## 2. The regressions
+
+Each column regresses the volatility-managed factor on the original factor over the factor's months on Moreira and Muir's sample, in the paper's units.
+"""),
+    code("""
+computed = pd.DataFrame({f: R.table_i_row(vm[f]["managed"], vm[f]["f"]) for f in C.FACTORS}).T
+print(computed[["beta", "beta_se_white", "alpha", "alpha_se_white", "N", "R2", "RMSE", "appraisal"]].astype(float).round(3).T.to_string())
+"""),
+    md("""
+## 3. The market, from monthly numbers to the paper's units
+
+The regression runs on monthly decimal returns. Table I multiplies alpha, its standard error and the RMSE by 12 and writes them in per cent; the appraisal ratio, alpha over RMSE, is then a monthly ratio, and footnote 11 multiplies it by the square root of 12 to make it yearly.
+"""),
+    code("""
+fit = R.ols(vm["Mkt-RF"]["managed"].to_numpy(), vm["Mkt-RF"]["f"].to_numpy())
+print("monthly alpha:", round(fit["alpha"], 6), " times 12, in per cent:", round(fit["alpha"] * 1200, 3))
+print("monthly standard error (White):", round(fit["alpha_se_white"], 6), " times 12, in per cent:", round(fit["alpha_se_white"] * 1200, 3))
+print("monthly RMSE:", round(fit["rmse"], 6), " times 12, in per cent:", round(fit["rmse"] * 1200, 3))
+print("appraisal ratio: alpha / RMSE * sqrt(12) =", round(fit["alpha"] / fit["rmse"] * np.sqrt(12), 4))
+print("Sharpe ratio, volatility-managed:", round(R.sharpe(vm["Mkt-RF"]["managed"]), 4), " original:", round(R.sharpe(vm["Mkt-RF"]["f"]), 4))
+"""),
+    md("""
+## 4. Beside the published numbers, and E1 judged
+
+The first table puts the numbers E1 judges beside the paper's, with each comparison's result. The second gives the numbers E1 does not judge (beta, R² and RMSE) beside the paper's, for the reader.
+"""),
+    code("""
+e1_table, e1_met = V.e1(computed)
+print(e1_table.T.to_string())
+print()
+others = pd.DataFrame({
+    "beta published": {f: P.MM_TABLE_I[f][0] for f in C.FACTORS}, "beta computed": computed["beta"].astype(float),
+    "R2 published": {f: P.MM_TABLE_I[f][5] for f in C.FACTORS}, "R2 computed": computed["R2"].astype(float),
+    "RMSE published": {f: P.MM_TABLE_I[f][6] for f in C.FACTORS}, "RMSE computed": computed["RMSE"].astype(float),
+})
+print(others.round(3).T.to_string())
+print()
+n_match = int(e1_table["factor matches"].sum())
+print(f"E1: {'MET' if e1_met else 'NOT MET'}. {n_match} of 6 factors match on every comparison; at least {C.E1_MIN_FACTORS} required.")
+"""),
+    md("""
+## 5. White and Newey-West standard errors
+
+E1 uses White's standard error because Table I does. The study's later tests (E4 to E6) use Newey and West's, which also allows a month's residual to be correlated with the 12 months before it. Where the residuals of neighbouring months move together, a run of months carries less independent information than its count suggests, and the Newey-West standard error is larger.
+"""),
+    code("""
+se = computed[["alpha", "alpha_se_white", "alpha_se_nw"]].astype(float)
+se["t White"] = se["alpha"] / se["alpha_se_white"]
+se["t Newey-West"] = se["alpha"] / se["alpha_se_nw"]
+se["Newey-West over White"] = se["alpha_se_nw"] / se["alpha_se_white"]
+print(se.round(3).to_string())
+"""),
+    md("""
+## 6. The outputs, the summary, and what could be wrong
+
+The computed Table I, the E1 comparison and the verdict go to `outputs/` with the vintage in each name.
+"""),
+    code("""
+computed.to_csv(f"outputs/mm_table_i_computed_{VINTAGE}.csv")
+e1_table.to_csv(f"outputs/e1_comparison_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E1", "factors matching": n_match, "required": C.E1_MIN_FACTORS,
+               "verdict": "met" if e1_met else "not met", "vintage": VINTAGE}]).to_csv(f"outputs/e1_verdict_{VINTAGE}.csv", index=False)
+
+summary = pd.DataFrame([{
+    "expectation": "E1: Moreira and Muir's Table I on their sample",
+    "result": f"{n_match} of 6 factors match on sign, 5% category, alpha within one se, appraisal ratio within 0.05"
+              f"; market Sharpe ratio {computed.loc['Mkt-RF', 'sharpe_managed']:.3f} against 0.52",
+    "verdict": "met" if e1_met else "not met",
+}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **French's data have been revised since the paper.** A computed alpha can differ from the published one with the code right. The size of the revision is the difference between the two columns; the comparison of the same construction on Cederburg et al.'s later download (their Table 1, to December 2016) in notebook 04 gives a second reading on a second vintage.
+- **The signal's definition.** Moreira and Muir's equation 2 is written for a 22-day month and the module removes the month's own mean (notebook 02). The match of the RMSE and the appraisal ratio is the test: a different signal would change the managed series and both numbers with it.
+- **Significance rests on a t-statistic, which assumes the estimate is close to normally distributed.** Notebook 06 tests the same gain with Ledoit and Wolf's bootstrap, which does not assume it, and E4 asks whether the two verdicts agree for at least five of the six factors.
+- **The alpha is a property of the regression.** It says the volatility-managed factor earned more than its beta times the original factor over these months. Whether an investor could have captured it is the subject of notebook 04, and whether it survives trading costs that of notebook 08.
+"""),
+]
+
+
+# ---------------------------------------------------------------------------
+# 04: Cederburg et al. on their sample (E2)
+# ---------------------------------------------------------------------------
+
+NB04 = [
+    md("""
+# 04. Cederburg, O'Doherty, Wang and Yan's Tables 1 and 5 on their sample: the real-time critique (E2)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns: Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Excess return | a return minus the one-month Treasury bill rate over the same period; every factor is one |
+| Realised variance | the variance of a factor computed from the daily returns of one month. Here Cederburg et al.'s definition (equation 4, p. 98): 22 divided by the month's number of trading days, times the sum of the squared daily returns |
+| Volatility-managed factor | the factor's return times c divided by last month's realised variance, built in notebook 02; c gives it the original factor's standard deviation over the sample |
+| Sharpe ratio | the average excess return divided by its standard deviation, annualised: times the square root of 12 |
+| Alpha | the intercept of the regression of the volatility-managed factor on the original factor: the average return the original factor does not account for (notebook 03) |
+| Covariance matrix | the table of the variances of two or more return series and the covariances between each pair |
+| Mean-variance weights | the amounts of each return series held by an investor who trades the mean of the portfolio's return against its variance: (1/γ) times the inverse of the covariance matrix times the vector of means, with γ, the risk aversion, equal to 5 |
+| Training period | the first 120 months of a factor's sample. The real-time strategies hold no position in them |
+| Out-of-sample period | the months after the training period, to December 2016: the months on which every strategy of Table 5 is judged |
+| Real-time combination (S1) | each month, mean-variance weights on the volatility-managed and the original factor, estimated from every earlier month only, turned into one position in the factor and capped at 5 in either direction (notebook 02) |
+| Real-time original (S2) | the original factor alone, held each month at (1/γ) times its mean over its variance, both estimated from every earlier month only, under the same cap |
+| Ex post optimal combination (S3) | one pair of mean-variance weights on the volatility-managed and the original factor, set with the means and covariance of the whole out-of-sample period and held in every month of it. No investor could have held it, since it uses the months it is judged on |
+| Cap | the largest position the real-time strategies may take, 5 in either direction |
+| Jobson-Korkie test | a test that two return series over the same months have the same Sharpe ratio (Jobson and Korkie 1981, with the correction of Memmel 2003), as Cederburg et al. use it (p. 99) |
+| p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
+| 5 per cent significance | a p-value below 0.05 |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+| Diagnostic | a number computed after a verdict to read its cause. It carries no verdict and changes no level |
+| Internet Archive | a public library of copies of web pages and files taken on past dates, at web.archive.org |
+
+**What this notebook does.** It builds, on Cederburg et al.'s sample and with their definition of the signal, the volatility-managed version of each factor (their Table 1, p. 99) and the three strategies of their Table 5, Panel A (p. 106): the real-time combination S1, the real-time original S2 and the ex post optimal combination S3. It puts every computed Sharpe ratio beside the published one, tests the differences with the Jobson-Korkie test, and judges E2. It closes with the cause of the result and two diagnostics.
+
+**Why it comes at this point.** Notebook 03 replicated Moreira and Muir's Table I: the volatility-managed factor has a positive alpha against the original, so a mix of the two had a higher Sharpe ratio than the original alone, with weights chosen after seeing every month. Cederburg et al. ask whether an investor could have chosen those weights at the time. This study uses their real-time combination on the months after the papers' samples (E5), so their published answer is replicated first.
+
+**The expectation it judges: E2**, fixed in `src/sq/constants.py` before this notebook's code was written. On Cederburg et al.'s sample (August 1926, January 1927 or August 1963 to December 2016), for each of the six factors:
+
+1. (i) the original and the volatility-managed Sharpe ratios lie within 0.05 of their Table 1 (p. 99);
+2. (ii) S1 and S2 lie within 0.05 of Table 5, Panel A (p. 106);
+3. (iii) S1 minus S2 has the published sign for at least five of the six, and the only difference significant at 5 per cent by the Jobson-Korkie test is momentum's, as published;
+4. (iv) S1 minus S3 lies within 0.05 of the published figure for all six.
+
+E2 is met when all four clauses hold. All twenty-four comparisons, four for each factor, are reported, whatever the count.
+
+**Why these levels.** The critique's baseline is a real-time combination of the volatility-managed and the original factor (section 4.3, pp. 106-107): the constant c alone does not move a Sharpe ratio (Moreira and Muir, footnote 6, p. 1616; Cederburg et al., p. 98), and the weights of the combination are what an investor cannot know in advance. A margin of 0.05 on a Sharpe ratio is the replication criterion fixed on 6 September 2026, as in E1. Clause (iii) asks for the published sign and the published significance, the paper's own reading of its table.
+
+**What I expect to see, and where it comes from.** E2 met. The published Sharpe ratios, annualised, with the Jobson-Korkie p-values of the differences in brackets:
+
+| | Mkt-RF | SMB | HML | Mom | RMW | CMA |
+|---|---|---|---|---|---|---|
+| original (Table 1) | 0.42 | 0.23 | 0.40 | 0.48 | 0.38 | 0.53 |
+| volatility-managed (Table 1) | 0.51 | 0.08 | 0.38 | 0.99 | 0.51 | 0.40 |
+| S1, real-time combination (Table 5) | 0.42 | 0.14 | 0.38 | 0.92 | 0.44 | 0.52 |
+| S2, real-time original | 0.46 | 0.19 | 0.43 | 0.49 | 0.31 | 0.56 |
+| S1 minus S2 | -0.04 (0.64) | -0.06 (0.37) | -0.06 (0.41) | 0.44 (0.00) | 0.13 (0.53) | -0.03 (0.20) |
+| S3, ex post optimal combination | 0.53 | 0.26 | 0.50 | 0.99 | 0.58 | 0.64 |
+| S1 minus S3 | -0.11 (0.01) | -0.12 (0.14) | -0.12 (0.08) | -0.07 (0.07) | -0.14 (0.37) | -0.11 (0.00) |
+
+Table 1 runs from each factor's first month to December 2016: 1,085 months for the market, SMB and HML, 1,080 for momentum, 641 for RMW and CMA. Table 5 runs over each factor's out-of-sample period, which starts 120 months later: August 1936 for the market, SMB and HML, January 1937 for momentum, August 1973 for RMW and CMA.
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and the series are built.
+2. Table 1: the original and the volatility-managed factors beside the published numbers.
+3. Table 5: S1, S2 and S3 beside the published numbers.
+4. One Jobson-Korkie test worked from monthly numbers: momentum's S1 against S2.
+5. E2 judged: the twenty-four comparisons and the verdict.
+6. The cause of the result, and two diagnostics computed after it.
+7. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    writefile("diagnostics.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+from sq import diagnostics as D
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+monthly = fl.factors("monthly")
+daily = fl.factors("daily")
+pd.set_option("display.width", 200)
+
+
+def build(f, rv, first):
+    \"\"\"The series of Tables 1 and 5 for one factor on Cederburg et al.'s sample.\"\"\"
+    vm, _ = M.volatility_managed(f, rv, first, C.COWY_SAMPLE_END)          # Table 1
+    rt = M.real_time(f, rv, first, C.COWY_SAMPLE_END)                     # S1 and S2
+    oos, _ = M.volatility_managed(f, rv, str(rt.index[0]), C.COWY_SAMPLE_END)
+    s3, w = M.ex_post_combination(oos["managed"], oos["f"])                # S3, on the out-of-sample months
+    return {"vm": vm, "rt": rt, "s3": s3, "w3": w}
+
+
+def comparisons(b):
+    \"\"\"The Sharpe ratios E2 reads, with the Jobson-Korkie tests of the two differences.\"\"\"
+    rt = b["rt"]
+    d12 = R.jobson_korkie(rt["s1"], rt["s2"])
+    d13 = R.jobson_korkie(rt["s1"], b["s3"].loc[rt.index])
+    return {"sharpe_original": R.sharpe(b["vm"]["f"]), "sharpe_managed": R.sharpe(b["vm"]["managed"]),
+            "s1": R.sharpe(rt["s1"]), "s2": R.sharpe(rt["s2"]), "s1_minus_s2": d12["difference"], "p_s1_s2": d12["p"],
+            "s3": R.sharpe(b["s3"]), "s1_minus_s3": d13["difference"], "p_s1_s3": d13["p"]}
+
+
+rv = {f: M.rv_cowy(daily[f].dropna()) for f in C.FACTORS}                # Cederburg et al.'s definition, equation 4
+built = {f: build(monthly[f], rv[f], C.FACTOR_FIRST_MONTH[f]) for f in C.FACTORS}
+print(pd.DataFrame({f: {"Table 1 months": len(b["vm"]), "published": C.COWY_EXPECTED_N[f],
+                        "first out-of-sample month": str(b["rt"].index[0]), "out-of-sample months": len(b["rt"])}
+                    for f, b in built.items()}).to_string())
+"""),
+    md("""
+## 2. Table 1: the original and the volatility-managed factors
+
+Mean and standard deviation in per cent a year, Sharpe ratio annualised, each factor over its own months to December 2016. The managed factor's standard deviation equals the original's by the choice of c. The last two rows are Table 1, Panel C: the difference of the two Sharpe ratios and its Jobson-Korkie p-value.
+"""),
+    code("""
+rows = {}
+for f, b in built.items():
+    o, m = b["vm"]["f"], b["vm"]["managed"]
+    jk = R.jobson_korkie(m, o)
+    po, pm, pc = P.COWY_TABLE_1_ORIGINAL[f], P.COWY_TABLE_1_MANAGED[f], P.COWY_TABLE_1_DIFFERENCE[f]
+    rows[f] = {
+        "original mean, published": po[0], "original mean, computed": o.mean() * 1200,
+        "original sd, published": po[1], "original sd, computed": o.std() * np.sqrt(12) * 100,
+        "original Sharpe, published": po[2], "original Sharpe, computed": R.sharpe(o),
+        "managed mean, published": pm[0], "managed mean, computed": m.mean() * 1200,
+        "managed Sharpe, published": pm[2], "managed Sharpe, computed": R.sharpe(m),
+        "difference, published": pc[0], "difference, computed": jk["difference"],
+        "p, published": pc[1], "p, computed": jk["p"],
+    }
+table_1 = pd.DataFrame(rows)
+print(table_1.round(3).to_string())
+"""),
+    md("""
+## 3. Table 5: the real-time and the ex post strategies
+
+Sharpe ratios over each factor's out-of-sample period, the differences with their Jobson-Korkie p-values, the share of months in which S1's and S2's positions sit at the cap, and S3's two weights: on the volatility-managed factor, scaled to the original's standard deviation over the out-of-sample months, and on the original factor.
+"""),
+    code("""
+computed = pd.DataFrame({f: comparisons(b) for f, b in built.items()}).T
+rows = {}
+for f, b in built.items():
+    s1_p, s2_p, d12_p, s3_p, d13_p = P.COWY_TABLE_5[f]
+    p12_p, p13_p = P.COWY_TABLE_5_P[f]
+    c = computed.loc[f]
+    rt = b["rt"]
+    rows[f] = {
+        "S1, published": s1_p, "S1, computed": c["s1"], "S2, published": s2_p, "S2, computed": c["s2"],
+        "S1-S2, published": d12_p, "S1-S2, computed": c["s1_minus_s2"], "p, published": p12_p, "p, computed": c["p_s1_s2"],
+        "S3, published": s3_p, "S3, computed": c["s3"],
+        "S1-S3, published": d13_p, "S1-S3, computed": c["s1_minus_s3"], "p S1-S3, published": p13_p, "p S1-S3, computed": c["p_s1_s3"],
+        "S1 months at the cap": rt["at_cap"].mean(), "S2 months at the cap": (rt["y2"].abs() >= C.REALTIME_LEVERAGE_CAP).mean(),
+        "S3 weight, volatility-managed": b["w3"][0], "S3 weight, original": b["w3"][1],
+    }
+table_5 = pd.DataFrame(rows)
+print(table_5.round(3).to_string())
+"""),
+    md("""
+## 4. One test worked: momentum's S1 against S2
+
+The Jobson-Korkie statistic compares the two Sharpe ratios through the monthly means m, standard deviations s and the covariance s_12 of the two return series over the same T months (Cederburg et al., p. 99):
+
+z = (s_2 m_1 - s_1 m_2) / sqrt(theta), with theta = (1/T) (2 s_1² s_2² - 2 s_1 s_2 s_12 + m_1² s_2² / 2 + m_2² s_1² / 2 - (m_1 m_2 / (s_1 s_2)) s_12²).
+
+The p-value is the probability that a standard normal variable lies further from 0 than z.
+"""),
+    code("""
+from statistics import NormalDist
+rt = built["Mom"]["rt"]
+a, b2 = rt["s1"].to_numpy(), rt["s2"].to_numpy()
+T = len(a)
+m1, m2, s1, s2 = a.mean(), b2.mean(), a.std(ddof=1), b2.std(ddof=1)
+s12 = np.cov(a, b2)[0, 1]
+theta = (2 * s1**2 * s2**2 - 2 * s1 * s2 * s12 + m1**2 * s2**2 / 2 + m2**2 * s1**2 / 2 - m1 * m2 / (s1 * s2) * s12**2) / T
+z = (s2 * m1 - s1 * m2) / np.sqrt(theta)
+print(f"T = {T} months; S1 monthly mean {m1:.5f}, sd {s1:.5f}; S2 monthly mean {m2:.5f}, sd {s2:.5f}; covariance {s12:.6f}")
+print(f"Sharpe ratios, annualised: S1 {m1 / s1 * np.sqrt(12):.3f}, S2 {m2 / s2 * np.sqrt(12):.3f}")
+print(f"theta = {theta:.3e}; z = {z:.2f}; p = {2 * (1 - NormalDist().cdf(abs(z))):.5f}")
+"""),
+    md("""
+## 5. E2 judged
+
+One row per factor, the four comparisons of E2 beside the published numbers, then the verdict with the arithmetic beside each clause.
+"""),
+    code("""
+e2_table, e2_clauses, e2_met = V.e2(computed)
+print(e2_table.T.to_string())
+print()
+e2_text = V.e2_line(e2_table, e2_clauses)
+print(e2_text)
+"""),
+    md("""
+## 6. The cause of the result, and two diagnostics
+
+The verdict above stands as printed. This section reads its cause and judges nothing.
+
+**The original factors.** Each original factor's mean and standard deviation over its own Table 1 months, beside Table 1's, and the Sharpe ratio each pair gives. For RMW those months are the 641 from August 1963 to December 2016.
+"""),
+    code("""
+rows = {}
+for f, b in built.items():
+    o = b["vm"]["f"]
+    mean_p, sd_p, _ = P.COWY_TABLE_1_ORIGINAL[f]
+    rows[f] = {"months": len(o), "mean, published": mean_p, "mean, computed": o.mean() * 1200,
+               "sd, published": sd_p, "sd, computed": o.std() * np.sqrt(12) * 100,
+               "Sharpe from Table 1's mean and sd": mean_p / sd_p, "Sharpe, computed": R.sharpe(o)}
+cause = pd.DataFrame(rows).T
+cause["Sharpe, computed minus published"] = cause["Sharpe, computed"] - cause["Sharpe from Table 1's mean and sd"]
+print(cause.round(3).to_string())
+"""),
+    md("""
+On vintage 202609, five of the original factors lie within 0.01 of the Sharpe ratio Table 1's mean and standard deviation give. RMW's lies 0.027 above, with the same standard deviation: its mean is 3.12 per cent a year against Table 1's 2.92. The original factor's mean depends on no choice of signal or construction; it is French's series as downloaded. French's library revises its series: each new file is rebuilt from the current release of the underlying data, and the history of a factor can change with it. RMW is sorted on firms' accounting data as well as on their returns. The one direct test, French's RMW file as Cederburg et al. downloaded it, is not in the design's data.
+
+The design allowed two diagnostics after the result. Each is computed after the verdict and carries none.
+
+**Diagnostic (a): RMW with its mean moved to Table 1's.** RMW's monthly returns are moved by one constant so that their mean over the 641 months equals Table 1's 2.92 per cent a year. The daily returns, and so the signal, are left as they are. The four RMW comparisons are rebuilt from the moved series. The part of the miss the shift closes is the part the mean alone accounts for; the part that remains comes from the revision's change to individual months.
+"""),
+    code("""
+first, end = C.FACTOR_FIRST_MONTH["RMW"], C.COWY_SAMPLE_END
+shifted, delta = D.shift_to_mean(monthly["RMW"], first, end, P.COWY_TABLE_1_ORIGINAL["RMW"][0])
+print(f"the constant: {delta * 1200:.3f} per cent a year ({delta:.6f} a month)")
+moved = comparisons(build(shifted, rv["RMW"], first))
+s1_p, s2_p, d12_p, s3_p, d13_p = P.COWY_TABLE_5["RMW"]
+diag_a = pd.DataFrame({
+    "published": {"original Sharpe": P.COWY_TABLE_1_ORIGINAL["RMW"][2], "managed Sharpe": P.COWY_TABLE_1_MANAGED["RMW"][2],
+                  "S1": s1_p, "S2": s2_p, "S1-S2": d12_p, "p S1-S2": P.COWY_TABLE_5_P["RMW"][0], "S1-S3": d13_p},
+    "computed": {"original Sharpe": computed.loc["RMW", "sharpe_original"], "managed Sharpe": computed.loc["RMW", "sharpe_managed"],
+                 "S1": computed.loc["RMW", "s1"], "S2": computed.loc["RMW", "s2"], "S1-S2": computed.loc["RMW", "s1_minus_s2"],
+                 "p S1-S2": computed.loc["RMW", "p_s1_s2"], "S1-S3": computed.loc["RMW", "s1_minus_s3"]},
+    "computed, mean moved": {"original Sharpe": moved["sharpe_original"], "managed Sharpe": moved["sharpe_managed"],
+                             "S1": moved["s1"], "S2": moved["s2"], "S1-S2": moved["s1_minus_s2"],
+                             "p S1-S2": moved["p_s1_s2"], "S1-S3": moved["s1_minus_s3"]},
+})
+diag_a["gap, computed"] = (diag_a["computed"] - diag_a["published"]).abs()
+diag_a["gap, mean moved"] = (diag_a["computed, mean moved"] - diag_a["published"]).abs()
+print(diag_a.round(3).to_string())
+"""),
+    md("""
+**Diagnostic (b): RMW in the Internet Archive's copy of French's file.** The Internet Archive holds one copy of French's five-factor file from 2017 and 2018, captured on 9 July 2017 at https://web.archive.org/web/20170709190513/http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_CSV.zip. Its first line names the release it was built from. The code fetches it into `data/archive/`, which is never committed, checks its SHA-256 against the value read when the copy was found, and reads the original RMW's mean and standard deviation over the same 641 months, beside Table 1's and vintage 202609's. If the archive cannot be reached, the cell says so and the notebook goes on.
+"""),
+    code("""
+archived, record = D.archived_five_factor()
+for k, v in record.items():
+    print(f"{k}: {v}")
+if archived is None:
+    print("The Internet Archive could not be reached in this run; diagnostic (b) has no number.")
+    diag_b = pd.DataFrame()
+else:
+    diag_b = pd.DataFrame({
+        "Table 1 (published)": {"months": C.COWY_EXPECTED_N["RMW"], "mean": P.COWY_TABLE_1_ORIGINAL["RMW"][0], "sd": P.COWY_TABLE_1_ORIGINAL["RMW"][1]},
+        f"archived copy, {D.ARCHIVE_DATE}": D.moments(archived["RMW"], first, end),
+        f"vintage {VINTAGE}": D.moments(monthly["RMW"], first, end),
+    }).T[["months", "mean", "sd"]]
+    print(diag_b.round(3).to_string())
+"""),
+    md("""
+## 7. The outputs, the summary, and what could be wrong
+
+Tables 1 and 5 as computed, the E2 comparison and verdict, the cause and the two diagnostics go to `outputs/` with the vintage in each name.
+"""),
+    code("""
+table_1.T.to_csv(f"outputs/cowy_table_1_computed_{VINTAGE}.csv")
+table_5.T.to_csv(f"outputs/cowy_table_5_computed_{VINTAGE}.csv")
+e2_table.to_csv(f"outputs/e2_comparison_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E2", "comparisons holding": int(e2_table["comparisons holding"].sum()), "comparisons": 4 * len(e2_table),
+               **{f"clause {k}": "met" if v else "not met" for k, v in e2_clauses.items()},
+               "verdict": "met" if e2_met else "not met", "vintage": VINTAGE}]).to_csv(f"outputs/e2_verdict_{VINTAGE}.csv", index=False)
+cause.to_csv(f"outputs/e2_cause_original_factors_{VINTAGE}.csv")
+diag_a.to_csv(f"outputs/e2_diagnostic_a_rmw_mean_moved_{VINTAGE}.csv")
+if not diag_b.empty:
+    diag_b.to_csv(f"outputs/e2_diagnostic_b_rmw_archived_{VINTAGE}.csv")
+
+summary = pd.DataFrame([{
+    "expectation": "E2: Cederburg et al.'s Tables 1 and 5 on their sample",
+    "result": e2_text.splitlines()[0][len("E2: "):] + " " + " ".join(
+        f"{k} {'met' if v else 'not met'}." for k, v in e2_clauses.items()),
+    "verdict": "met" if e2_met else "not met",
+}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **French's data have been revised since the paper.** Section 6 reads the size of the revision for every original factor and, for RMW, from an archived copy of the file.
+- **The cap.** Cederburg et al. state the limit on the position two ways: a position of at most 5 in either direction in the text (p. 107), and a sum of absolute weights on the factors of at most 5 in the note to Table 5 (p. 106). The module applies the text's version and truncates the position at 5; section 3 prints the share of months in which it binds. S3's two weights, with the volatility-managed factor scaled to the original's standard deviation over the out-of-sample months, sum to less than 5 in absolute value for every factor (section 3 prints them), so the note's version does not bind for S3, and the module applies no cap to it.
+- **The test.** The p-values rest on the Jobson-Korkie normal approximation, the one Cederburg et al. use, so the computed and the published p-values are compared on the same test. Notebook 06 tests Sharpe ratio differences with Ledoit and Wolf's bootstrap, which does not rest on that approximation.
+- **S3 uses the months it is judged on.** S1 minus S3 measures what estimating the weights in real time costs; it is a property of these months and of the training period's length, 120 months.
+"""),
+]
+
+
+# ---------------------------------------------------------------------------
+# 05: Barroso and Santa-Clara's scaled momentum (E3)
+# ---------------------------------------------------------------------------
+
+NB05 = [
+    md("""
+# 05. Barroso and Santa-Clara's scaled momentum on their sample, and to August 2026 (E3)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns; Moreira and Muir's six are Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Momentum | the tendency of stocks that rose most over the past year to keep rising, and of those that fell most to keep falling, over the next months |
+| Decile | one tenth of the stocks, ranked by a characteristic. French's ten momentum portfolios rank stocks by their return from twelve months to two months before the portfolio is formed |
+| Value-weighted return | the return of a group of firms in which each firm counts in proportion to its market value at the start of the period |
+| WML | winners minus losers: the top momentum decile's value-weighted return minus the bottom decile's (Barroso and Santa-Clara, Appendix A, p. 119). A long-short position, paid for by its own short side |
+| Trading day | a day on which the New York Stock Exchange traded, one row of French's daily files |
+| Realised variance | here Barroso and Santa-Clara's (equation 5, p. 115): 21 times the mean squared daily return of WML over the last 126 trading days, measured at the last trading day of the month, a monthly variance |
+| Volatility | the square root of a variance: the typical size of a return's swing |
+| Target volatility | the volatility the scaled series aims at: 12 per cent a year (p. 115), 3.46 per cent a month |
+| Weight | the multiple of WML held in a month: the target volatility divided by last month's volatility |
+| Scaled WML | WML times the weight (equation 6, p. 115): a position that shrinks after volatile months and grows after calm ones |
+| Sharpe ratio | the average return divided by its standard deviation, annualised: times the square root of 12 |
+| Compounding | growing wealth month by month by (1 + the month's return), so that each month's return applies to the wealth left by the months before |
+| Maximum drawdown | the largest fall of compounded wealth from its highest earlier level, in per cent |
+| Excess kurtosis | a measure of how often returns land far from their mean, relative to the normal distribution, which has 0 |
+| Skewness | a measure of the asymmetry of returns; negative when the large moves are mostly falls |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+
+**What this notebook does.** It builds WML from French's ten momentum portfolios, monthly and daily, computes Barroso and Santa-Clara's realised variance from the daily series, and scales WML to a 12 per cent target volatility. On their sample it puts every number of their Table 3 (p. 116) and the two maximum drawdowns (p. 112) beside the computed ones and judges E3. It then reports the same two series to August 2026, which no expectation judges.
+
+**Why it comes at this point.** Barroso and Santa-Clara scale momentum by its own recent volatility, the same idea as Moreira and Muir's, built with information available at the time: the target is fixed in advance and the weight uses only the months before. It is the study's one robustness check of the signal on a different series and a different definition of the variance.
+
+**The expectation it judges: E3**, fixed in `src/sq/constants.py` before this notebook's code was written. On May 1927 to December 2011:
+
+1. the Sharpe ratios of unscaled and scaled WML lie within 0.05 of 0.53 and 0.97 (Table 3, p. 116);
+2. the maximum drawdowns lie within five percentage points of 96.69 and 45.20 per cent (p. 112).
+
+E3 is met when all four comparisons hold. The first scaled month is May 1927, two months after the paper's March 1927, because French's daily file of the ten momentum portfolios starts on 3 November 1926 and the variance needs 126 trading days.
+
+**Why these levels.** The paper's two headline results, on its own momentum series (Appendix A, p. 119). The margin of 0.05 on a Sharpe ratio is the one used throughout the study; five points on a drawdown is a margin of the same order on a number measured in per cent.
+
+**What I expect to see, and where it comes from.** E3 met. Table 3 of the paper, 1927:03 to 2011:12, monthly returns in per cent for the maximum and the minimum, mean and standard deviation in per cent a year:
+
+| | Maximum | Minimum | Mean | Standard deviation | Excess kurtosis | Skewness | Sharpe ratio |
+|---|---|---|---|---|---|---|---|
+| WML | 26.18 | -78.96 | 14.46 | 27.53 | 18.24 | -2.47 | 0.53 |
+| scaled WML | 21.95 | -28.40 | 16.50 | 16.95 | 2.68 | -0.42 | 0.97 |
+
+The maximum drawdown is 96.69 per cent for WML and 45.20 per cent for scaled WML (p. 112). Two crashes the paper states (p. 113): WML's compounded return over July and August 1932 is -91.59 per cent, and over March to May 2009 -73.42 per cent. The weight ranges from 0.13 to 2.00 and averages 0.90 (p. 116). The paper's momentum series comes from a different source than French's portfolios (Appendix A), so the unjudged numbers can differ by more than the judged ones.
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and WML is built, monthly and daily.
+2. The first scaled month worked by hand, and the two crashes compounded.
+3. Table 3 and the weight beside the published numbers.
+4. E3 judged.
+5. The same two series to August 2026, which no expectation judges.
+6. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+pd.set_option("display.width", 200)
+
+wml = fl.wml("monthly")
+wml_daily = fl.wml("daily")
+rv = M.rv_bsc(wml_daily)                                  # Barroso and Santa-Clara's definition, equation 5
+bsc = M.scaled_momentum(wml, rv, C.BSC_FIRST_MONTH, C.BSC_SAMPLE_END)
+ext = M.scaled_momentum(wml, rv, C.BSC_FIRST_MONTH, C.BSC_EXTENDED_END)
+print("first daily row:", wml_daily.index[0], "; first month with 126 trading days:", rv.dropna().index[0])
+print("the paper's sample:", bsc.index[0], "to", bsc.index[-1], len(bsc), "months; expected", C.BSC_EXPECTED_MONTHS)
+print("to the sample end:", ext.index[0], "to", ext.index[-1], len(ext), "months")
+"""),
+    md("""
+## 2. The first scaled month, and the two crashes
+
+May 1927's weight comes from the 126 trading days that end on April 1927's last trading day: their mean squared return times 21 is a monthly variance, its square root a monthly volatility, and the weight is the target, 0.12 divided by the square root of 12, over that volatility.
+"""),
+    code("""
+last_126 = wml_daily.loc[:"1927-04-30"].iloc[-126:]
+var_month = 21 * (last_126 ** 2).mean()
+sigma = np.sqrt(var_month)
+print(f"126 trading days from {last_126.index[0]} to {last_126.index[-1]}")
+print(f"monthly variance {var_month:.6f}; monthly volatility {sigma:.4f}, {sigma * np.sqrt(12):.1%} a year")
+print(f"weight for May 1927: {C.BSC_TARGET_VOL_MONTHLY:.4f} / {sigma:.4f} = {C.BSC_TARGET_VOL_MONTHLY / sigma:.3f}; the module: {bsc['weight'].iloc[0]:.3f}")
+print(f"May 1927: WML {bsc['wml'].iloc[0]:.4f}, scaled {bsc['scaled'].iloc[0]:.4f}")
+print()
+for a, b, pub in (("1932-07", "1932-08", -91.59), ("2009-03", "2009-05", -73.42)):
+    print(f"WML compounded {a} to {b}: {((1 + wml.loc[a:b]).prod() - 1):.2%}; the paper (p. 113): {pub} per cent")
+"""),
+    md("""
+## 3. Table 3 and the weight
+
+Maximum and minimum monthly returns in per cent, mean and standard deviation in per cent a year, excess kurtosis and skewness of the monthly returns, Sharpe ratio annualised, on May 1927 to December 2011. The weight's range and average beside the paper's. None of these is judged except the Sharpe ratio, in section 4.
+"""),
+    code("""
+def describe(r):
+    return {"maximum": r.max() * 100, "minimum": r.min() * 100, "mean": r.mean() * 1200, "standard deviation": r.std() * np.sqrt(12) * 100,
+            "excess kurtosis": r.kurt(), "skewness": r.skew(), "Sharpe ratio": R.sharpe(r)}
+
+fields = ["maximum", "minimum", "mean", "standard deviation", "excess kurtosis", "skewness", "Sharpe ratio"]
+pub = {"WML": dict(zip(fields, (P.BSC_TABLE_3_WML[i] for i in (0, 1, 2, 3, 4, 5, 6)))),
+       "scaled WML": dict(zip(fields, (P.BSC_TABLE_3_WML_SCALED[i] for i in (0, 1, 2, 3, 4, 5, 6))))}
+table_3 = pd.DataFrame({
+    "WML, published": pub["WML"], "WML, computed": describe(bsc["wml"]),
+    "scaled WML, published": pub["scaled WML"], "scaled WML, computed": describe(bsc["scaled"]),
+})
+print(table_3.round(3).to_string())
+print()
+print(f"weight: minimum {bsc['weight'].min():.2f}, maximum {bsc['weight'].max():.2f}, average {bsc['weight'].mean():.2f}; the paper: 0.13, 2.00, 0.90")
+"""),
+    md("""
+## 4. E3 judged
+"""),
+    code("""
+computed = {"sharpe_wml": R.sharpe(bsc["wml"]), "sharpe_scaled": R.sharpe(bsc["scaled"]),
+            "mdd_wml": R.max_drawdown(bsc["wml"]), "mdd_scaled": R.max_drawdown(bsc["scaled"])}
+e3_table, e3_met = V.e3(computed)
+print(e3_table.T.to_string())
+print()
+e3_text = V.e3_line(e3_table, e3_met)
+print(e3_text)
+"""),
+    md("""
+## 5. To August 2026
+
+The same two series on May 1927 to August 2026, the study's sample end. No expectation judges these numbers; they are the second period of the specification the design lists for scaled momentum.
+"""),
+    code("""
+extended = pd.DataFrame({
+    "WML": {"months": len(ext), "mean": ext["wml"].mean() * 1200, "standard deviation": ext["wml"].std() * np.sqrt(12) * 100,
+            "Sharpe ratio": R.sharpe(ext["wml"]), "maximum drawdown (%)": R.max_drawdown(ext["wml"]) * 100},
+    "scaled WML": {"months": len(ext), "mean": ext["scaled"].mean() * 1200, "standard deviation": ext["scaled"].std() * np.sqrt(12) * 100,
+                   "Sharpe ratio": R.sharpe(ext["scaled"]), "maximum drawdown (%)": R.max_drawdown(ext["scaled"]) * 100},
+})
+print(extended.round(3).to_string())
+"""),
+    md("""
+## 6. The outputs, the summary, and what could be wrong
+
+Table 3 as computed, the E3 comparison and verdict, the period to August 2026 and the monthly series go to `outputs/` with the vintage in each name.
+"""),
+    code("""
+table_3.to_csv(f"outputs/bsc_table_3_computed_{VINTAGE}.csv")
+e3_table.to_csv(f"outputs/e3_comparison_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E3", "comparisons holding": int(e3_table["Sharpe within 0.05"].sum() + e3_table["drawdown within five points"].sum()),
+               "comparisons": 4, "verdict": "met" if e3_met else "not met", "vintage": VINTAGE}]).to_csv(f"outputs/e3_verdict_{VINTAGE}.csv", index=False)
+extended.to_csv(f"outputs/scaled_wml_to_sample_end_{VINTAGE}.csv")
+ext.to_csv(f"outputs/scaled_wml_series_{VINTAGE}.csv")
+
+summary = pd.DataFrame([{
+    "expectation": "E3: Barroso and Santa-Clara's scaled momentum on May 1927 to December 2011",
+    "result": e3_text.split(". ", 1)[1],
+    "verdict": "met" if e3_met else "not met",
+}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **The series.** The paper's WML comes from Daniel and Moskowitz's data, French's from his own portfolios (Appendix A). The two crashes of section 2, compounded from French's series, are set beside the paper's figures as a check of the series and of the compounding.
+- **The start.** French's daily file starts on 3 November 1926, so the first scaled month is May 1927 and both series miss the paper's March and April 1927: 2 of the paper's 1,018 months. Section 4 judges the 1,016 that remain.
+- **The variance.** Equation 5 averages 126 squared daily returns without removing their mean and multiplies the average by 21, a month of trading days; the module follows the equation as printed. Section 2 works one month of it by hand.
+- **The months after 2011.** Section 5 reports them and judges nothing. The study tests a gain after a paper's sample on Moreira and Muir's six factors only (E5, notebook 07), and states no test for scaled momentum after 2011.
+"""),
+]
+
+
+NOTEBOOKS = {
+    "01": ("01_french_loader.ipynb", NB01),
+    "02": ("02_realised_variance.ipynb", NB02),
+    "03": ("03_moreira_muir.ipynb", NB03),
+    "04": ("04_cederburg_et_al.ipynb", NB04),
+    "05": ("05_barroso_santa_clara.ipynb", NB05),
+}
+
 
 if __name__ == "__main__":
-    for name, cells in (("01_french_loader.ipynb", NB01), ("02_realised_variance.ipynb", NB02)):
+    # With numbers ("python3 build_notebooks.py 03 04") only those notebooks are written: a notebook run and
+    # committed at an earlier milestone keeps the module code it ran with, and is rebuilt only when its own
+    # content changes. With no numbers every notebook is written.
+    import sys
+    for key in (sys.argv[1:] or list(NOTEBOOKS)):
+        name, cells = NOTEBOOKS[key]
         print(write(name, cells))

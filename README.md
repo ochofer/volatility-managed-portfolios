@@ -34,7 +34,10 @@ LICENSE                  the MIT licence
 src/sq/constants.py      every pre-committed number, with its source and date
 src/sq/published.py      the published numbers of the three papers, with page and table
 src/sq/french_loader.py  download, provenance, parsing of French's files, the study's series
-src/sq/managed.py        the signal under each paper's definition, the volatility-managed factor, the real-time combination
+src/sq/managed.py        the signal under each paper's definition, the volatility-managed factor, the real-time and the ex post combinations
+src/sq/regression.py     the regression of a managed factor on its original, its standard errors, Sharpe ratios and their test
+src/sq/verdicts.py       each expectation judged from the computed and the published numbers
+src/sq/diagnostics.py    checks computed after a verdict to read its cause, carrying no verdict
 notebooks/               one concept per notebook, run in order
 outputs/                 written at run time: each notebook's tables and the provenance record (not committed)
 results/202609/          the tables the milestones cite, copied from outputs/, with the provenance record

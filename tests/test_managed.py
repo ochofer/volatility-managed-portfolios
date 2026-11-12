@@ -116,3 +116,39 @@ def test_the_cap_truncates_the_position():
     out = M.real_time(f, rv, "1990-02", "1993-04", k=12)
     assert (out["y"].abs() <= C.REALTIME_LEVERAGE_CAP + 1e-12).all() and out["at_cap"].any()
     assert (out["y2"].abs() <= C.REALTIME_LEVERAGE_CAP + 1e-12).all()
+
+
+def _two_series(n=300, seed=11):
+    rng = np.random.default_rng(seed)
+    idx = pd.period_range("1990-01", periods=n, freq="M")
+    original = pd.Series(0.005 + 0.04 * rng.standard_normal(n), index=idx)
+    managed = pd.Series(0.004 + 0.6 * original.to_numpy() + 0.03 * rng.standard_normal(n), index=idx)
+    return managed, original
+
+
+def test_ex_post_combination_reaches_the_largest_sharpe_ratio_of_the_two():
+    managed, original = _two_series()
+    s3, w = M.ex_post_combination(managed, original, gamma=5.0)
+    z = np.column_stack([managed, original])
+    mu, sigma = z.mean(axis=0), np.cov(z, rowvar=False)
+    assert w == pytest.approx(np.linalg.solve(sigma, mu) / 5.0)
+    # with the sample covariance, the combination's Sharpe ratio is sqrt(mu' Sigma^-1 mu), the largest any pair of weights reaches
+    assert s3.mean() / s3.std() == pytest.approx(np.sqrt(mu @ np.linalg.solve(sigma, mu)))
+
+
+def test_ex_post_combination_returns_do_not_depend_on_the_scale_of_the_managed_factor():
+    managed, original = _two_series()
+    s3, w = M.ex_post_combination(managed, original)
+    s3_scaled, w_scaled = M.ex_post_combination(7 * managed, original)
+    assert s3_scaled.to_numpy() == pytest.approx(s3.to_numpy())
+    assert w_scaled[0] == pytest.approx(w[0] / 7)
+
+
+def test_scaled_momentum_uses_last_months_volatility_and_the_monthly_target():
+    idx = pd.period_range("2000-01", periods=4, freq="M")
+    wml = pd.Series([0.02, -0.04, 0.03, 0.01], index=idx)
+    rv = pd.Series([0.0016, 0.0036, 0.0009, 0.0025], index=idx)     # sigma 0.04, 0.06, 0.03, 0.05
+    out = M.scaled_momentum(wml, rv, "2000-02", "2000-04", target=0.12 / np.sqrt(12))
+    assert list(out.index.astype(str)) == ["2000-02", "2000-03", "2000-04"]
+    assert out["sigma_hat"].to_numpy() == pytest.approx([0.04, 0.06, 0.03])
+    assert out["scaled"].to_numpy() == pytest.approx(0.12 / np.sqrt(12) / np.array([0.04, 0.06, 0.03]) * np.array([-0.04, 0.03, 0.01]))
