@@ -6,6 +6,7 @@ import pathlib
 import sys
 
 import pandas as pd
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -77,3 +78,38 @@ def test_e3_as_published_is_met_and_reads_both_bands():
     moved = dict(as_published, mdd_scaled=as_published["mdd_scaled"] - 0.051)    # 5.1 points deeper
     table, met = V.e3(moved)
     assert not met and not table.loc["WML scaled", "drawdown within five points"] and table["Sharpe within 0.05"].all()
+
+
+def test_e4_reads_signs_and_significance_strictly_and_counts_categories_beside():
+    factors = pd.DataFrame({
+        "alpha":         [4.9, -0.6, 1.7, 12.8, 2.8, 0.4],
+        "t_nw":          [2.8, -0.4, 1.4, 6.2, 2.8, 0.7],
+        "difference":    [0.10, -0.14, -0.04, 0.51, 0.19, -0.12],
+        "excludes_zero": [False, False, False, True, True, False],
+    }, index=list(C.FACTORS))
+    table, parts, met = V.e4(0.05, factors)
+    # HML and CMA: positive alpha, negative difference, both not significant: they fail the strict reading only
+    assert list(table.index[~table["counts (strict)"]]) == ["Mkt-RF", "HML", "CMA"]
+    assert parts["count strict"] == 3 and parts["count by category"] == 5 and parts["size"] and not met
+    assert not V.e4(0.03, factors)[1]["size"]
+
+
+def test_e5_counts_and_the_median_clause():
+    res = pd.DataFrame({"difference": [-0.1, 0.2, 0.05, 0.4, -0.2, 0.0], "lower": [-0.3, 0.01, -0.2, 0.1, -0.5, -0.3],
+                        "upper": [0.1, 0.39, 0.3, 0.7, 0.1, 0.3], "half_width": [0.2, 0.19, 0.25, 0.3, 0.3, 0.3]},
+                       index=list(C.FACTORS))
+    counts, met = V.e5(res)
+    assert counts["count above"] == 2 and counts["median difference"] == pytest.approx(0.025)
+    assert counts["median half-width"] == pytest.approx(0.275) and counts["median within"] and met
+    res.loc["CMA", "lower"] = 0.01
+    assert not V.e5(res)[1]
+
+
+def test_e6_as_published_is_met_and_one_percentile_can_break_it():
+    market_net = {"alpha": P.MM_TABLE_IV_MARKET["alpha_10bp"], "se_nw": 1.7}
+    market_pct = {f"P{q}": P.MM_TABLE_V_MARKET[f"P{q}"] for q in C.E6_MARKET_PERCENTILES}
+    cowy_pct = pd.DataFrame({f: {"P50": P.COWY_TABLE_1_PANEL_D[f][2], "P99": P.COWY_TABLE_1_PANEL_D[f][3]} for f in C.FACTORS}).T
+    table, met = V.e6(market_net, market_pct, cowy_pct)
+    assert met and len(table) == 17
+    market_pct["P99"] += 1.01
+    assert not V.e6(market_net, market_pct, cowy_pct)[1]

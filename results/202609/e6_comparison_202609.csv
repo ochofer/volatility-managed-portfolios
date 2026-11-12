@@ -1,0 +1,18 @@
+comparison,published,computed,level,holds,detail
+"Mkt-RF alpha net of 10 bp, Moreira and Muir's sample",3.98,4.029164050510402,positive and t above 2.0,True,Newey-West t 2.31
+"Mkt-RF position P50, Moreira and Muir's sample",0.93,0.9408591673412842,within 0.15,True,
+"Mkt-RF position P75, Moreira and Muir's sample",1.59,1.6220106512047134,within 0.15,True,
+"Mkt-RF position P90, Moreira and Muir's sample",2.64,2.708433210060351,within 0.15,True,
+"Mkt-RF position P99, Moreira and Muir's sample",6.39,7.268831203827725,within 1.0,True,
+"Mkt-RF position P50, Cederburg et al.'s sample",0.96,0.962908115229274,within 0.15,True,
+"Mkt-RF position P99, Cederburg et al.'s sample",6.47,5.996051894890906,within 1.0,True,
+"SMB position P50, Cederburg et al.'s sample",0.81,0.7948127402821906,within 0.15,True,
+"SMB position P99, Cederburg et al.'s sample",5.07,5.075013168807484,within 1.0,True,
+"HML position P50, Cederburg et al.'s sample",1.02,1.0022463682735665,within 0.15,True,
+"HML position P99, Cederburg et al.'s sample",5.89,5.600800551480063,within 1.0,True,
+"Mom position P50, Cederburg et al.'s sample",1.01,1.0104789999105168,within 0.15,True,
+"Mom position P99, Cederburg et al.'s sample",8.64,8.321990891097865,within 1.0,True,
+"RMW position P50, Cederburg et al.'s sample",1.11,1.085356952787321,within 0.15,True,
+"RMW position P99, Cederburg et al.'s sample",5.02,5.265972444760528,within 1.0,True,
+"CMA position P50, Cederburg et al.'s sample",0.97,0.9440926903226874,within 0.15,True,
+"CMA position P99, Cederburg et al.'s sample",4.56,4.228059848437176,within 1.0,True,

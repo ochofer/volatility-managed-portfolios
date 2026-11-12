@@ -152,3 +152,12 @@ def test_scaled_momentum_uses_last_months_volatility_and_the_monthly_target():
     assert list(out.index.astype(str)) == ["2000-02", "2000-03", "2000-04"]
     assert out["sigma_hat"].to_numpy() == pytest.approx([0.04, 0.06, 0.03])
     assert out["scaled"].to_numpy() == pytest.approx(0.12 / np.sqrt(12) / np.array([0.04, 0.06, 0.03]) * np.array([-0.04, 0.03, 0.01]))
+
+
+def test_turnover_and_the_cost_by_hand():
+    idx = pd.period_range("2000-01", periods=4, freq="M")
+    w = pd.Series([1.0, 1.5, 0.5, 0.5], index=idx)
+    assert M.turnover(w).tolist() == [0.0, 0.5, 1.0, 0.0]
+    managed = pd.Series([0.02, 0.03, -0.01, 0.0], index=idx)
+    net = M.net_of_cost(managed, w, cost=0.001)
+    assert net.to_numpy() == pytest.approx([0.02, 0.03 - 0.0005, -0.01 - 0.001, 0.0])

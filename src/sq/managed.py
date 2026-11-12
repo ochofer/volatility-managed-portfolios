@@ -174,6 +174,19 @@ def scaled_momentum(wml: pd.Series, rv: pd.Series, start: str, end: str,
     return df
 
 
+def turnover(position: pd.Series) -> pd.Series:
+    """The position's turnover each month: the absolute change from the month before, |w_t - w_(t-1)|.
+    The first month carries none. The factor's own trading is the same for the managed and the original
+    factor and is left out of both."""
+    return position.diff().abs().fillna(0.0).rename("turnover")
+
+
+def net_of_cost(managed: pd.Series, position: pd.Series, cost: float = C.COST_PER_TURNOVER) -> pd.Series:
+    """The managed return less `cost` per unit of the position's turnover in the month (Moreira and Muir,
+    Table IV, p. 1625)."""
+    return (managed - cost * turnover(position)).rename("net")
+
+
 def percentiles(s: pd.Series, levels=(5, 50, 95)) -> dict:
     """The given percentiles of a series and its maximum, keyed P5, P50, ..., max."""
     out = {f"P{p}": float(np.percentile(s.dropna(), p)) for p in levels}

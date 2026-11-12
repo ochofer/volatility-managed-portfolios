@@ -1,0 +1,7 @@
+factor,alpha,t (Newey-West),t significant,Sharpe difference,bootstrap significant,signs equal,significance equal,category (t),category (bootstrap),counts (strict),same category
+Mkt-RF,4.93188953257364,2.796859401757403,True,0.09676851450917047,False,True,False,significantly positive,not significant,False,False
+SMB,-0.5884222394543047,-0.4493799423906886,False,-0.14284055035237608,False,True,True,not significant,not significant,True,True
+HML,1.7273282692321243,1.3583464406895351,False,-0.040549184644914124,False,False,True,not significant,not significant,False,True
+Mom,12.828907639920702,6.243800591657133,True,0.5136999156643361,True,True,True,significantly positive,significantly positive,True,True
+RMW,2.8010599646346894,2.8135795154510594,True,0.19169433294458776,False,True,False,significantly positive,not significant,False,False
+CMA,0.36064153411949895,0.6550277739318137,False,-0.12390945650407537,False,False,True,not significant,not significant,False,True

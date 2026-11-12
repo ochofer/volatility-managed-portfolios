@@ -1,0 +1,2 @@
+expectation,count above,allowed,median difference,median half-width,median within,verdict,"volatility-managed count above, no verdict","volatility-managed median within, no verdict",vintage
+E5,0,2,0.00676837157510758,0.2128191473941812,True,met,0,True,202609

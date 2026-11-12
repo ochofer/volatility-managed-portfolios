@@ -1237,12 +1237,599 @@ What could be wrong, and where each point is tested:
 ]
 
 
+# ---------------------------------------------------------------------------
+# 06: the Sharpe ratio test, its size, then Moreira and Muir's factors (E4)
+# ---------------------------------------------------------------------------
+
+NB06 = [
+    md("""
+# 06. The Sharpe ratio test: its size, then Moreira and Muir's six factors (E4)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns: Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Excess return | a return minus the one-month Treasury bill rate over the same period; every factor is one |
+| Volatility-managed factor | the factor's return times c divided by last month's realised variance (notebook 02); c gives it the original factor's standard deviation over the sample |
+| Sharpe ratio | the average excess return divided by its standard deviation, annualised: times the square root of 12 |
+| Sharpe ratio difference | the volatility-managed factor's Sharpe ratio minus the original factor's, over the same months |
+| Alpha | the intercept of the regression of the volatility-managed factor on the original factor, in per cent a year (notebook 03) |
+| Newey-West standard error | a standard error that allows a month's residual to be correlated with those of the previous 12 months (Newey and West 1987) |
+| t-statistic | an estimate divided by its standard error |
+| 5 per cent significance | for a t-statistic, a value further from 0 than 1.96; for the bootstrap, an interval that excludes 0 |
+| Correlation | a number between -1 and 1 that measures how closely two series move together |
+| Ledoit-Wolf test | Ledoit and Wolf's (2008) test that two return series over the same months have the same Sharpe ratio, built for returns that are correlated across months and have fat tails |
+| Delta method | the standard error of a function of averages, from the function's slope and the averages' covariance |
+| Long-run covariance matrix | the covariance matrix of averages over many months, which counts the correlation of each month with its neighbours |
+| Kernel | the weights that a long-run covariance estimate gives the correlations at each distance in months; the Parzen kernel gives weights that fall to 0 at a distance set from the data |
+| Circular block bootstrap | a resampling of the months in blocks of 12 consecutive months, each block starting at a month drawn at random, wrapping from the last month to the first, so that the correlation within a block is kept |
+| Bootstrap sample | one such resampling, the same length as the data rounded down to whole blocks |
+| Studentised statistic | a difference divided by its own standard error |
+| Interval | the range Ledoit and Wolf's test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus the 95th percentile of the bootstrap's studentised statistics times the estimate's standard error |
+| Half-width | the distance from the estimate to either end of the interval |
+| p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
+| Null | the hypothesis that the two true Sharpe ratios are equal |
+| Size | the share of samples in which a test rejects a null that is true; a test at 5 per cent should reject in close to 5 per cent of them |
+| Student-t distribution | a bell-shaped distribution with fatter tails than the normal one; with 5 degrees of freedom its extreme values are frequent, as in monthly returns |
+| Draw | one random number, or one bootstrap sample, taken by the random number generator |
+| Seed | the number that starts a random number generator, so that the same draws come out on every run |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+
+**What this notebook does.** It builds Ledoit and Wolf's test of a Sharpe ratio difference, checks on 1,000 simulated pairs with equal Sharpe ratios that it rejects at about its nominal rate, and only then applies it to the six factors on Moreira and Muir's sample: the volatility-managed factor against the original. It sets each factor's bootstrap verdict beside the Newey-West t-statistic on its alpha and judges E4.
+
+**Why it comes at this point.** Notebook 07 asks the study's own question with this test, on the 136 months after Moreira and Muir's sample. A test that rejects too often or too rarely when nothing differs cannot settle it, so its size is checked first, on data where the true difference is known to be 0.
+
+**The test.** The standard error of the sample's difference uses the prewhitened Parzen kernel. Ledoit and Wolf propose the prewhitened QS kernel and report that the prewhitened Parzen kernel gives very similar performance and virtually identical results (section 3.2.2 with its footnote 8, p. 854, and Remark 4.1, p. 857). The paper chooses the block size by its Algorithm 3.1; this study fixes it at 12 months in its constants. The bootstrap draws 2,000 samples from a fixed seed, and the test rejects when the 95 per cent interval excludes 0, as the paper's Remark 3.2 states; the p-value is reported beside it.
+
+**The expectation it judges: E4**, fixed in `src/sq/constants.py` on 8 November 2026, before this notebook's code was written:
+
+1. the size check rejects between 3.5 and 6.5 per cent of the 1,000 simulated null pairs at the 5 per cent level;
+2. on Moreira and Muir's sample, the bootstrap's verdict on the Sharpe ratio difference agrees in sign and in significance with the Newey-West t-statistic on the alpha for at least five of the six factors.
+
+E4 is met when both parts hold. The second part is read strictly, as the design ruled on 12 November 2026: a factor counts when the sign of its Sharpe ratio difference equals the sign of its alpha, and the bootstrap's verdict at 5 per cent equals the t-statistic's. Both must hold.
+
+**Why these levels**, as written on 8 November: a test that is wrong about its own size is not used; the band is two standard errors of a proportion of 0.05 over 1,000 draws. The alpha and the Sharpe ratio difference are two readings of the same gain and should agree.
+
+**The size check.** 1,000 pairs of 1,065 months, the length of the market's series on Moreira and Muir's sample. Both series of a pair have the market's monthly mean and standard deviation on that sample, so their Sharpe ratios are equal, and the correlation of the volatility-managed and the original market there. Each month's shocks are a common Student-t shock and one own Student-t shock per series, with 5 degrees of freedom, scaled to variance 1.
+
+**What I expect to see, and where it comes from.** The first part met: a rejection rate between 3.5 and 6.5 per cent. The second part is recorded not met whatever the bootstrap gives. Notebook 03's committed Table I already fixes the signs: HML's alpha is positive (1.73 per cent a year) while its volatility-managed Sharpe ratio lies below the original's (0.354 against 0.395), and CMA's alpha is positive (0.36) with 0.414 against 0.538. At most four of the six factors can count. This was known on 12 November 2026 at 13:40, before the bootstrap had run on any factor. Section 6 shows why the reason written on 8 November does not hold.
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and the series are built.
+2. The size check: 1,000 simulated pairs with equal Sharpe ratios.
+3. One test worked: the market on Moreira and Muir's sample.
+4. The six factors: the bootstrap beside the Newey-West t-statistic.
+5. E4 judged, and the count by category beside it.
+6. Why a positive alpha and a higher Sharpe ratio are two different things.
+7. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    writefile("bootstrap.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+from sq import bootstrap as B
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+monthly = fl.factors("monthly")
+daily = fl.factors("daily")
+pd.set_option("display.width", 200)
+ANNUAL = np.sqrt(12)
+
+mm = {}
+for f in C.FACTORS:
+    mm[f], _ = M.volatility_managed(monthly[f], M.rv_mm(daily[f].dropna()), C.FACTOR_FIRST_MONTH[f], C.MM_SAMPLE_END)
+print({f: len(mm[f]) for f in C.FACTORS})
+"""),
+    md("""
+## 2. The size check
+
+The market's monthly mean, standard deviation and the correlation of its two series set the simulation; the seed is the constants'. The cell runs 1,000 tests of 2,000 bootstrap samples each and takes about three minutes in Colab.
+"""),
+    code("""
+mkt = mm["Mkt-RF"]
+size_params = {"months": len(mkt), "mean": float(mkt["f"].mean()), "sd": float(mkt["f"].std()),
+               "rho": float(np.corrcoef(mkt["managed"], mkt["f"])[0, 1])}
+print({k: round(v, 6) for k, v in size_params.items()})
+size = B.size_check(C.SIZE_CHECK_PAIRS, size_params["months"], size_params["mean"], size_params["sd"], size_params["rho"],
+                    C.SIZE_CHECK_T_DOF, C.SIZE_CHECK_SEED, block=C.BOOTSTRAP_BLOCK_MONTHS, draws=C.BOOTSTRAP_DRAWS,
+                    level=C.BOOTSTRAP_LEVEL)
+print(f"rejected: {size['rejected']} of {size['pairs']}, a rate of {size['rate']:.1%}; E4's range {C.E4_SIZE_RANGE[0]:.1%} to {C.E4_SIZE_RANGE[1]:.1%}")
+print(f"share of p-values below 0.05: {(size['p_values'] < 0.05).mean():.1%}")
+"""),
+    md("""
+## 3. One test worked: the market
+
+The monthly Sharpe ratio difference, its standard error from the prewhitened Parzen kernel, the 95th percentile z* of the bootstrap's studentised statistics, and the interval: the difference plus or minus z* times the standard error. Each is then annualised by the square root of 12. The sign of a Sharpe ratio difference on these months says nothing about its sign on another sample.
+"""),
+    code("""
+seeds = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED).spawn(len(C.FACTORS))))
+lw = {f: B.test(mm[f]["managed"], mm[f]["f"], block=C.BOOTSTRAP_BLOCK_MONTHS, draws=C.BOOTSTRAP_DRAWS,
+                level=C.BOOTSTRAP_LEVEL, seed=np.random.default_rng(seeds[f])) for f in C.FACTORS}
+m = lw["Mkt-RF"]
+print(f"monthly difference {m['difference']:.5f}, standard error {m['se']:.5f}, z* {m['critical']:.3f}")
+print(f"interval, monthly: {m['difference']:.5f} +/- {m['critical']:.3f} x {m['se']:.5f} = [{m['lower']:.5f}, {m['upper']:.5f}]")
+print(f"annualised: difference {m['difference'] * ANNUAL:.3f}, interval [{m['lower'] * ANNUAL:.3f}, {m['upper'] * ANNUAL:.3f}], p-value {m['p_value']:.3f}")
+"""),
+    md("""
+## 4. The six factors
+
+For every factor on Moreira and Muir's sample: the alpha and its Newey-West t-statistic, beside the Sharpe ratio difference, its interval and its p-value, annualised.
+"""),
+    code("""
+rows = {}
+for f in C.FACTORS:
+    fit = R.ols(mm[f]["managed"].to_numpy(), mm[f]["f"].to_numpy())
+    t = lw[f]
+    rows[f] = {"alpha": fit["alpha"] * 1200, "t_nw": fit["alpha"] / fit["alpha_se_nw"],
+               "Sharpe managed": R.sharpe(mm[f]["managed"]), "Sharpe original": R.sharpe(mm[f]["f"]),
+               "difference": t["difference"] * ANNUAL, "lower": t["lower"] * ANNUAL, "upper": t["upper"] * ANNUAL,
+               "half_width": t["half_width"] * ANNUAL, "p_value": t["p_value"], "excludes_zero": t["excludes_zero"]}
+mm_tests = pd.DataFrame(rows).T
+print(mm_tests.to_string())
+"""),
+    md("""
+## 5. E4 judged
+
+The second part counts a factor only when both its sign and its significance agree. The count by category, each test placing the factor as significantly positive, significantly negative or not significant, is printed beside it and carries no verdict.
+"""),
+    code("""
+e4_table, e4_parts, e4_met = V.e4(size["rate"], mm_tests)
+print(e4_table.T.to_string())
+print()
+e4_text = V.e4_line(e4_parts, e4_met)
+print(e4_text)
+"""),
+    md("""
+## 6. Why a positive alpha and a higher Sharpe ratio are two different things
+
+The reason written on 8 November treats the alpha and the Sharpe ratio difference as two readings of the same gain. They answer different questions. The alpha tests what the volatility-managed factor adds to a holding of the original factor; the difference tests the volatility-managed factor in the original's place. With the volatility-managed factor scaled to the original's standard deviation sigma, the regression's slope equals the correlation rho of the two, and
+
+Sharpe ratio, managed - Sharpe ratio, original = alpha / sigma - (1 - rho) x Sharpe ratio, original.
+
+A positive alpha raises the difference; the second term lowers it, by more when the two series move together less. The cell computes both sides for each factor. Cederburg et al.'s Table 1 already shows the two apart: the market's Sharpe ratio difference has a p-value of 0.30 (p. 99), beside a t-statistic of 3.1 on Moreira and Muir's alpha (Table I, p. 1619).
+"""),
+    code("""
+rows = {}
+for f in C.FACTORS:
+    o, m_ = mm[f]["f"], mm[f]["managed"]
+    sigma, rho = o.std(), np.corrcoef(m_, o)[0, 1]
+    fit = R.ols(m_.to_numpy(), o.to_numpy())
+    sr_o = o.mean() / sigma
+    rows[f] = {"alpha / sigma": fit["alpha"] / sigma * ANNUAL, "(1 - rho) x Sharpe original": (1 - rho) * sr_o * ANNUAL,
+               "right-hand side": (fit["alpha"] / sigma - (1 - rho) * sr_o) * ANNUAL,
+               "Sharpe managed - Sharpe original": (m_.mean() / m_.std() - sr_o) * ANNUAL, "rho": rho, "beta": fit["beta"]}
+identity = pd.DataFrame(rows).T
+print(identity.round(4).to_string())
+"""),
+    md("""
+## 7. The outputs, the summary, and what could be wrong
+"""),
+    code("""
+pd.DataFrame([{"pairs": size["pairs"], "rejected": size["rejected"], "rate": size["rate"], **size_params,
+               "dof": C.SIZE_CHECK_T_DOF, "seed": C.SIZE_CHECK_SEED, "draws": C.BOOTSTRAP_DRAWS, "block": C.BOOTSTRAP_BLOCK_MONTHS}]
+             ).to_csv(f"outputs/size_check_{VINTAGE}.csv", index=False)
+mm_tests.to_csv(f"outputs/sharpe_tests_mm_sample_{VINTAGE}.csv")
+e4_table.to_csv(f"outputs/e4_comparison_{VINTAGE}.csv")
+identity.to_csv(f"outputs/alpha_and_sharpe_difference_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E4", "size rate": e4_parts["size rate"], "size part": "met" if e4_parts["size"] else "not met",
+               "count strict": e4_parts["count strict"], "agreement part": "met" if e4_parts["agreement"] else "not met",
+               "count by category, no verdict": e4_parts["count by category"],
+               "verdict": "met" if e4_met else "not met", "vintage": VINTAGE}]).to_csv(f"outputs/e4_verdict_{VINTAGE}.csv", index=False)
+summary = pd.DataFrame([{"expectation": "E4: the test's size, and the bootstrap beside the Newey-West t-statistic",
+                         "result": e4_text.split(". ", 1)[1], "verdict": "met" if e4_met else "not met"}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **The simulation is kinder than the data.** The size check draws months independently, with fat tails but without the tendency of volatile months to follow volatile months; real factor returns have both. The 12-month blocks keep that tendency inside a block, and the rate printed in section 2 holds only for data like the simulated ones.
+- **The kernel and the block size.** The paper proposes the QS kernel and a block size chosen by calibration; this study uses the Parzen kernel, which the paper reports gives virtually identical results, and 12 months fixed in advance.
+- **The second part of E4.** Its count is decided by the signs in notebook 03, as section 6 explains; the bootstrap's verdicts are reported in full beside the t-statistics, and the count by category beside the strict count.
+- **One sample.** The sign of each Sharpe ratio difference is a property of these months and says nothing about another sample; notebook 07 asks the same question on the months after.
+"""),
+]
+
+
+# ---------------------------------------------------------------------------
+# 07: the months after the sample (E5)
+# ---------------------------------------------------------------------------
+
+NB07 = [
+    md("""
+# 07. The months after Moreira and Muir's sample: May 2015 to August 2026 (E5)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns: Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Excess return | a return minus the one-month Treasury bill rate over the same period; every factor is one |
+| Realised variance | the variance of a factor computed from the daily returns of one month; Moreira and Muir's definition for the volatility-managed factor (equation 2, p. 1616), Cederburg et al.'s for the real-time strategies (equation 4, p. 98) |
+| Volatility-managed factor | the factor's return times c divided by last month's realised variance. Here c is fixed on Moreira and Muir's sample, the months to April 2015, and held after it |
+| Real-time combination (S1) | each month, mean-variance weights on the volatility-managed and the original factor, estimated from every earlier month only, turned into one position in the factor and capped at 5 in either direction (notebook 02) |
+| Real-time original (S2) | the original factor alone, held each month at its mean over five times its variance, both estimated from every earlier month only, under the same cap |
+| Expanding window | every month from the factor's first to the month before the decision |
+| Sharpe ratio | the average excess return divided by its standard deviation, annualised: times the square root of 12 |
+| Sharpe ratio difference | one strategy's Sharpe ratio minus another's, over the same months |
+| Ledoit-Wolf test | Ledoit and Wolf's (2008) test that two return series over the same months have the same Sharpe ratio, with the circular block bootstrap (notebook 06) |
+| Interval | the range the test gives for the true Sharpe ratio difference at 95 per cent |
+| Half-width | the distance from the estimate to either end of the interval |
+| p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
+| Median | the middle value of a set ranked by size; of six values, the average of the third and the fourth |
+| Draw | one random number, or one bootstrap sample, taken by the random number generator |
+| Seed | the number that starts a random number generator, so that the same draws come out on every run |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+
+**What this notebook does.** It asks the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, which neither paper could have seen. For each factor it compares, with Ledoit and Wolf's test, the real-time combination against the real-time original, the comparison of Cederburg et al.'s Table 5, and, in no verdict, the volatility-managed factor with the paper's c against the original factor. It judges E5.
+
+**Why it comes at this point.** Notebooks 03 to 05 replicated the three papers on their own samples, and notebook 06 checked that the test rejects at about its nominal rate when nothing differs. Both constructions are now carried forward unchanged, into months that played no part in building them.
+
+**The expectation it judges: E5**, fixed in `src/sq/constants.py` on 10 November 2026, before this notebook's code was written. On the months after Moreira and Muir's sample, May 2015 to August 2026 (136 months), with the paper's c fixed on the data to April 2015 and the real-time combination carried forward from its expanding window: for each factor, the Sharpe ratio of the real-time combination against the real-time original S2, as in Cederburg et al.'s Table 5, and of the volatility-managed factor against the original factor itself, each difference with its Ledoit-Wolf interval.
+
+1. On at most two of the six factors the real-time combination's Sharpe ratio exceeds S2's by more than the interval allows: the interval's lower end lies above 0.
+2. The median across the six of the Sharpe ratio difference lies within plus or minus the median of the six intervals' half-widths.
+
+E5 is met when both hold. Differences and half-widths are annualised. The same two counts are reported for the volatility-managed factor, in no verdict.
+
+**Why these levels.** The reason fixed with E5 on 10 November, in `src/sq/constants.py`: the study's own question, with the prior the critique gives. Gains an investor could not have set in real time should show little in months neither paper could have known; more than two factors clearing the interval fails the expectation, and the result is reported whichever way it falls.
+
+**What I expect to see, and where it comes from.** E5 met. On their own sample Cederburg et al. found the real-time combination's Sharpe ratio below S2's for four of the six factors, with momentum's difference the only significant one (notebook 04). With 136 months, the intervals are wide: for the volatility-managed factor against the original, notebook 06's intervals on 621 to 1,065 months had half-widths of 0.21 to 0.44, and a sample a fifth to an eighth as long widens them by a factor of about 2 to 3.
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and the four series are built for each factor.
+2. One month worked: the market's three positions in May 2015.
+3. The Sharpe ratios of the four series on the 136 months.
+4. Ledoit and Wolf's test on both comparisons.
+5. E5 judged, and the volatility-managed factor's counts beside it.
+6. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    writefile("bootstrap.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+from sq import bootstrap as B
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+monthly = fl.factors("monthly")
+daily = fl.factors("daily")
+pd.set_option("display.width", 200)
+ANNUAL = np.sqrt(12)
+
+after = {}
+for f in C.FACTORS:
+    d = daily[f].dropna()
+    rv_mm, rv_cowy = M.rv_mm(d), M.rv_cowy(d)
+    _, c_mm = M.volatility_managed(monthly[f], rv_mm, C.FACTOR_FIRST_MONTH[f], C.MM_SAMPLE_END)      # c on the months to April 2015
+    vm, _ = M.volatility_managed(monthly[f], rv_mm, C.AFTER_START, C.AFTER_END, c=c_mm)              # held after it
+    rt = M.real_time(monthly[f], rv_cowy, C.FACTOR_FIRST_MONTH[f], C.AFTER_END).loc[C.AFTER_START:C.AFTER_END]
+    after[f] = pd.DataFrame({"original": vm["f"], "managed": vm["managed"], "position": vm["weight"],
+                             "s1": rt["s1"], "s2": rt["s2"], "y1": rt["y"], "y2": rt["y2"], "window": rt["window"]})
+    after[f].attrs["c"] = c_mm
+print(pd.DataFrame({f: {"months": len(a), "first": str(a.index[0]), "last": str(a.index[-1]), "c fixed to April 2015": a.attrs["c"],
+                        "missing": int(a[["original", "managed", "s1", "s2"]].isna().sum().sum())} for f, a in after.items()}).to_string())
+"""),
+    md("""
+## 2. One month worked: the market in May 2015
+
+The volatility-managed position is the c of the months to April 2015 over April 2015's realised variance. The real-time combination's and the real-time original's positions come from the expanding window of every month from August 1926 to April 2015.
+"""),
+    code("""
+a = after["Mkt-RF"]
+row = a.iloc[0]
+print(f"May 2015: the market returned {row['original']:.4f}")
+print(f"volatility-managed position {row['position']:.3f}, return {row['managed']:.4f}")
+print(f"real-time combination position {row['y1']:.3f} (window of {int(row['window'])} months), return {row['s1']:.4f}")
+print(f"real-time original position {row['y2']:.3f}, return {row['s2']:.4f}")
+"""),
+    md("""
+## 3. The Sharpe ratios on the 136 months
+
+Annualised. The original factor and the volatility-managed factor are compared with each other; the real-time combination S1 and the real-time original S2 are compared with each other. The sign of a Sharpe ratio difference on these months says nothing about its sign on another sample.
+"""),
+    code("""
+sharpe_after = pd.DataFrame({f: {"original": R.sharpe(a["original"]), "volatility-managed": R.sharpe(a["managed"]),
+                                 "S1": R.sharpe(a["s1"]), "S2": R.sharpe(a["s2"])} for f, a in after.items()})
+print(sharpe_after.round(3).to_string())
+"""),
+    md("""
+## 4. Ledoit and Wolf's test on both comparisons
+
+Each test draws 2,000 bootstrap samples of 11 blocks of 12 months, 132 of the 136 months, from its own stream of the constants' seed. Differences, intervals and half-widths annualised.
+"""),
+    code("""
+seeds_rt = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED).spawn(len(C.FACTORS))))
+seeds_vm = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED + 1).spawn(len(C.FACTORS))))
+
+
+def lw_row(x, y, seed):
+    t = B.test(x, y, block=C.BOOTSTRAP_BLOCK_MONTHS, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL, seed=np.random.default_rng(seed))
+    return {"difference": t["difference"] * ANNUAL, "lower": t["lower"] * ANNUAL, "upper": t["upper"] * ANNUAL,
+            "half_width": t["half_width"] * ANNUAL, "p_value": t["p_value"]}
+
+
+rt_tests = pd.DataFrame({f: lw_row(a["s1"], a["s2"], seeds_rt[f]) for f, a in after.items()}).T
+vm_tests = pd.DataFrame({f: lw_row(a["managed"], a["original"], seeds_vm[f]) for f, a in after.items()}).T
+print("Real-time combination S1 against real-time original S2:")
+print(rt_tests.round(3).to_string())
+print()
+print("Volatility-managed factor (c to April 2015) against the original factor, in no verdict:")
+print(vm_tests.round(3).to_string())
+"""),
+    md("""
+## 5. E5 judged
+"""),
+    code("""
+e5_counts, e5_met = V.e5(rt_tests)
+vm_counts = V.e5_counts(vm_tests)
+e5_text = V.e5_line(e5_counts, e5_met, vm_counts)
+print(e5_text)
+"""),
+    md("""
+## 6. The outputs, the summary, and what could be wrong
+"""),
+    code("""
+pd.concat({f: a for f, a in after.items()}, names=["factor", "month"]).to_csv(f"outputs/after_sample_series_{VINTAGE}.csv")
+sharpe_after.T.to_csv(f"outputs/after_sample_sharpe_{VINTAGE}.csv")
+rt_tests.to_csv(f"outputs/e5_real_time_tests_{VINTAGE}.csv")
+vm_tests.to_csv(f"outputs/e5_volatility_managed_tests_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E5", "count above": e5_counts["count above"], "allowed": C.E5_MAX_FACTORS_ABOVE,
+               "median difference": e5_counts["median difference"], "median half-width": e5_counts["median half-width"],
+               "median within": e5_counts["median within"], "verdict": "met" if e5_met else "not met",
+               "volatility-managed count above, no verdict": vm_counts["count above"],
+               "volatility-managed median within, no verdict": vm_counts["median within"], "vintage": VINTAGE}]
+             ).to_csv(f"outputs/e5_verdict_{VINTAGE}.csv", index=False)
+summary = pd.DataFrame([{"expectation": "E5: the months after Moreira and Muir's sample", "result": e5_text.split(". ", 1)[1],
+                         "verdict": "met" if e5_met else "not met"}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **136 months is a short sample.** The intervals in section 4 are wide, and a difference that lies inside one is not evidence that the two Sharpe ratios are equal; it is a difference these months cannot tell from zero.
+- **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign; the sign of each says nothing about another sample.
+- **c held from April 2015.** The volatility-managed factor uses a c that an investor in May 2015 could have known; its scale differs from one set on the 136 months, which changes no Sharpe ratio.
+- **The vintage.** French's revision of RMW (notebook 04) touches these months as well; the record written at each download names the files used and their checksums.
+"""),
+]
+
+
+# ---------------------------------------------------------------------------
+# 08: costs and the size of the position (E6)
+# ---------------------------------------------------------------------------
+
+NB08 = [
+    md("""
+# 08. What trading the signal costs, and how large the position gets (E6)
+
+**Terms used in this notebook.**
+
+| Term | Meaning |
+|---|---|
+| Factor | the monthly return of one long-short portfolio that captures one source of common movement in stock returns: Mkt-RF, SMB, HML, Mom, RMW and CMA |
+| Realised variance | the variance of a factor computed from the daily returns of one month; here Moreira and Muir's definition (equation 2, p. 1616) on their sample and Cederburg et al.'s (equation 4, p. 98) on theirs |
+| Position | the multiple of the factor held in a month: c divided by last month's realised variance. The papers call a position above 1 leverage |
+| Volatility-managed factor | the factor's return times the position; c gives it the original factor's standard deviation over the sample |
+| Turnover | the absolute change in the position from one month to the next, \\|w_t - w_(t-1)\\|. The factor's own trading is the same for the managed and the original factor and is left out of both |
+| Basis point | one hundredth of a per cent, 0.0001 |
+| Cost | a charge of 10 basis points per unit of turnover, and 20 as the one sensitivity, taken from the month's return |
+| Gross, net | before and after the cost |
+| Alpha | the intercept of the regression of the volatility-managed factor on the original factor, in per cent a year (notebook 03) |
+| Newey-West standard error | a standard error that allows a month's residual to be correlated with those of the previous 12 months (Newey and West 1987) |
+| t-statistic | an estimate divided by its standard error |
+| Break-even cost | the cost per unit of turnover at which the alpha falls to zero: the gross alpha divided by 12 times the average turnover |
+| Percentile | the value below which a given share of the months fall; P50 is the median |
+| Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
+| Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
+
+**What this notebook does.** It measures the turnover of the volatility-managed factor on Moreira and Muir's sample, charges 10 and 20 basis points per unit of it, and reruns the regression of notebook 03 on the net returns, with Newey-West standard errors. It then reports the distribution of the position: for the market on Moreira and Muir's sample beside their Table V, and for all six factors on Cederburg et al.'s sample beside their Table 1, Panel D. It judges E6. Every net figure is shown beside its gross figure.
+
+**Why it comes at this point.** The alpha of notebook 03 assumes the position can be changed every month at no cost. The position moves a lot from month to month (notebook 02: from 0.94 at the median to 16.8 at the most for the market), and every change is a trade. This notebook prices those trades and shows how large the positions are, the two practical limits of the strategy.
+
+**The expectation it judges: E6**, fixed in `src/sq/constants.py` before this notebook's code was written:
+
+1. at 10 basis points per unit of turnover, the market's volatility-managed alpha over Moreira and Muir's sample stays positive and more than two Newey-West standard errors from zero (the paper: 3.98 per cent a year at 10 basis points, an average turnover of 0.73 and a break-even cost of 56 basis points, Table IV, p. 1625);
+2. on Moreira and Muir's sample, the market's P50, P75 and P90 of the position lie within 0.15 of 0.93, 1.59 and 2.64, and its P99 within 1.0 of 6.39 (Table V, Panel A, p. 1626);
+3. on Cederburg et al.'s sample, each factor's P50 lies within 0.15 of their Table 1, Panel D (p. 99), and its P99 within 1.0 of theirs.
+
+E6 is met when every comparison holds: one for the alpha, four for the market's percentiles, twelve for the six factors' P50 and P99.
+
+**Why these levels.** Moreira and Muir report that the market strategy's gain survives moderate costs (Table IV) and print the distribution of its position (Table V); Cederburg et al. print the 1st, 50th and 99th percentiles for every factor. Two standard errors is the usual line for a t-statistic. The margin on a 99th percentile is wider because the extreme months of the signal move it most.
+
+**What I expect to see, and where it comes from.** E6 met. The published numbers:
+
+| | Published |
+|---|---|
+| market: average turnover | 0.73 |
+| market: alpha gross, net of 1, 10 and 14 basis points | 4.86, 4.77, 3.98, 3.63 per cent a year |
+| market: break-even cost | 56 basis points |
+| market position, Moreira and Muir's sample: P50, P75, P90, P99 | 0.93, 1.59, 2.64, 6.39 |
+
+| Cederburg et al., Table 1, Panel D | Mkt-RF | SMB | HML | Mom | RMW | CMA |
+|---|---|---|---|---|---|---|
+| P1 | 0.04 | 0.03 | 0.04 | 0.04 | 0.04 | 0.06 |
+| P50 | 0.96 | 0.81 | 1.02 | 1.01 | 1.11 | 0.97 |
+| P99 | 6.47 | 5.07 | 5.89 | 8.64 | 5.02 | 4.56 |
+"""),
+    md("""
+## How this notebook is organised
+
+1. The modules are written into the runtime and the positions are built.
+2. One month's cost worked by hand: the market in November 1987.
+3. Turnover, the alpha gross and net, and the break-even cost, for every factor.
+4. The distribution of the position beside the published one.
+5. E6 judged.
+6. The outputs, the summary and what could be wrong.
+"""),
+    SETUP,
+    writefile("constants.py"),
+    writefile("published.py"),
+    writefile("french_loader.py"),
+    writefile("managed.py"),
+    writefile("regression.py"),
+    writefile("verdicts.py"),
+    code("""
+import sys
+sys.path.insert(0, "src")
+import numpy as np
+import pandas as pd
+from sq import constants as C, published as P, french_loader as fl, managed as M, regression as R, verdicts as V
+
+records = [fl.download(key) for key in C.FRENCH_FILES]
+fl.write_provenance(records)
+VINTAGE = sorted({r["vintage_line"].split("the ")[-1].split(" ")[0] for r in records})[-1]
+print("vintage:", VINTAGE)
+monthly = fl.factors("monthly")
+daily = fl.factors("daily")
+pd.set_option("display.width", 200)
+
+mm = {}     # Moreira and Muir's sample, their signal
+cowy = {}   # Cederburg et al.'s sample, their signal
+for f in C.FACTORS:
+    d = daily[f].dropna()
+    mm[f], _ = M.volatility_managed(monthly[f], M.rv_mm(d), C.FACTOR_FIRST_MONTH[f], C.MM_SAMPLE_END)
+    cowy[f], _ = M.volatility_managed(monthly[f], M.rv_cowy(d), C.FACTOR_FIRST_MONTH[f], C.COWY_SAMPLE_END)
+print(pd.DataFrame({f: {"Moreira and Muir's months": len(mm[f]), "Cederburg et al.'s months": len(cowy[f])} for f in C.FACTORS}).to_string())
+"""),
+    md("""
+## 2. One month's cost: the market in November 1987
+
+The position for November 1987 is c divided by October 1987's realised variance (notebook 02). The turnover is its distance from October's position, and the cost is 10 basis points times that distance, taken from November's managed return.
+"""),
+    code("""
+mkt = mm["Mkt-RF"]
+w_oct, w_nov = mkt.loc["1987-10", "weight"], mkt.loc["1987-11", "weight"]
+turn = abs(w_nov - w_oct)
+print(f"position October 1987 {w_oct:.4f}, November 1987 {w_nov:.4f}; turnover {turn:.4f}")
+print(f"cost at 10 basis points: {turn:.4f} x 0.0010 = {turn * 0.0010:.6f} of the month's return")
+print(f"November 1987 managed return: gross {mkt.loc['1987-11', 'managed']:.6f}, net {mkt.loc['1987-11', 'managed'] - turn * 0.0010:.6f}")
+"""),
+    md("""
+## 3. Turnover, the alpha gross and net, and the break-even cost
+
+For every factor on Moreira and Muir's sample: the average turnover a month, the alpha and its Newey-West t-statistic gross and net of 10 and 20 basis points, and the break-even cost. Alpha in per cent a year. A factor with a negative gross alpha has no break-even cost, shown as NaN.
+"""),
+    code("""
+rows = {}
+for f in C.FACTORS:
+    df = mm[f]
+    turn = M.turnover(df["weight"])
+    gross = R.ols(df["managed"].to_numpy(), df["f"].to_numpy())
+    row = {"average turnover": turn.iloc[1:].mean(),
+           "alpha gross": gross["alpha"] * 1200, "t gross (Newey-West)": gross["alpha"] / gross["alpha_se_nw"]}
+    for bp, cost in (("10", C.COST_PER_TURNOVER), ("20", C.COST_SENSITIVITY)):
+        net = R.ols(M.net_of_cost(df["managed"], df["weight"], cost).to_numpy(), df["f"].to_numpy())
+        row[f"alpha net of {bp} bp"] = net["alpha"] * 1200
+        row[f"se net of {bp} bp (Newey-West)"] = net["alpha_se_nw"] * 1200
+        row[f"t net of {bp} bp"] = net["alpha"] / net["alpha_se_nw"]
+    row["break-even cost (bp)"] = gross["alpha"] / turn.iloc[1:].mean() * 1e4 if gross["alpha"] > 0 else float("nan")
+    rows[f] = row
+costs = pd.DataFrame(rows)
+print(costs.round(3).to_string())
+print()
+pub = P.MM_TABLE_IV_MARKET
+print(f"the market beside Table IV: average turnover {costs.loc['average turnover', 'Mkt-RF']:.3f} against {pub['mean_abs_change_in_weight']}; "
+      f"alpha net of 10 bp {costs.loc['alpha net of 10 bp', 'Mkt-RF']:.2f} against {pub['alpha_10bp']}; "
+      f"break-even {costs.loc['break-even cost (bp)', 'Mkt-RF']:.0f} bp against {pub['break_even_bp']}")
+"""),
+    md("""
+## 4. How large the position gets
+
+The market's position on Moreira and Muir's sample beside their Table V, and every factor's on Cederburg et al.'s sample beside their Table 1, Panel D. Percentiles by linear interpolation between the two nearest months.
+"""),
+    code("""
+market_pct = M.percentiles(mm["Mkt-RF"]["weight"], levels=C.E6_MARKET_PERCENTILES)
+print(pd.DataFrame({"published (Table V)": {f"P{q}": P.MM_TABLE_V_MARKET[f"P{q}"] for q in C.E6_MARKET_PERCENTILES},
+                    "computed": {f"P{q}": market_pct[f"P{q}"] for q in C.E6_MARKET_PERCENTILES}}).round(3).to_string())
+print()
+rows = {}
+for f in C.FACTORS:
+    q = M.percentiles(cowy[f]["weight"], levels=(1, 50, 99))
+    corr, p01, p50, p99 = P.COWY_TABLE_1_PANEL_D[f]
+    rows[f] = {"P1 published": p01, "P1": q["P1"], "P50 published": p50, "P50": q["P50"], "P99 published": p99, "P99": q["P99"], "maximum": q["max"]}
+cowy_pct = pd.DataFrame(rows).T
+print(cowy_pct.round(3).to_string())
+"""),
+    md("""
+## 5. E6 judged
+"""),
+    code("""
+market_net = {"alpha": costs.loc["alpha net of 10 bp", "Mkt-RF"], "se_nw": costs.loc["se net of 10 bp (Newey-West)", "Mkt-RF"]}
+e6_table, e6_met = V.e6(market_net, market_pct, cowy_pct)
+print(e6_table.to_string())
+print()
+e6_text = V.e6_line(e6_table, e6_met)
+print(e6_text)
+"""),
+    md("""
+## 6. The outputs, the summary, and what could be wrong
+"""),
+    code("""
+costs.T.to_csv(f"outputs/costs_mm_sample_{VINTAGE}.csv")
+pd.DataFrame({"computed": market_pct}).to_csv(f"outputs/position_market_mm_sample_{VINTAGE}.csv")
+cowy_pct.to_csv(f"outputs/position_cowy_sample_{VINTAGE}.csv")
+e6_table.to_csv(f"outputs/e6_comparison_{VINTAGE}.csv")
+pd.DataFrame([{"expectation": "E6", "comparisons holding": int(e6_table["holds"].sum()), "comparisons": len(e6_table),
+               "verdict": "met" if e6_met else "not met", "vintage": VINTAGE}]).to_csv(f"outputs/e6_verdict_{VINTAGE}.csv", index=False)
+summary = pd.DataFrame([{"expectation": "E6: the market's alpha net of 10 basis points, and the size of the position",
+                         "result": e6_text.split(". ", 1)[1], "verdict": "met" if e6_met else "not met"}]).set_index("expectation")
+print(summary.to_string())
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+What could be wrong, and where each point is tested:
+
+- **The cost per unit.** Ten basis points per unit of notional traded is the order Moreira and Muir take from Frazzini, Israel and Moskowitz for liquid large-cap books; small firms' and momentum's books trade at higher costs. Section 3 gives the break-even cost of every factor, so a reader can set any other cost against it.
+- **What turnover counts.** Only the change in the position is charged. Rebalancing the factor portfolio itself costs the same for the managed and the original factor, so it changes neither the comparison nor the alpha's sign, and is left out, as in the paper.
+- **The first month.** It carries no turnover: the position is taken as already held.
+- **Percentiles of the position.** The 99th percentile rests on the most extreme 1 per cent of months, 11 of 1,065 for the market, so a revision of French's data or a different definition of the signal moves it most; E6's margin is 1.0 there for that reason.
+"""),
+]
+
+
 NOTEBOOKS = {
     "01": ("01_french_loader.ipynb", NB01),
     "02": ("02_realised_variance.ipynb", NB02),
     "03": ("03_moreira_muir.ipynb", NB03),
     "04": ("04_cederburg_et_al.ipynb", NB04),
     "05": ("05_barroso_santa_clara.ipynb", NB05),
+    "06": ("06_sharpe_test.ipynb", NB06),
+    "07": ("07_after_the_sample.ipynb", NB07),
+    "08": ("08_costs.ipynb", NB08),
 }
 
 
