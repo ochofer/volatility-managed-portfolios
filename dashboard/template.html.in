@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="https://www.carlohofer.com/volatility-managed-portfolios/dashboard/B-Q_dashboard.html">
+<meta property="og:image" content="https://www.carlohofer.com/volatility-managed-portfolios/og-bq.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.carlohofer.com/images/favicon.svg" type="image/svg+xml">
+<style>
+
+@font-face { font-family: "EB Garamond"; src: url("https://www.carlohofer.com/assets/fonts/EBGaramond-var-latin.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+:root { color-scheme: light; --ground: #ffffff; --tint: #f5f5f5; --rule: #dddddd; --frame: #cfcfcf; --grid: #e5e5e5;
+  --ink: #262b33; --navy: #16213a; --ink2: #5d6470; --meta: #6b7280; --link: #1f3a60; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+h1, h2 { font-family: "EB Garamond", Garamond, Georgia, serif; font-weight: 500; color: var(--navy); }
+h3, h4 { color: var(--navy); font-weight: 600; }
+a { color: var(--link); text-underline-offset: .18em; text-decoration-color: rgba(31,58,96,.35); }
+.ch-band { background: linear-gradient(90deg, #121a2c 0%, #172238 60%, #1a263b 100%); }
+.ch-band__in { max-width: 1180px; margin: 0 auto; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.ch-word { font-family: "EB Garamond", Garamond, Georgia, serif; font-weight: 500; text-transform: uppercase; letter-spacing: .22em; color: #ece6d9; text-decoration: none; font-size: 17px; }
+.ch-nav a { color: rgba(236,230,217,.78); text-decoration: none; font-size: 15px; margin-left: 20px; }
+.ch-nav a:hover { color: #ece6d9; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+.ch-hero { background: linear-gradient(90deg, #121a2c 0%, #172238 60%, #1a263b 100%); border-top: 1px solid rgba(255,255,255,.07); padding: 6px 0 34px; color: #c9ced8; }
+.ch-hero .ch-back { margin: 16px 0 0; font-size: 13px; color: #c9ced8; }
+.ch-hero .ch-back a { color: #c9ced8; text-decoration-color: rgba(201,206,216,.5); }
+.ch-over { margin: 26px 0 0; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: #aab2c0; }
+.ch-hero h1 { margin: 8px 0 0; font-size: 46px; line-height: 1.08; color: #f4f1ea; }
+.ch-lead { max-width: 720px; margin: 14px 0 0; font-size: 17px; line-height: 1.55; color: #d3d8e0; }
+.ch-meta { margin: 18px 0 0; font-size: 13.5px; color: #aab2c0; display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.ch-docs { margin: 10px 0 0; font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.ch-docs a { color: #f4f1ea; text-decoration-color: rgba(244,241,234,.45); }
+.tabs { position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid var(--frame); }
+.tabs .wrap { display: flex; gap: 40px; overflow-x: auto; }
+.tabs button { font: inherit; font-size: 16.5px; color: #3a4150; background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 22px 0 19px; white-space: nowrap; min-height: 44px; cursor: pointer; }
+.tabs button:hover { color: var(--navy); border-bottom-color: #c5ccd8; }
+.tabs button[aria-selected="true"] { color: var(--navy); font-weight: 600; border-bottom-color: var(--navy); }
+.tabs .sh { display: none; }
+.tabs.more::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff); pointer-events: none; }
+[id] { scroll-margin-top: 80px; }
+.ch-view-lead { margin: 26px 0 0; font-size: 15px; color: var(--ink2); }
+.ch-top { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 36px; margin: 18px 0 0; align-items: start; }
+.ch-kpis { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 2px solid var(--navy); border-bottom: 1px solid var(--rule); }
+.ch-kpi { padding: 16px 18px 16px 0; min-width: 0; }
+.ch-kpi + .ch-kpi { padding-left: 18px; border-left: 1px solid var(--rule); }
+.ch-kpi__label { font-size: 12.5px; color: var(--ink2); font-weight: 500; }
+.ch-kpi__value { margin: 8px 0 2px; font-size: 27px; font-weight: 500; color: var(--navy); letter-spacing: -.01em; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.ch-kpi__ref { font-size: 12.5px; color: var(--meta); }
+.ch-facts { background: var(--tint); border-top: 2px solid var(--navy); padding: 18px 20px 8px; }
+.ch-facts h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+.ch-facts dl { margin: 0; }
+.ch-fact { display: grid; grid-template-columns: 118px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: 13px; line-height: 1.45; }
+.ch-fact:first-of-type { border-top: 0; }
+.ch-fact dt { color: var(--ink2); }
+.ch-fact dd { margin: 0; color: var(--ink); }
+.ch-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.pairctl { margin-top: 34px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.ch-pair .fig { margin-top: 20px; border-top: 0; padding-top: 0; }
+.ch-pair .fig { min-width: 0; }
+main { padding-bottom: 8px; }
+.view { display: none; }
+.view.on { display: block; }
+.lead { max-width: 75ch; margin: 14px 0 6px; }
+.kp { margin: 22px 0 8px; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; max-width: 1000px; }
+.ch-top .kp { grid-template-columns: 1fr; margin: 22px 0 0; max-width: none; }
+.ch-top .kp li:last-child:nth-child(odd) { grid-column: auto; }
+.kp li { border-left: 3px solid var(--navy); padding: 2px 0 2px 12px; }
+.kp li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.verdicts td:nth-child(2), .verdicts td:nth-child(3) { white-space: normal; min-width: 16em; text-align: left; }
+.verdicts thead th:nth-child(2), .verdicts thead th:nth-child(3) { text-align: left; }
+.verdicts td:last-child { font-weight: 600; }
+h2 { font-size: 1.45rem; margin: 30px 0 4px; }
+h3 { font-size: 1.05rem; margin: 30px 0 4px; }
+h4 { font-size: 14px; margin: 10px 0 2px; }
+.fig { margin: 34px 0 0; border-top: 1px solid var(--rule); padding-top: 14px; }
+.fig h2 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+.fig p { max-width: 75ch; }
+.cap { font-size: 12.5px; color: var(--meta); margin: 3px 0 10px; }
+.text { margin: 0 0 10px; }
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+.panels.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.panels.stack { grid-template-columns: 1fr; }
+.panel { min-width: 0; }
+.chart { width: 100%; height: 380px; }
+.chart.tall { height: 480px; }
+.chart.short { height: 320px; }
+.tw { position: relative; }
+.tw.more::after { content: ""; position: absolute; top: 1px; right: 1px; bottom: 1px; width: 28px; background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff); pointer-events: none; }
+.tscroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+thead th { background: var(--tint); color: var(--ink2); font-weight: 600; text-align: right; vertical-align: bottom; white-space: normal; min-width: 84px; font-size: 13px; }
+thead th:first-child, tbody th { text-align: left; position: sticky; left: 0; background: #ffffff; }
+thead th:first-child { background: var(--tint); }
+@media (max-width: 700px) { table.wrapfirst tbody th { white-space: normal; min-width: 9em; } }
+tbody th { font-weight: 500; }
+td { text-align: right; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.src { font-size: 12px; color: var(--meta); margin: 4px 0 0; overflow-wrap: anywhere; }
+code { overflow-wrap: anywhere; }
+.basis { font-size: 12.5px; color: var(--ink2); margin: 6px 0 0; }
+.ctl { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin: 4px 0 8px; font-size: 14px; }
+.ctl .lab { color: var(--ink2); }
+.ctl button { font: inherit; font-size: 14px; padding: 8px 12px; min-height: 44px; border: 1px solid var(--rule); background: #ffffff; color: var(--ink); border-radius: 4px; cursor: pointer; }
+.ctl button[aria-pressed="true"] { border-color: var(--navy); color: var(--navy); font-weight: 600; }
+.tbtn { font: inherit; font-size: 14px; padding: 8px 12px; min-height: 44px; border: 1px solid var(--rule); background: #ffffff; color: var(--link); border-radius: 4px; cursor: pointer; margin: 8px 0 0; }
+.tbtn[aria-pressed="true"] { border-color: var(--navy); color: var(--navy); font-weight: 600; }
+.tbl { margin: 10px 0 0; }
+.tbl[hidden] { display: none; }
+.method p { max-width: 75ch; }
+.other { margin-top: 36px; padding-top: 4px; border-top: 1px solid var(--rule); }
+.other p { max-width: 75ch; margin: 0 0 10px; }
+dl.terms { font-size: 14px; max-width: 75ch; }
+dl.terms dt { font-weight: 600; margin-top: 8px; }
+dl.terms dd { margin: 0 0 0 1rem; }
+.ch-foot { background: var(--tint); border-top: 1px solid var(--rule); color: var(--ink2); font-size: 14px; margin-top: 48px; }
+.ch-foot > div { max-width: 1180px; margin: 0 auto; padding: 20px 32px 32px; }
+.ch-foot p { max-width: 90ch; margin: 0 0 8px; }
+@media (max-width: 1000px) { .panels.four { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 860px) {
+  [id] { scroll-margin-top: 64px; }
+  .wrap, .ch-foot > div, .ch-band__in { padding-left: 16px; padding-right: 16px; }
+  .ch-hero h1 { font-size: 34px; }
+  .ch-lead { font-size: 16px; }
+  .tabs .wrap { gap: 15px; }
+  .tabs button { font-size: 14px; padding: 17px 0 14px; }
+  .ch-top { grid-template-columns: 1fr; gap: 24px; }
+  .ch-kpis { grid-template-columns: 1fr 1fr; }
+  .ch-kpi__value { font-size: 24px; }
+  .ch-kpi:nth-child(3) { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); }
+  .ch-kpi:nth-child(4) { border-top: 1px solid var(--rule); }
+  .ch-pair { grid-template-columns: 1fr; gap: 0; }
+  .ch-pair .fig + .fig { margin-top: 34px; border-top: 1px solid var(--rule); padding-top: 14px; }
+  .ch-fact { grid-template-columns: 104px 1fr; }
+}
+@media (max-width: 700px) {
+  .panels, .panels.four { grid-template-columns: 1fr; }
+  .chart, .chart.tall, .chart.short { height: 340px; }
+  .chart.legendy { height: 440px; }
+  .kp { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) { .ch-band__in { height: 48px; } .ch-nav a:not(:first-child) { display: none; } }
+@media (max-width: 560px) { .tabs .lg { display: none; } .tabs .sh { display: inline; } .tabs .wrap { gap: 12px; } }
+@media (max-width: 385px) { .tabs .wrap { gap: 9px; } .tabs button { font-size: 13.5px; } }
+@media (max-width: 368px) { .tabs .wrap { gap: 8px; } .tabs button { font-size: 13px; } }
+.ch-word, .ch-nav a { white-space: nowrap; }
+@media (max-width: 359px) { .ch-word { font-size: 15px; letter-spacing: .12em; } .ch-nav a { font-size: 13px; margin-left: 12px; } }
+@media print { .tabs, .tw::after, .tabs::after { display: none; } .view { display: block; } .fig { break-inside: avoid; } }
+
+.tblock { margin: 34px 0 0; border-top: 1px solid var(--rule); padding-top: 14px; }
+.tblock h2, .fig h2 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+.tblock .tw, .fig .tw { margin-top: 10px; }
+td.l, th.l { text-align: left; white-space: normal; }
+td.w { white-space: normal; min-width: 16em; text-align: left; }
+.verdict-miss { color: #b42318; font-weight: 600; }
+.verdict-met { font-weight: 600; }
+.note { font-size: 12.5px; color: var(--ink2); margin: 6px 0 0; max-width: 90ch; }
+.kpnote { font-size: 13.5px; color: var(--ink2); margin: 10px 0 0; max-width: 75ch; }
+ol.notes { font-size: 14px; max-width: 75ch; padding-left: 1.4rem; }
+ol.notes li { margin: 0 0 6px; overflow-wrap: anywhere; }
+sup a { text-decoration: none; }
+@media (max-width: 400px) { .tabs button { font-size: 13.5px; } }
+@media (max-width: 368px) { .tabs .wrap { gap: 8px; } .tabs button { font-size: 13px; } }
+</style>
+<script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js" charset="utf-8"></script>
+<script data-goatcounter="https://carlohofer.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+<script>
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a || !window.goatcounter || !window.goatcounter.count) return;
+    var u = new URL(a.href, location.href);
+    var pdf = /\.pdf$/i.test(u.pathname);
+    if (!pdf && u.hostname === location.hostname) return;
+    window.goatcounter.count({
+      path: pdf ? 'PDF ' + u.hostname + u.pathname : 'Link ' + (u.hostname || u.protocol) + u.pathname,
+      title: a.textContent.trim(),
+      event: true
+    });
+  });
+</script>
+</head>
+<body>
+<header class="ch-band"><div class="ch-band__in">
+  <a class="ch-word" href="https://www.carlohofer.com/">Carlo Hofer</a>
+  <nav class="ch-nav"><a href="https://www.carlohofer.com/projects/">Investment research</a><a href="https://www.carlohofer.com/projects/rules-based-portfolio/">Portfolio</a><a href="https://www.carlohofer.com/publications/">Publications</a><a href="https://www.carlohofer.com/cv/">Academic CV</a></nav>
+</div></header>
+<section class="ch-hero"><div class="wrap">
+<p class="ch-back"><a href="https://www.carlohofer.com/projects/volatility-managed-portfolios/">&larr; Volatility-managed portfolios</a></p>
+<p class="ch-over">Investment research</p>
+<h1>{{title}}</h1>
+<p class="ch-lead">{{lead}}</p>
+<div class="ch-meta"><span>Simulated on Kenneth R. French's data to August 2026, vintage {{vintage}}</span><span>Last build: {{build_date}}</span></div>
+<div class="ch-docs"><a href="../note/B-Q_note_2026-11.pdf">Note (PDF)</a><a href="https://github.com/ochofer/volatility-managed-portfolios">Code on GitHub</a></div>
+</div></section>
+<nav class="tabs" aria-label="Views"><div class="wrap">
+<button type="button" data-view="summary" aria-selected="true">Summary</button><button type="button" data-view="after" aria-selected="false"><span class="lg">After the sample</span><span class="sh">Since 2015</span></button><button type="button" data-view="in-sample" aria-selected="false"><span class="lg">In the sample</span><span class="sh">To 2015</span></button><button type="button" data-view="replication" aria-selected="false">Replication</button><button type="button" data-view="method" aria-selected="false"><span class="lg">Method and terms</span><span class="sh">Method</span></button>
+</div></nav>
+<main class="wrap">
+{{BODY}}
+</main>
+
+<footer class="ch-foot"><div>
+<p>Every figure on this page is a simulation on Kenneth R. French's factors, gross of fees unless a trading cost is stated, and none is a record.</p>
+<p>Built by dashboard/build_dashboard.py from the tables in results/{{vintage}}/, written by notebooks 02 to 08 on vintage {{vintage}} of French's files, and rebuilt whenever a notebook is rerun, from the tables committed with it. Every figure has its table under it. Charts drawn with Plotly 2.35.2.</p>
+<p>Carlo Hofer &middot; Data: Kenneth R. French Data Library &middot; <a href="https://github.com/ochofer/volatility-managed-portfolios">Code on GitHub</a> &middot; Last build: {{build_date}}</p>
+</div></footer>
+
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>

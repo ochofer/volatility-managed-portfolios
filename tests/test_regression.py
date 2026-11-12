@@ -79,7 +79,7 @@ def test_jobson_korkie_against_the_formula_in_plain_python():
     b = [0.01, 0.01, 0.03, -0.01, 0.00, 0.02]
     T = len(a)
     mi, mj, si, sj = st.mean(a), st.mean(b), st.stdev(a), st.stdev(b)
-    sij = st.covariance(a, b)
+    sij = sum((x - mi) * (y - mj) for x, y in zip(a, b)) / (T - 1)   # statistics.covariance needs Python 3.10
     theta = (2 * si**2 * sj**2 - 2 * si * sj * sij + mi**2 * sj**2 / 2 + mj**2 * si**2 / 2 - mi * mj / (si * sj) * sij**2) / T
     z = (sj * mi - si * mj) / sqrt(theta)
     out = R.jobson_korkie(np.array(a), np.array(b))

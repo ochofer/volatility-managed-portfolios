@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volatility-managed portfolios on French&#x27;s factors: the replication, the real-time critique, and the 136 months after the sample</title>
+<meta name="description" content="The note of the project Volatility-managed portfolios: the replication of Moreira and Muir (2017), Cederburg, O'Doherty, Wang and Yan (2020) and Barroso and Santa-Clara (2015) on Ken French's six factors, Ledoit and Wolf's test of every Sharpe ratio difference, and the 136 months after the sample, with the six expectations and the tables in full.">
+<link rel="icon" href="https://www.carlohofer.com/images/favicon.svg" type="image/svg+xml">
+<style>
+@page { size: A4; margin: 20mm 20mm 20mm 20mm; }
+body { font-family: Georgia, "Times New Roman", serif; font-size: 10pt; line-height: 1.38; color: #262b33; margin: 0; background: #ffffff; }
+.paper { max-width: 170mm; margin: 0 auto; padding: 0 16px; }
+@font-face { font-family: "EB Garamond"; src: url("https://www.carlohofer.com/assets/fonts/EBGaramond-var-latin.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+.ch-band { background: linear-gradient(90deg, #121a2c 0%, #172238 60%, #1a263b 100%); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+.ch-band__in { max-width: 1180px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.ch-word { font-family: "EB Garamond", Garamond, Georgia, serif; font-weight: 500; text-transform: uppercase; letter-spacing: .22em; color: #ece6d9; text-decoration: none; font-size: 17px; }
+.ch-nav a { color: rgba(236,230,217,.78); text-decoration: none; font-size: 15px; margin-left: 20px; }
+.ch-nav a:hover { color: #ece6d9; }
+.ch-back { max-width: 170mm; margin: 14px auto 18px; padding: 0 16px; font-size: 14px; color: #5d6470; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+.ch-back a { color: #1f3a60; }
+.ch-foot { background: #f5f5f5; border-top: 1px solid #dddddd; color: #5d6470; font-size: 14px; margin-top: 40px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+.ch-foot > div { max-width: 1180px; margin: 0 auto; padding: 20px 16px 32px; }
+.ch-foot a { color: #1f3a60; }
+@media (max-width: 600px) { .ch-band__in { height: 48px; } .ch-nav a:not(:first-child) { display: none; } }
+.ch-word, .ch-nav a { white-space: nowrap; }
+@media (max-width: 359px) { .ch-word { font-size: 15px; letter-spacing: .12em; } .ch-nav a { font-size: 13px; margin-left: 12px; } }
+@media screen { .paper { font-size: 11.5pt; } }
+@media print { .ch-band, .ch-back, .ch-foot { display: none; } .paper { max-width: 170mm; padding: 0; } h2 { margin-top: 13pt; } .refs p { margin-bottom: 1.5pt; } }
+h1 { font-size: 15.5pt; font-weight: normal; margin: 0 0 4pt 0; line-height: 1.25; }
+.byline { font-size: 10pt; margin: 0 0 14pt 0; color: #5d6470; }
+h2 { font-size: 11.5pt; margin: 16pt 0 5pt 0; font-weight: bold; }
+h3 { font-size: 10.5pt; margin: 10pt 0 3pt 0; font-weight: bold; font-style: italic; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+.abstract { font-size: 9.5pt; margin: 0 8mm 10pt 8mm; }
+table.num { border-collapse: collapse; width: 100%; font-size: 8pt; margin: 8pt 0 2pt 0; }
+.tblock { break-inside: avoid; page-break-inside: avoid; }
+table.num caption { caption-side: top; text-align: left; font-size: 8.8pt; margin-bottom: 3pt; font-weight: bold; }
+table.num th:first-child { text-align: left; }
+table.num td.l { width: 24%; }
+table.num th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2pt 3pt; font-weight: normal; font-style: italic; text-align: right; vertical-align: bottom; }
+table.num th[colspan] { text-align: center; border-top: 1px solid #000; }
+table.num td { padding: 1.4pt 3pt; text-align: right; white-space: nowrap; }
+table.num td.l { text-align: left; white-space: normal; }
+table.num td.sub { font-style: italic; padding-top: 4pt; }
+table.num tbody tr:last-child td { border-bottom: 1px solid #000; }
+p.tn { font-size: 8pt; text-align: left; margin: 2pt 0 10pt 0; line-height: 1.3; }
+.termshead { font-size: 8.8pt; margin: 0 0 2pt 0; font-weight: bold; }
+dl.terms { font-size: 8.4pt; line-height: 1.32; margin: 0 0 12pt 0; text-align: justify; }
+dl.terms dt { display: inline; font-weight: bold; }
+dl.terms dt::after { content: ": "; font-weight: normal; }
+dl.terms dd { display: inline; margin: 0; }
+dl.terms dd::after { content: " "; }
+.refs p { font-size: 9pt; text-indent: -6mm; padding-left: 6mm; text-align: left; margin-bottom: 2pt; line-height: 1.3; }
+sup { font-size: 70%; }
+@media screen {
+  table.num { font-size: 12px; }
+  table.num caption { font-size: 13px; position: sticky; left: 0; z-index: 1; background: #ffffff; }
+  p.tn { font-size: 12px; }
+  .refs p { overflow-wrap: anywhere; }
+  code { overflow-wrap: anywhere; }
+  .tw { position: relative; }
+  .tscroll { overflow-x: auto; }
+  .tw.more::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 28px; background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff); pointer-events: none; }
+  table.num thead tr:first-child th:first-child, table.num tbody td.l { position: sticky; left: 0; background: #ffffff; }
+}
+@media screen and (max-width: 674px) { table.num caption { width: calc(100vw - 32px); box-sizing: border-box; } table.num td.l { min-width: 11em; } }
+table.verd td.w { white-space: normal; min-width: 18em; max-width: 34em; }
+@media screen { table.verd td.w { min-width: 16em; } }
+table.verd td, table.verd th { text-align: left; vertical-align: top; }
+table.verd td.l { width: 5%; }
+h2, h3 { break-after: avoid; page-break-after: avoid; }
+</style>
+<script data-goatcounter="https://carlohofer.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+<script>
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a || !window.goatcounter || !window.goatcounter.count) return;
+    var u = new URL(a.href, location.href);
+    var pdf = /\.pdf$/i.test(u.pathname);
+    if (!pdf && u.hostname === location.hostname) return;
+    window.goatcounter.count({
+      path: pdf ? 'PDF ' + u.hostname + u.pathname : 'Link ' + (u.hostname || u.protocol) + u.pathname,
+      title: a.textContent.trim(),
+      event: true
+    });
+  });
+</script>
+</head>
+<body>
+<header class="ch-band"><div class="ch-band__in">
+  <a class="ch-word" href="https://www.carlohofer.com/">Carlo Hofer</a>
+  <nav class="ch-nav"><a href="https://www.carlohofer.com/projects/">Investment research</a><a href="https://www.carlohofer.com/projects/rules-based-portfolio/">Portfolio</a><a href="https://www.carlohofer.com/publications/">Publications</a><a href="https://www.carlohofer.com/cv/">Academic CV</a></nav>
+</div></header>
+<p class="ch-back"><a href="https://www.carlohofer.com/projects/volatility-managed-portfolios/">&larr; Volatility-managed portfolios</a> &middot; <a href="https://www.carlohofer.com/projects/">Investment research</a></p>
+<div class="paper">
+<h1>Volatility-managed portfolios on French&#x27;s factors: the replication, the real-time critique, and the 136 months after the sample</h1>
+<p class="byline">Carlo Hofer. November 2026. The note of the project Volatility-managed portfolios. Code, notebooks and the tables every number comes from: github.com/ochofer/volatility-managed-portfolios, results/202609.</p>
+
+<p class="abstract">Moreira and Muir (2017) scale a factor's position each month by the inverse of its realised variance in the month before, and report alphas, the intercepts of the regression of the scaled factor on the original, that are positive and significant for the market, momentum and profitability among the six factors studied here. Cederburg, O'Doherty, Wang and Yan (2020) show that an investor who had to estimate in real time how to combine the scaled and the original factor would have gained little. This note replicates both papers and Barroso and Santa-Clara's (2015) scaled momentum on Kenneth French's six factors, tests every difference between two Sharpe ratios (the mean excess return over its standard deviation, annualised) with Ledoit and Wolf's (2008) bootstrap, and asks what the signal did in the 136 months after Moreira and Muir's sample, May 2015 to August 2026. Six expectations were written before any code judged them, and four are met. The replications hold for 6 of 6 factors in Moreira and Muir's Table I and in 4 of 4 comparisons for scaled momentum, and in 22 of 24 comparisons for the real-time critique, an expectation not met because French has revised the profitability factor's history since the paper. The expectation that the Sharpe ratio test and the alpha's t-statistic agree is not met either, 2 of 6 factors where 5 were expected, because the two test different things: the volatility-managed Sharpe ratio is above the original's beyond its interval for momentum alone, +0.51, annualised, with an interval of 0.07 to 0.96. After the sample, no factor's real-time combination has a Sharpe ratio above the original's by more than its interval allows, the median difference +0.007, annualised, against a median half-width of 0.213, so these months cannot tell the differences from zero. The market's alpha net of 10 basis points per unit of turnover is 4.03 per cent a year (t 2.31), and 3.13 (t 1.81) net of 20.</p>
+
+<p class="termshead">Terms used in this note, each with the one meaning it carries throughout.</p>
+<dl class="terms">
+<dt>factor</dt><dd>the monthly return of a long-short portfolio that captures one source of common movement in stock returns: the market (Mkt-RF), size (SMB), value (HML), momentum (Mom), profitability (RMW) and investment (CMA) of Fama and French (2015) and Carhart (1997), as Kenneth French publishes them.</dd>
+<dt>excess return</dt><dd>a return minus the one-month Treasury bill rate; every factor is one.</dd>
+<dt>realised variance</dt><dd>the variance of a factor computed from its daily returns within one month, each paper with its own definition.</dd>
+<dt>the signal</dt><dd>last month&#x27;s realised variance of a factor, and nothing else.</dd>
+<dt>volatility-managed factor</dt><dd>Moreira and Muir&#x27;s construction, the factor&#x27;s return times c over last month&#x27;s realised variance; the word managed describes the construction and says nothing about its performance.</dd>
+<dt>c</dt><dd>the constant that gives the volatility-managed factor the original&#x27;s standard deviation over the whole sample, so it is known only at the sample&#x27;s end.</dd>
+<dt>position</dt><dd>the multiple of the factor held in a month, c over last month&#x27;s realised variance for the volatility-managed factor. The papers call a position above 1 leverage.</dd>
+<dt>real-time combination (S1)</dt><dd>Cederburg et al.&#x27;s construction: the mean-variance weights on the volatility-managed and the original factor, with a risk aversion of 5, estimated each month from the months before it, from 120 months on, the total position capped at 5.</dd>
+<dt>real-time original (S2)</dt><dd>the original factor alone at its real-time mean-variance weight, S1&#x27;s benchmark.</dd>
+<dt>ex post optimal combination (S3)</dt><dd>the mix of the two with the weights that were best over the whole sample, which no investor could have known.</dd>
+<dt>benchmark</dt><dd>the strategy a construction is compared with.</dd>
+<dt>scaled momentum</dt><dd>Barroso and Santa-Clara&#x27;s construction, WML times 12 per cent a year over its realised volatility of the previous 126 trading days.</dd>
+<dt>WML</dt><dd>winners minus losers, the top momentum decile&#x27;s return minus the bottom decile&#x27;s.</dd>
+<dt>alpha</dt><dd>the intercept of the regression of the volatility-managed factor on its original, in per cent a year; it measures what the volatility-managed factor adds to a holding of the original.</dd>
+<dt>beta</dt><dd>the slope of that regression.</dd>
+<dt>standard error</dt><dd>the standard deviation of an estimate across the samples it could have come from; White&#x27;s allows the residual&#x27;s variance to change, and Newey and West&#x27;s at 12 lags also allows a month&#x27;s residual to be correlated with the 12 before it.</dd>
+<dt>Sharpe ratio</dt><dd>the mean excess return over its standard deviation, annualised by the square root of 12.</dd>
+<dt>appraisal ratio</dt><dd>the alpha over the residual&#x27;s standard deviation, annualised.</dd>
+<dt>Jobson-Korkie test</dt><dd>a test that two return series over the same months have the same Sharpe ratio, assuming normal and independent months, with Memmel&#x27;s (2003) correction.</dd>
+<dt>interval</dt><dd>the 95 per cent interval of Ledoit and Wolf&#x27;s test for the true Sharpe ratio difference; the test rejects when it excludes zero.</dd>
+<dt>half-width</dt><dd>the distance from a difference to either end of its interval.</dd>
+<dt>delta method</dt><dd>the standard error of a function of means, from the function&#x27;s slopes and the means&#x27; covariance.</dd>
+<dt>fat tails</dt><dd>extreme months that occur more often than a normal distribution allows.</dd>
+<dt>degrees of freedom</dt><dd>the parameter of a Student-t distribution that sets how fat its tails are; the fewer, the fatter.</dd>
+<dt>Student-t</dt><dd>a bell-shaped distribution with fatter tails than the normal one, here with five degrees of freedom.</dd>
+<dt>kurtosis</dt><dd>excess kurtosis, a measure of how often extreme values occur, 0 for the normal distribution.</dd>
+<dt>p-value</dt><dd>the probability of a difference at least as far from zero as the one computed, if the two true Sharpe ratios were equal.</dd>
+<dt>size</dt><dd>the share of samples in which a test rejects when the null is true.</dd>
+<dt>turnover</dt><dd>the absolute change in the position from the month before, the first month carrying none.</dd>
+<dt>basis point</dt><dd>a hundredth of a percentage point.</dd>
+<dt>break-even cost</dt><dd>the cost per unit of turnover at which the alpha falls to zero.</dd>
+<dt>maximum drawdown</dt><dd>the largest fall from a peak of the compounded return.</dd>
+<dt>band</dt><dd>the distance from a published number within which a computed one counts as matching, fixed before the code.</dd>
+<dt>verdict</dt><dd>whether an expectation is met; a count reported in no verdict is shown without one.</dd>
+<dt>vintage</dt><dd>the version of French&#x27;s files, named by the CRSP release they were built from.</dd>
+</dl>
+
+<h2>1. Introduction</h2>
+
+<p>A volatility-managed portfolio holds a factor in inverse proportion to the variance the factor showed in the month before, less after a volatile month and more after a calm one. Moreira and Muir (2017) applied the rule to the market and to the standard equity factors from 1926 to April 2015 and found alphas against the unscaled factors that are positive and significant for the market, momentum and profitability among the six factors studied here, the market's 4.86 per cent a year with a standard error of 1.56. The rule needs one number from the past, last month's realised variance, and one constant, c, which sets the position's average size and is chosen on the whole sample. The question this note asks is how much of that result an investor could have used: whether it reproduces on French's data as they stand today, whether it survives the combination of the managed and the original factor being estimated in real time, and what the signal did in the months after the paper's sample ended.</p>
+
+<p>The existing evidence answers the second part and leaves the third open. Cederburg, O'Doherty, Wang and Yan (2020) argue that an alpha against the original factor is the gain of an investor who already holds the original and adds the managed factor in the amount the regression implies, an amount known only at the sample's end, like c. When they estimate that amount each month from the months before it, the combination's Sharpe ratio on the six factors of this note falls below the original's for four of them and differs significantly only for momentum, where it is higher. Their test of a Sharpe ratio difference is Jobson and Korkie's, which assumes normal and independent months, and Moreira and Muir report alphas, so neither paper gives a test of the Sharpe ratio difference that allows for fat tails and for volatile months that follow each other. Neither can say what happened after its sample: Moreira and Muir's ends in April 2015 and Cederburg et al.'s in December 2016.</p>
+
+<p>This note replicates both papers and Barroso and Santa-Clara's (2015) scaled momentum, the third paper's version of the same scaling, on French's six factors, each paper on its own sample and with its own definition of the realised variance, and judges each replication against expectations written before the code ran. It then tests every Sharpe ratio difference with Ledoit and Wolf's (2008) studentised block bootstrap, checked first on simulated pairs whose Sharpe ratios are equal by construction, and carries both constructions forward unchanged to the 136 months from May 2015 to August 2026, with c fixed on the months to April 2015. A cost of 10 basis points per unit of turnover, with 20 as the one sensitivity, prices the trades the signal needs. The design estimates no premium and recommends no position: every return reported is a simulation on French's history, with its standard error or interval beside it, and every number comes from a table committed with the code.</p>
+
+<p>French's factors are an informative setting for these questions for two reasons. Both papers built their results on them and French keeps them current, so the replication and the months after the sample run on one source, and French's revisions of history become visible: a factor whose statistics differ from a paper's on the same months has changed since the paper's download, and an archived copy of the file can show by how much. At the same time, the months after the sample hold the highest realised variance of the market in French's history, March 2020, so the signal was tested in a month in which it cut the position to 0.013 for April, when the market returned 13.6 per cent, and the 136 months are few enough that every difference they give has to be read against its interval.</p>
+
+<p>Empirically, the replications hold where French's data have not changed, and the alpha and the Sharpe ratio separate. Moreira and Muir's Table I reproduces for 6 of 6 factors and scaled momentum in 4 of 4 comparisons; Cederburg et al.'s results reproduce in 22 of 24 comparisons, the two misses on RMW, whose mean French's current file puts at 3.12 per cent a year on their months against their 2.92. On Moreira and Muir's sample the volatility-managed Sharpe ratio is above the original's beyond its interval for momentum alone, +0.51, annualised, with an interval of 0.07 to 0.96, while the alpha's t-statistic is above two for the market, momentum and RMW, and an identity shows why the two tests differ. After the sample no factor's real-time combination has a Sharpe ratio above the real-time original's by more than its interval allows, the median difference +0.007, annualised, against a median half-width of 0.213. These 136 months therefore cannot tell the differences from zero, and they rule out neither a positive nor a negative difference of the size estimated on Moreira and Muir's sample.</p>
+
+<h2>2. Design</h2>
+
+<p><b>Data.</b> Kenneth French's data library, the vintage built from the 202609 CRSP database: the three-factor and five-factor files, the momentum factor and the ten portfolios sorted on prior returns, each monthly and daily, downloaded at run time and never committed. The market, SMB and HML start in July 1926, momentum and WML in January 1927 (their daily files on 3 November 1926), RMW and CMA in July 1963. The sample ends in August 2026 whatever the vintage. Each paper's results are compared on its own months: Moreira and Muir's to April 2015, the end their published counts of months imply (1,065 for the market, 621 for RMW and CMA); Cederburg et al.'s to December 2016; Barroso and Santa-Clara's from May 1927 to December 2011. The months after the sample are May 2015 to August 2026.</p>
+
+<p><b>The signal and the constructions.</b> Each construction uses its paper's own realised variance: Moreira and Muir's sum of squared deviations of the daily returns from the month's mean (their equation 2), Cederburg et al.'s 22 over the month's trading days times the sum of squared daily returns (their equation 4), and Barroso and Santa-Clara's 21 times the mean of the squared daily returns over the previous 126 trading days (their equation 5). The volatility-managed factor holds c over last month's realised variance; c makes its standard deviation over the sample equal to the original's. The real-time combination S1 holds, each month, the mean-variance weights of an investor with a risk aversion of 5 on the volatility-managed and the original factor, estimated from all the months before it once 120 are available, its total position capped at 5; S2 holds the original alone at its real-time weight, and S3 the combination with the weights that were best over the whole sample. Scaled momentum holds WML at 12 per cent a year over its realised volatility of the previous 126 trading days.</p>
+
+<p><b>The regression and its standard errors.</b> Each volatility-managed factor is regressed on its original, monthly, by least squares. The alpha is the intercept in per cent a year. Moreira and Muir's Table I is judged with White's standard errors, the paper's own; Newey and West's at 12 lags are reported beside them and used for the alpha in sections 3.3 and 3.5. Cederburg et al.'s Sharpe ratio differences are reproduced with their Jobson and Korkie test.</p>
+
+<p><b>The test of a Sharpe ratio difference.</b> Ledoit and Wolf (2008) write the difference between two Sharpe ratios as a function of four means, those of each series and of its square, and take its standard error by the delta method from the long-run covariance of the four. On the sample the covariance comes from the prewhitened Parzen kernel with Andrews' (1991) bandwidth; the paper proposes the QS kernel and reports the Parzen kernel's performance as very similar. The interval comes from a circular block bootstrap: 2,000 samples of blocks of 12 consecutive months, each sample's difference studentised by its own standard error from its blocks, and the 95th percentile of the absolute studentised differences, z*, replacing the normal table's 1.96. The test rejects when the interval excludes zero. The paper calibrates the block length by its Algorithm 3.1; here it is fixed at 12 months before the run. Before the test touches a factor it is run on 1,000 simulated pairs of 1,065 months with the market's monthly mean and standard deviation, a correlation of 0.601, Student-t shocks with five degrees of freedom and equal Sharpe ratios by construction, to measure its size.</p>
+
+<p><b>Costs and positions.</b> A month's turnover is the absolute change in the position from the month before, the first month carrying none. The cost, 10 basis points per unit of turnover and 20 as the sensitivity, is subtracted from the volatility-managed return, and the alpha is estimated again on the net return. The factor's own rebalancing is the same for the managed and the original factor and is left out. The break-even cost is the gross alpha over 12 times the average turnover. The position's percentiles are compared with Moreira and Muir's Table V and Cederburg et al.'s Table 1, Panel D.</p>
+
+<p><b>The expectations.</b> Six expectations were written into the code's constants on 8 and 10 November 2026, each with its reason, before any run that judged them: E1 to E3 on the three replications, E4 on the test's size and on its agreement with the alpha, E5 on the months after the sample, E6 on the costs and the positions. Each is a strict pass or fail, and no level moved after a run. Table 9 states each with what the run found.</p>
+
+<h2>3. Results</h2>
+
+<h3>3.1 The replications on each paper's sample</h3>
+
+<p>Table 1 reports Moreira and Muir's Table I beside the computed regression, and the replication holds for all six factors (E1 met). Every alpha has the published sign and 5 per cent significance, lies within one published standard error of the published alpha and has an appraisal ratio within 0.05 of the published one, and the computed months equal the published ones. The market's alpha is 4.93 per cent a year with a White standard error of 1.57, against 4.86 and 1.56, and its volatility-managed Sharpe ratio is 0.52, as in Table V. The largest gap is RMW's, 2.80 against 2.44 per cent a year, 0.43 of a published standard error, the first sign of the revision section 3.2 measures. The Newey-West standard errors are larger than White's for five factors, by up to 43 per cent for SMB, because the residuals of neighbouring months are correlated, which Newey and West's standard error allows and White's does not.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 1. Moreira and Muir's Table I on their sample, published beside computed: the alpha of each volatility-managed factor on its original, in per cent a year</caption><thead>
+<tr><th></th><th></th><th colspan="2">Alpha</th><th colspan="3">Standard error</th><th colspan="2">Appraisal ratio</th><th></th></tr>
+<tr><th>Factor</th><th>Months</th><th>Published</th><th>Computed</th><th>Published</th><th>White</th><th>Newey-West</th><th>Published</th><th>Computed</th><th>E1 holds</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>1065</td><td>4.86</td><td>4.93</td><td>1.56</td><td>1.57</td><td>1.76</td><td>0.33</td><td>0.33</td><td>yes</td></tr>
+<tr><td class="l">SMB</td><td>1065</td><td>−0.58</td><td>−0.59</td><td>0.91</td><td>0.91</td><td>1.31</td><td>−0.07</td><td>−0.07</td><td>yes</td></tr>
+<tr><td class="l">HML</td><td>1065</td><td>1.97</td><td>1.73</td><td>1.02</td><td>1.05</td><td>1.27</td><td>0.20</td><td>0.17</td><td>yes</td></tr>
+<tr><td class="l">Mom</td><td>1060</td><td>12.51</td><td>12.83</td><td>1.71</td><td>1.72</td><td>2.05</td><td>0.86</td><td>0.87</td><td>yes</td></tr>
+<tr><td class="l">RMW</td><td>621</td><td>2.44</td><td>2.80</td><td>0.83</td><td>0.89</td><td>1.00</td><td>0.42</td><td>0.44</td><td>yes</td></tr>
+<tr><td class="l">CMA</td><td>621</td><td>0.38</td><td>0.36</td><td>0.67</td><td>0.67</td><td>0.55</td><td>0.08</td><td>0.07</td><td>yes</td></tr>
+</tbody></table></div></div><p class="tn">Each factor from its first month to April 2015: August 1926 for the market, SMB and HML, January 1927 for momentum, August 1963 for RMW and CMA. The published standard errors are White's, as are the computed ones the verdict uses; the Newey-West standard errors, at 12 lags, are those of sections 3.3 and 3.5. The market's volatility-managed Sharpe ratio is 0.52 computed against Table V's 0.52. Source: results/202609/e1_comparison_202609.csv, notebook 03.</p></div>
+
+
+<p>Table 2 reports Barroso and Santa-Clara's Table 3 for momentum and scaled momentum, and their two headline results reproduce (E3 met). Scaling WML to 12 per cent a year raises its Sharpe ratio from 0.54 to 1.00, against the paper's 0.53 and 0.97, and cuts its maximum drawdown from 95.6 to 43.8 per cent, against 96.7 and 45.2. The worst month of scaled momentum is a fall of 24.2 per cent against WML's 77.7, and its excess kurtosis 2.0 against 18.0. Run on to August 2026, the 1,192 months from May 1927 give Sharpe ratios of 0.49 and 0.92 and the same drawdowns, in no verdict.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 2. Barroso and Santa-Clara's Table 3 on May 1927 to December 2011, published beside computed: momentum (WML) and scaled momentum</caption><thead>
+<tr><th></th><th colspan="2">WML</th><th colspan="2">Scaled WML</th></tr>
+<tr><th>Statistic</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th></tr>
+</thead><tbody>
+<tr><td class="l">Mean, % a year</td><td>14.46</td><td>14.86</td><td>16.50</td><td>16.69</td></tr>
+<tr><td class="l">Standard deviation, % a year</td><td>27.53</td><td>27.42</td><td>16.95</td><td>16.77</td></tr>
+<tr><td class="l">Sharpe ratio</td><td>0.53</td><td>0.54</td><td>0.97</td><td>1.00</td></tr>
+<tr><td class="l">Best month, %</td><td>26.18</td><td>26.24</td><td>21.95</td><td>21.71</td></tr>
+<tr><td class="l">Worst month, %</td><td>−78.96</td><td>−77.66</td><td>−28.40</td><td>−24.16</td></tr>
+<tr><td class="l">Skewness</td><td>−2.47</td><td>−2.39</td><td>−0.42</td><td>−0.36</td></tr>
+<tr><td class="l">Excess kurtosis</td><td>18.24</td><td>18.04</td><td>2.68</td><td>2.01</td></tr>
+<tr><td class="l">Maximum drawdown, %</td><td>−96.69</td><td>−95.56</td><td>−45.20</td><td>−43.83</td></tr>
+</tbody></table></div></div><p class="tn">1,016 months. The paper's scaled series starts in March 1927; French's daily file of the ten momentum portfolios starts on 3 November 1926, so the first scaled month here is May 1927. E3 judges the two Sharpe ratios and the two maximum drawdowns. Source: results/202609/bsc_table_3_computed_202609.csv and e3_comparison_202609.csv, notebook 05.</p></div>
+
+
+<h3>3.2 The real-time critique, and a revised factor</h3>
+
+<p>Tables 3 and 4 report Cederburg et al.'s Tables 1 and 5 beside the computed ones, and 22 of the 24 comparisons hold, so E2 is not met. Both misses are RMW's: its volatility-managed Sharpe ratio is 0.566 against their Table 1's 0.51, 0.006 outside the band of 0.05, and S1's 0.510 against their Table 5's 0.44, 0.020 outside. The other comparisons hold: S1 minus S2 has the published sign for six of six factors, momentum's +0.41 is the only difference significant at 5 per cent by the Jobson and Korkie test, as published, and S1 falls short of S3 by 0.08 to 0.12, against the published 0.07 to 0.14.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 3. Cederburg, O'Doherty, Wang and Yan's Table 1 on their sample, published beside computed: annualised Sharpe ratios of the original and the volatility-managed factor</caption><thead>
+<tr><th></th><th colspan="2">Original</th><th colspan="2">Volatility-managed</th><th colspan="2">Difference</th><th colspan="2">p-value</th></tr>
+<tr><th>Factor</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>0.42</td><td>0.420</td><td>0.51</td><td>0.513</td><td>+0.09</td><td>+0.092</td><td>0.30</td><td>0.31</td></tr>
+<tr><td class="l">SMB</td><td>0.23</td><td>0.226</td><td>0.08</td><td>0.076</td><td>−0.15</td><td>−0.150</td><td>0.09</td><td>0.09</td></tr>
+<tr><td class="l">HML</td><td>0.40</td><td>0.401</td><td>0.38</td><td>0.367</td><td>−0.02</td><td>−0.033</td><td>0.86</td><td>0.74</td></tr>
+<tr><td class="l">Mom</td><td>0.48</td><td>0.475</td><td>0.99</td><td>0.962</td><td>+0.50</td><td>+0.487</td><td>0.00</td><td>0.00</td></tr>
+<tr><td class="l">RMW</td><td>0.38</td><td>0.406</td><td>0.51</td><td>0.566</td><td>+0.13</td><td>+0.161</td><td>0.29</td><td>0.20</td></tr>
+<tr><td class="l">CMA</td><td>0.53</td><td>0.534</td><td>0.40</td><td>0.392</td><td>−0.13</td><td>−0.142</td><td>0.23</td><td>0.19</td></tr>
+</tbody></table></div></div><p class="tn">Each factor from its first month to December 2016: 1,085 months for the market, SMB and HML, 1,080 for momentum, 641 for RMW and CMA. The p-value is Jobson and Korkie's with Memmel's correction. E2's clause (i) fails for RMW alone. Source: results/202609/cowy_table_1_computed_202609.csv, notebook 04.</p></div>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 4. Cederburg, O'Doherty, Wang and Yan's Table 5, Panel A, on their sample, published beside computed: the real-time combination S1, the real-time original S2 and their differences</caption><thead>
+<tr><th></th><th colspan="2">S1</th><th colspan="2">S2</th><th colspan="2">S1 − S2</th><th colspan="2">p-value</th><th colspan="2">S1 − S3</th></tr>
+<tr><th>Factor</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>0.42</td><td>0.415</td><td>0.46</td><td>0.458</td><td>−0.04</td><td>−0.043</td><td>0.64</td><td>0.62</td><td>−0.11</td><td>−0.113</td></tr>
+<tr><td class="l">SMB</td><td>0.14</td><td>0.128</td><td>0.19</td><td>0.187</td><td>−0.06</td><td>−0.059</td><td>0.37</td><td>0.36</td><td>−0.12</td><td>−0.122</td></tr>
+<tr><td class="l">HML</td><td>0.38</td><td>0.375</td><td>0.43</td><td>0.442</td><td>−0.06</td><td>−0.067</td><td>0.41</td><td>0.33</td><td>−0.12</td><td>−0.122</td></tr>
+<tr><td class="l">Mom</td><td>0.92</td><td>0.889</td><td>0.49</td><td>0.477</td><td>+0.44</td><td>+0.412</td><td>0.00</td><td>0.00</td><td>−0.07</td><td>−0.078</td></tr>
+<tr><td class="l">RMW</td><td>0.44</td><td>0.510</td><td>0.31</td><td>0.328</td><td>+0.13</td><td>+0.182</td><td>0.53</td><td>0.38</td><td>−0.14</td><td>−0.123</td></tr>
+<tr><td class="l">CMA</td><td>0.52</td><td>0.526</td><td>0.56</td><td>0.561</td><td>−0.03</td><td>−0.036</td><td>0.20</td><td>0.14</td><td>−0.11</td><td>−0.121</td></tr>
+</tbody></table></div></div><p class="tn">Months as in Table 3, each strategy from 120 months after the factor's first month. S3 is the ex post optimal combination. E2's clause (ii) fails for RMW alone, in S1; clauses (iii) and (iv) hold. Source: results/202609/cowy_table_5_computed_202609.csv, notebook 04.</p></div>
+
+
+<p>The cause of the miss is French's revision of RMW since the paper's download. On the 641 months of their Table 1, RMW's mean in the current file is 3.12 per cent a year against their 2.92, with the same standard deviation, 7.70 against 7.71, while the other five factors' means lie within 0.12 of theirs. Two diagnostics, computed after the verdict and carrying none, point the same way. Moving RMW's monthly returns by one constant to their mean closes the volatility-managed Sharpe ratio's gap from 0.056 to 0.022 and S1's from 0.070 to 0.027. The Internet Archive's copy of French's five-factor file of 9 July 2017 gives RMW a mean of 2.89 and a standard deviation of 7.74 on the same months, the mean within 0.03 of theirs. The miss therefore measures a change in French's data, and the replication of the construction holds on the other five factors.</p>
+
+<h3>3.3 The alpha and the Sharpe ratio difference</h3>
+
+<p>The test of a Sharpe ratio difference passes its size check: on the 1,000 simulated pairs it rejects 37 at the 5 per cent level, 3.7 per cent, inside the range of 3.5 to 6.5 fixed before the run as two standard errors of a share of 0.05. Table 5 reports it on Moreira and Muir's sample beside the alpha. The volatility-managed Sharpe ratio is above the original's beyond its interval for momentum alone, by 0.51, annualised, with an interval of 0.07 to 0.96 and a p-value of 0.03. For the market the difference is +0.10 with an interval of −0.11 to 0.31 and a p-value of 0.33, beside an alpha with a Newey-West t-statistic of 2.80; for RMW it is +0.19 with an interval of −0.11 to 0.49, beside a t-statistic of 2.81. E4 expected the two tests to agree in sign and significance for at least five factors, and they agree for two, SMB and momentum, so E4 is not met; by category, in no verdict, they agree for four. The signs of HML's and CMA's alphas, positive, and of their Sharpe ratio differences, negative, were known from the replication before any bootstrap ran, and they already limited the agreement to four of six.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 5. The alpha and the Sharpe ratio difference on Moreira and Muir's sample: the volatility-managed factor against its original</caption><thead>
+<tr><th>Factor</th><th>Alpha, % a year</th><th>t (Newey-West)</th><th>Sharpe ratio, managed</th><th>Sharpe ratio, original</th><th>Difference</th><th>95% interval</th><th>p-value</th><th>Correlation &rho;</th><th>&alpha;/&sigma;</th><th>(1 − &rho;) &times; Sharpe ratio, original</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>4.93</td><td>2.80</td><td>0.515</td><td>0.419</td><td>+0.097</td><td>−0.112 to 0.305</td><td>0.33</td><td>0.601</td><td>+0.264</td><td>0.167</td></tr>
+<tr><td class="l">SMB</td><td>−0.59</td><td>−0.45</td><td>0.084</td><td>0.227</td><td>−0.143</td><td>−0.362 to 0.076</td><td>0.19</td><td>0.605</td><td>−0.053</td><td>0.090</td></tr>
+<tr><td class="l">HML</td><td>1.73</td><td>1.36</td><td>0.354</td><td>0.395</td><td>−0.041</td><td>−0.270 to 0.189</td><td>0.72</td><td>0.539</td><td>+0.141</td><td>0.182</td></tr>
+<tr><td class="l">Mom</td><td>12.83</td><td>6.24</td><td>0.993</td><td>0.480</td><td>+0.514</td><td>0.072 to 0.955</td><td>0.03</td><td>0.450</td><td>+0.777</td><td>0.264</td></tr>
+<tr><td class="l">RMW</td><td>2.80</td><td>2.81</td><td>0.598</td><td>0.407</td><td>+0.192</td><td>−0.108 to 0.491</td><td>0.21</td><td>0.583</td><td>+0.361</td><td>0.170</td></tr>
+<tr><td class="l">CMA</td><td>0.36</td><td>0.66</td><td>0.414</td><td>0.538</td><td>−0.124</td><td>−0.337 to 0.090</td><td>0.24</td><td>0.672</td><td>+0.052</td><td>0.176</td></tr>
+</tbody></table></div></div><p class="tn">Months as in Table 1. The difference, its interval and its p-value are Ledoit and Wolf's test, 12-month blocks, 2,000 bootstrap samples, annualised. The difference equals &alpha;/&sigma; minus the last column for every factor, to four decimals. Source: results/202609/sharpe_tests_mm_sample_202609.csv and alpha_and_sharpe_difference_202609.csv, notebook 06.</p></div>
+
+
+<p>An identity shows why the two tests differ. With the volatility-managed factor scaled to the original's standard deviation &sigma;, the regression's slope equals the correlation &rho; between the two, and the volatility-managed factor's mean is &alpha; + &rho;&mu;, so its Sharpe ratio minus the original's equals &alpha;/&sigma; minus (1 − &rho;) times the original's Sharpe ratio. Table 5 computes both sides, equal to four decimals for every factor. The alpha therefore measures what the volatility-managed factor adds to a holding of the original, and the difference measures the volatility-managed factor held in the original's place, which gives up the share 1 − &rho; of the original's Sharpe ratio. With correlations of 0.45 to 0.67, the alpha per unit of risk has to exceed a third to a half of the original's Sharpe ratio before the difference turns positive: for the market &alpha;/&sigma; is 0.264 and (1 − &rho;) times the Sharpe ratio 0.167, so the difference is +0.097; for HML they are 0.141 and 0.182, so a positive alpha of 1.73 per cent a year comes with a difference of −0.041. Cederburg et al.'s Table 1 shows the same separation for the market, a difference with a p-value of 0.30 beside Moreira and Muir's t-statistic of 3.1. The sign of a difference on this sample says nothing about its sign on another.</p>
+
+<h3>3.4 The 136 months after the sample</h3>
+
+<p>Table 6 reports the four Sharpe ratios on May 2015 to August 2026 and the two comparisons, and E5 is met. No interval for S1 minus S2 lies above zero, where at most two were allowed, and the median difference, +0.007, annualised, lies within the median half-width, 0.213. The six differences run from −0.090 for HML, with an interval of −0.234 to 0.053, to +0.198 for momentum, with an interval of −0.342 to 0.738. S1 and S2 are close where S1's position moves little: for SMB, HML and CMA their returns have correlations of 0.985 or more and the half-widths are 0.022 to 0.144, while S1's market position ran from 0.18 to 1.97 against S2's 0.44 to 0.49, a correlation of 0.798 and a half-width of 0.639.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 6. The 136 months after Moreira and Muir's sample, May 2015 to August 2026: Sharpe ratios and their differences with Ledoit and Wolf's intervals, annualised</caption><thead>
+<tr><th></th><th colspan="4">Sharpe ratio</th><th colspan="3">S1 − S2</th><th colspan="3">Volatility-managed − original</th></tr>
+<tr><th>Factor</th><th>Original</th><th>Volatility-managed</th><th>S1</th><th>S2</th><th>Difference</th><th>95% interval</th><th>Half-width</th><th>Difference</th><th>95% interval</th><th>Half-width</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>0.784</td><td>0.554</td><td>0.693</td><td>0.775</td><td>−0.083</td><td>−0.722 to 0.556</td><td>0.639</td><td>−0.231</td><td>−1.120 to 0.659</td><td>0.889</td></tr>
+<tr><td class="l">SMB</td><td>−0.199</td><td>−0.301</td><td>−0.180</td><td>−0.211</td><td>+0.031</td><td>−0.092 to 0.154</td><td>0.123</td><td>−0.103</td><td>−0.690 to 0.485</td><td>0.587</td></tr>
+<tr><td class="l">HML</td><td>−0.019</td><td>−0.333</td><td>−0.141</td><td>−0.051</td><td>−0.090</td><td>−0.234 to 0.053</td><td>0.144</td><td>−0.315</td><td>−1.032 to 0.402</td><td>0.717</td></tr>
+<tr><td class="l">Mom</td><td>0.207</td><td>0.383</td><td>0.394</td><td>0.197</td><td>+0.198</td><td>−0.342 to 0.738</td><td>0.540</td><td>+0.177</td><td>−0.449 to 0.803</td><td>0.626</td></tr>
+<tr><td class="l">RMW</td><td>0.270</td><td>0.410</td><td>0.311</td><td>0.258</td><td>+0.052</td><td>−0.229 to 0.334</td><td>0.282</td><td>+0.140</td><td>−0.394 to 0.675</td><td>0.535</td></tr>
+<tr><td class="l">CMA</td><td>−0.061</td><td>−0.317</td><td>−0.093</td><td>−0.075</td><td>−0.018</td><td>−0.040 to 0.005</td><td>0.022</td><td>−0.257</td><td>−1.046 to 0.532</td><td>0.789</td></tr>
+</tbody></table></div></div><p class="tn">c fixed on the months to April 2015; S1 and S2 carried forward from their expanding windows. Each test uses 2,000 bootstrap samples of 11 blocks of 12 months. E5 judges the S1 − S2 columns; the volatility-managed columns carry no verdict. These months cannot tell any of the twelve differences from zero, and the sign of a difference on them says nothing about another sample. Source: results/202609/after_sample_sharpe_202609.csv, e5_real_time_tests_202609.csv and e5_volatility_managed_tests_202609.csv, notebook 07.</p></div>
+
+
+<p>The volatility-managed factor with c fixed on the months to April 2015 gives the same counts, in no verdict: no interval above zero, and a median difference of −0.167 within a median half-width of 0.672. Its Sharpe ratio is below the original's for four factors and above it for momentum and RMW. For the market it is 0.554 against the original's 0.784, a difference of −0.231 with an interval of −1.120 to 0.659. The three months with the largest gaps between the two returns are October 2018, April 2020 and January 2018. In October 2018 the position was 3.56, after a calm September, and the market fell 7.65 per cent while the volatility-managed market fell 27.3 per cent. In April 2020 the position was 0.013, after March 2020, the highest realised variance of the market in French's history, and the market rose 13.6 per cent while the volatility-managed market rose 0.18 per cent. In January 2018 the position was 3.38, and the market rose 5.58 per cent while the volatility-managed market rose 18.9 per cent.</p>
+
+<p>The intervals are wide because the months are 136. A standard error falls with the square root of the number of months, so 136 months in place of 1,065 multiply it by 2.80, and the volatility-managed comparisons' half-widths are 0.53 to 0.89, annualised, here, against 0.21 to 0.44 on Moreira and Muir's sample. These 136 months therefore cannot tell the differences from zero: an interval of −1.12 to 0.66 for the market is consistent with a negative difference and with a positive one of the size estimated on Moreira and Muir's sample, and the sign of each difference says nothing about another sample.</p>
+
+<h3>3.5 What trading the signal costs, and how large the position gets</h3>
+
+<p>Table 7 reports the turnover and the alpha gross and net of costs, and the market's alpha survives 10 basis points as E6 asks. The volatility-managed market's position changes by 0.752 of the factor a month on average, against Moreira and Muir's 0.73. At 10 basis points per unit of turnover its alpha is 4.03 per cent a year with a Newey-West standard error of 1.74 (t 2.31), against the paper's 3.98, and at 20 basis points it is 3.13 with a standard error of 1.73 (t 1.81); the break-even cost is 55 basis points, against 56. Each basis point of cost takes 12 times the average turnover, 9.0 basis points a year for the market, from the alpha. Momentum's alpha is 11.70 per cent a year net of 10 basis points (t 5.82) and 10.56 net of 20 (t 5.37), with a break-even of 112 basis points; RMW's is 2.06 (t 2.09) and 1.32 (t 1.35); those of SMB, HML and CMA lie within two standard errors of zero gross and net.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 7. Turnover and the alpha gross and net of costs on Moreira and Muir's sample: the volatility-managed factor against its original</caption><thead>
+<tr><th></th><th></th><th colspan="2">Gross</th><th colspan="2">Net of 10 bp</th><th colspan="2">Net of 20 bp</th><th></th></tr>
+<tr><th>Factor</th><th>Turnover, a month</th><th>Alpha, % a year</th><th>t</th><th>Alpha</th><th>t</th><th>Alpha</th><th>t</th><th>Break-even, bp</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>0.75</td><td>4.93</td><td>2.80</td><td>4.03</td><td>2.31</td><td>3.13</td><td>1.81</td><td>55</td></tr>
+<tr><td class="l">SMB</td><td>0.55</td><td>−0.59</td><td>−0.45</td><td>−1.25</td><td>−0.94</td><td>−1.92</td><td>−1.42</td><td>none</td></tr>
+<tr><td class="l">HML</td><td>0.69</td><td>1.73</td><td>1.36</td><td>0.90</td><td>0.70</td><td>0.07</td><td>0.06</td><td>21</td></tr>
+<tr><td class="l">Mom</td><td>0.95</td><td>12.83</td><td>6.24</td><td>11.70</td><td>5.82</td><td>10.56</td><td>5.37</td><td>112</td></tr>
+<tr><td class="l">RMW</td><td>0.62</td><td>2.80</td><td>2.81</td><td>2.06</td><td>2.09</td><td>1.32</td><td>1.35</td><td>38</td></tr>
+<tr><td class="l">CMA</td><td>0.57</td><td>0.36</td><td>0.66</td><td>−0.32</td><td>−0.60</td><td>−1.01</td><td>−1.86</td><td>5</td></tr>
+</tbody></table></div></div><p class="tn">Months as in Table 1. Turnover is the absolute change in the position from the month before, the first month carrying none; the cost is charged on it, per unit, and the factor's own rebalancing, the same for the managed and the original factor, is left out. t-statistics with Newey-West standard errors at 12 lags. The break-even cost is the gross alpha over 12 times the average turnover; SMB's gross alpha is negative and has none. Moreira and Muir's Table IV gives the market 0.73, 3.98 per cent net of 10 basis points and 56. Source: results/202609/costs_mm_sample_202609.csv, notebook 08.</p></div>
+
+
+<p>Table 8 reports the size of the position, and every percentile holds its band, so E6 is met in all 17 of its comparisons, the market's net alpha and 16 percentiles. The market's median position on Moreira and Muir's sample is 0.94 and its 99th percentile 7.27, against 0.93 and 6.39; on Cederburg et al.'s sample every factor's median lies within 0.03 of Panel D and every 99th percentile within 0.48. The largest position, 16.8 for the market in March 1964, followed the market's calmest month of the sample, February 1964. For the market, a position of 7 holds seven times the capital in stocks, six of them borrowed at the bill rate, and a mandate that capped the position at 2 would have bound in 183 of the 1,065 months; the capped strategy is a different one, with its own alpha, which this note does not estimate.</p>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 8, Panel A. The size of the volatility-managed position, published beside computed: percentiles of c over last month's realised variance</caption><thead>
+<tr><th></th><th colspan="2">Median</th><th colspan="2">75th / 90th percentile</th><th colspan="2">99th percentile</th><th></th></tr>
+<tr><th>Factor and sample</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Published</th><th>Computed</th><th>Largest</th></tr>
+</thead><tbody>
+<tr><td class="l">Market, Moreira and Muir's sample</td><td>0.93</td><td>0.94</td><td>1.59 / 2.64</td><td>1.62 / 2.71</td><td>6.39</td><td>7.27</td><td>16.8</td></tr>
+<tr><td class="l">Mkt-RF, Cederburg et al.'s sample</td><td>0.96</td><td>0.96</td><td></td><td></td><td>6.47</td><td>6.00</td><td>13.1</td></tr>
+<tr><td class="l">SMB, Cederburg et al.'s sample</td><td>0.81</td><td>0.79</td><td></td><td></td><td>5.07</td><td>5.08</td><td>8.7</td></tr>
+<tr><td class="l">HML, Cederburg et al.'s sample</td><td>1.02</td><td>1.00</td><td></td><td></td><td>5.89</td><td>5.60</td><td>8.9</td></tr>
+<tr><td class="l">Mom, Cederburg et al.'s sample</td><td>1.01</td><td>1.01</td><td></td><td></td><td>8.64</td><td>8.32</td><td>16.2</td></tr>
+<tr><td class="l">RMW, Cederburg et al.'s sample</td><td>1.11</td><td>1.09</td><td></td><td></td><td>5.02</td><td>5.27</td><td>8.7</td></tr>
+<tr><td class="l">CMA, Cederburg et al.'s sample</td><td>0.97</td><td>0.94</td><td></td><td></td><td>4.56</td><td>4.23</td><td>8.7</td></tr>
+</tbody></table></div></div><p class="tn">Moreira and Muir's Table V, Panel A, for the market, with their definition of the realised variance; Cederburg et al.'s Table 1, Panel D, for the six factors, with theirs. E6 asks the median, 75th and 90th percentiles within 0.15 and the 99th within 1.0; all 16 hold. Source: results/202609/position_market_mm_sample_202609.csv and position_cowy_sample_202609.csv, notebook 08.</p></div>
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num"><caption>Table 8, Panel B. The real-time combination's position, its first month to August 2026: percentiles of S1's total position</caption><thead>
+<tr><th></th><th></th><th></th><th colspan="3">Percentile</th><th></th><th colspan="2">Share of months, %</th><th></th></tr>
+<tr><th>Factor</th><th>First month</th><th>Months</th><th>5th</th><th>Median</th><th>95th</th><th>Largest</th><th>Below 0</th><th>At the cap of 5</th><th>S2, median</th></tr>
+</thead><tbody>
+<tr><td class="l">Mkt-RF</td><td>August 1936</td><td>1081</td><td>0.19</td><td>0.56</td><td>1.78</td><td>5.00</td><td>0.8</td><td>0.3</td><td>0.40</td></tr>
+<tr><td class="l">SMB</td><td>August 1936</td><td>1081</td><td>−0.11</td><td>0.43</td><td>1.45</td><td>4.32</td><td>6.4</td><td>0.0</td><td>0.41</td></tr>
+<tr><td class="l">HML</td><td>August 1936</td><td>1081</td><td>0.19</td><td>0.75</td><td>2.08</td><td>5.00</td><td>2.6</td><td>0.1</td><td>0.58</td></tr>
+<tr><td class="l">Mom</td><td>January 1937</td><td>1076</td><td>0.17</td><td>1.07</td><td>4.82</td><td>5.00</td><td>0.5</td><td>4.6</td><td>0.56</td></tr>
+<tr><td class="l">RMW</td><td>August 1973</td><td>637</td><td>−0.57</td><td>0.89</td><td>3.65</td><td>5.00</td><td>13.8</td><td>2.0</td><td>1.05</td></tr>
+<tr><td class="l">CMA</td><td>August 1973</td><td>637</td><td>1.01</td><td>1.57</td><td>1.99</td><td>2.47</td><td>0.6</td><td>0.0</td><td>1.57</td></tr>
+</tbody></table></div></div><p class="tn">S1's position is its total holding of the factor, the weight on the volatility-managed factor times its position plus the weight on the original, capped at 5 in either direction. Its first month is 120 months after the factor's first month. No verdict. Source: results/202609/position_real_time_202609.csv, notebook 02.</p></div>
+
+
+<p>The real-time combination's position is smaller and moves less, as Panel B of Table 8 reports, in no verdict. From its first month to August 2026, S1's median position runs from 0.43 for SMB to 1.57 for CMA and its 95th percentile from 1.45 to 4.82. It reaches the cap of 5 in at most 4.6 per cent of the months, for momentum, and it is below zero, a short holding of the factor, in 13.8 per cent of RMW's months and 6.4 per cent of SMB's. For the market the real-time original S2 has a median position of 0.40, against S1's 0.56.</p>
+
+
+<div class="tblock"><div class="tw"><div class="tscroll"><table class="num verd"><caption>Table 9. The six expectations, written before any run that judged them, and what the run found</caption><thead>
+<tr><th>No.</th><th>Expected (src/sq/constants.py, 8 and 10 November 2026)</th><th>Found, vintage 202609</th><th>Verdict</th></tr>
+</thead><tbody>
+<tr><td class="l">E1</td><td class="w">On Moreira and Muir's sample, for at least five of the six factors: the alpha's sign and 5 per cent significance as in Table I, the alpha within one published standard error, the appraisal ratio within 0.05; for the market, the volatility-managed Sharpe ratio within 0.05 of 0.52</td><td class="w">6 of 6 (Table 1)</td><td>met</td></tr>
+<tr><td class="l">E2</td><td class="w">On Cederburg et al.'s sample, for each factor: (i) the original and volatility-managed Sharpe ratios within 0.05 of their Table 1; (ii) S1 and S2 within 0.05 of their Table 5; (iii) S1 − S2 with the published sign on at least five of six, momentum's the only significant difference; (iv) S1 − S3 within 0.05</td><td class="w">22 of 24: (i) and (ii) fail for RMW alone, which French has revised since the paper; (iii) and (iv) hold (Tables 3 and 4)</td><td>not met</td></tr>
+<tr><td class="l">E3</td><td class="w">On May 1927 to December 2011, the Sharpe ratios of WML and scaled WML within 0.05 of 0.53 and 0.97, their maximum drawdowns within five points of 96.69 and 45.20 per cent</td><td class="w">4 of 4 (Table 2)</td><td>met</td></tr>
+<tr><td class="l">E4</td><td class="w">The size check rejects 3.5 to 6.5 per cent of 1,000 simulated pairs with equal Sharpe ratios; on Moreira and Muir's sample the bootstrap agrees with the alpha's Newey-West t-statistic in sign and significance for at least five of six factors</td><td class="w">3.7 per cent; 2 of 6, the alpha and the Sharpe ratio difference being different tests; 4 of 6 by category, in no verdict (Table 5)</td><td>not met</td></tr>
+<tr><td class="l">E5</td><td class="w">On May 2015 to August 2026, S1's Sharpe ratio exceeds S2's by more than the interval allows on at most two factors, and the median difference lies within the median half-width</td><td class="w">0 of 6; +0.007 within 0.213; the volatility-managed factor, in no verdict, 0 of 6 and −0.167 within 0.672 (Table 6)</td><td>met</td></tr>
+<tr><td class="l">E6</td><td class="w">The market's alpha net of 10 basis points positive and more than two Newey-West standard errors from zero; the market's position percentiles within 0.15 of Table V (99th within 1.0); each factor's median within 0.15 and 99th percentile within 1.0 of Cederburg et al.'s Panel D</td><td class="w">4.03 per cent a year, t 2.31, and 3.13, t 1.81, at 20 basis points, which E6 does not judge; 17 of 17 (Tables 7 and 8)</td><td>met</td></tr>
+</tbody></table></div></div><p class="tn">E4 is dated 8 November 2026 and the others 10 November 2026; no level moved after a run. Source: results/202609/e1_verdict_202609.csv to e6_verdict_202609.csv, notebooks 03 to 08.</p></div>
+
+<h2>4. Discussion</h2>
+
+<p>The natural comparison is with the two papers' own conclusions. On Moreira and Muir's sample the alphas reproduce for every factor, and the market's survives 10 basis points per unit of turnover at 2.31 standard errors, as the paper reports. Cederburg et al.'s conclusion reproduces as well: an investor who estimated the combination in real time had a Sharpe ratio below the real-time original's for four of six factors, by 0.04 to 0.07, above it for momentum by 0.41, the one significant difference, and above it for RMW by 0.18. Ledoit and Wolf's test adds the reading that separates the two papers: held in the original's place, the volatility-managed factor has a higher Sharpe ratio beyond its interval for momentum alone, so an alpha of more than two standard errors is a statement about adding the managed factor to the original, at weights fixed on the whole sample, and the evidence for holding it alone is confined to momentum on this sample.</p>
+
+<p>What the months after the sample imply is therefore narrow. Neither construction shows a Sharpe ratio difference beyond its interval on any factor, and the intervals are wide enough to hold the paper-sample estimates: the market's volatility-managed difference on Moreira and Muir's sample, +0.097, lies inside its after-sample interval of −1.120 to 0.659, as does momentum's, +0.514, inside −0.449 to 0.803. These months are consistent with the signal doing after 2015 what it did before, and with it doing less; they cannot tell the two apart.</p>
+
+<p>At the same time, the design has limits, each with its cause. First, the costs are charged on the change in the position of a factor, and the factors are long-short portfolios whose own trading in the stocks that make them up is left out because it is the same for the managed and the original factor; a book that holds the stocks pays more, and the break-even costs bound what it could pay. Second, French revises history, so a rerun on a later vintage need not reproduce every digit, as RMW shows; every table names its vintage, and the archived copy shows the size of one revision. Third, the block length of 12 months and the Parzen kernel were fixed before the run, where Ledoit and Wolf calibrate the block length from the data and propose the QS kernel. Fourth, c for the months after the sample is fixed on the months to April 2015, the paper's own constant, so the volatility-managed comparison after the sample asks what the paper's construction did next, and the real-time combination asks what an investor estimating it would have done. Finally, the position is never capped for the volatility-managed factor, as in the paper, so its largest positions, up to 16.8, are positions no mandate would allow.</p>
+
+<p>What would settle the question for the months after the sample is more of them. The half-width falls with the square root of the months, so halving the market's S1 minus S2 half-width of 0.639 would require four times the 136 months, about 45 years.</p>
+
+<p>Against this evidence the note supports a statement about the signal on French's six factors over these samples. Scaled by last month's realised variance, the market, momentum and RMW earn alphas against their originals of more than two Newey-West standard errors on Moreira and Muir's sample, the market's net of 10 basis points at 2.31 standard errors and net of 20 at 1.81; held in the original's place, the volatility-managed factor has a higher Sharpe ratio beyond its interval for momentum alone; estimated in real time, the combination's Sharpe ratio is below the original's for four of six factors; and the 136 months since the sample cannot tell any of these differences from zero.</p>
+
+<h2>References</h2>
+<div class="refs">
+<p>Andrews, D. W. K. (1991). Heteroskedasticity and autocorrelation consistent covariance matrix estimation. <i>Econometrica</i>, 59(3), 817-858.</p>
+<p>Barroso, P. and Santa-Clara, P. (2015). Momentum has its moments. <i>Journal of Financial Economics</i>, 116(1), 111-120.</p>
+<p>Carhart, M. M. (1997). On persistence in mutual fund performance. <i>Journal of Finance</i>, 52(1), 57-82.</p>
+<p>Cederburg, S., O'Doherty, M. S., Wang, F. and Yan, X. S. (2020). On the performance of volatility-managed portfolios. <i>Journal of Financial Economics</i>, 138(1), 95-117.</p>
+<p>Fama, E. F. and French, K. R. (2015). A five-factor asset pricing model. <i>Journal of Financial Economics</i>, 116(1), 1-22.</p>
+<p>French, K. R. (2026). Data library. mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html, files built from the 202609 CRSP database.</p>
+<p>Jobson, J. D. and Korkie, B. M. (1981). Performance hypothesis testing with the Sharpe and Treynor measures. <i>Journal of Finance</i>, 36(4), 889-908.</p>
+<p>Ledoit, O. and Wolf, M. (2008). Robust performance hypothesis testing with the Sharpe ratio. <i>Journal of Empirical Finance</i>, 15(5), 850-859.</p>
+<p>Memmel, C. (2003). Performance hypothesis testing with the Sharpe ratio. <i>Finance Letters</i>, 1(1), 21-23.</p>
+<p>Moreira, A. and Muir, T. (2017). Volatility-managed portfolios. <i>Journal of Finance</i>, 72(4), 1611-1644.</p>
+<p>Newey, W. K. and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. <i>Econometrica</i>, 55(3), 703-708.</p>
+<p>White, H. (1980). A heteroskedasticity-consistent covariance matrix estimator and a direct test for heteroskedasticity. <i>Econometrica</i>, 48(4), 817-838.</p>
+</div>
+
+</div>
+<footer class="ch-foot"><div>Carlo Hofer &middot; Data: Kenneth R. French Data Library &middot; <a href="https://github.com/ochofer/volatility-managed-portfolios">Code on GitHub</a> &middot; The PDF of this note is beside it in the repository</div></footer>
+<script>
+(function () {
+  "use strict";
+  // on screen, a table wider than the page scrolls inside its box; the fade at the right edge shows only while more of the table lies to the right
+  document.querySelectorAll(".tw").forEach(function (t) {
+    function upd() { var s = t.firstElementChild; t.classList.toggle("more", !!s && s.scrollWidth - s.clientWidth - s.scrollLeft > 1); }
+    if (!("ResizeObserver" in window)) { t.classList.add("more"); return; }
+    t.addEventListener("scroll", upd, true);
+    new ResizeObserver(upd).observe(t);
+    upd();
+  });
+})();
+</script>
+</body>
+</html>
