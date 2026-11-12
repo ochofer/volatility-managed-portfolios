@@ -1,4 +1,4 @@
-In build: milestone 1 of 4, the data and the signal. Nothing in this repository is a result yet.
+In build: milestone 2 of 4, the three replications judged. The study's own question, the months after the sample, is not answered yet.
 
 # Volatility-managed portfolios: a replication, the real-time critique, and the months after the sample
 
