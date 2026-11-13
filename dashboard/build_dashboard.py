@@ -440,9 +440,9 @@ SCRIPT = open(os.path.join(SCRIPT_DIR, "charts.js")).read().replace("/*DATA*/nul
 
 build_date = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Amsterdam")).date()
 build_words = f"{build_date.day} {MONTHS[build_date.month - 1]} {build_date.year}"
-LEAD = ("Moreira and Muir's (2017) volatility-managed factors, each month's position scaled by the inverse of last month's realised variance, and the real-time critique of Cederburg et al. (2020), "
-        "replicated on Kenneth R. French's six equity factors. Then the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, May 2015 to August 2026. "
-        "Every figure is a simulation drawn from the tables committed with the code.")
+LEAD = ("Volatility-managed factors scale each month's position by the inverse of last month's realised variance. "
+        "Moreira and Muir (2017) and the real-time critique of Cederburg et al. (2020), replicated on Kenneth R. French's six equity factors, "
+        "then the 136 months after Moreira and Muir's sample, May 2015 to August 2026. Every figure is a simulation drawn from the tables committed with the code.")
 TITLE = "Volatility-managed portfolios: the results"
 DESC = "Moreira and Muir (2017) and Cederburg et al. (2020) replicated on Ken French's six factors, and the 136 months after the sample: key figures and the method."
 page = open(os.path.join(SCRIPT_DIR, "template.html.in")).read()
