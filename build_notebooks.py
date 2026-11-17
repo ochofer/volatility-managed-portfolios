@@ -1479,7 +1479,7 @@ NB07 = [
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
 
-**What this notebook does.** It asks the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, which neither paper could have seen. For each factor it compares, with Ledoit and Wolf's test, the real-time combination against the real-time original, the comparison of Cederburg et al.'s Table 5, and, in no verdict, the volatility-managed factor with the paper's c against the original factor. It judges E5.
+**What this notebook does.** It asks the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, the first 20 of which lie in Cederburg et al.'s sample, which ends in December 2016. For each factor it compares, with Ledoit and Wolf's test, the real-time combination against the real-time original, the comparison of Cederburg et al.'s Table 5, and, in no verdict, the volatility-managed factor with the paper's c against the original factor. It judges E5.
 
 **Why it comes at this point.** Notebooks 03 to 05 replicated the three papers on their own samples, and notebook 06 checked that the test rejects at about its nominal rate when nothing differs. Both constructions are now carried forward unchanged, into months that played no part in building them.
 
@@ -1490,7 +1490,7 @@ NB07 = [
 
 E5 is met when both hold. Differences and half-widths are annualised. The same two counts are reported for the volatility-managed factor, in no verdict.
 
-**Why these levels.** The reason fixed with E5 on 10 November, in `src/sq/constants.py`: the study's own question, with the prior the critique gives. Gains an investor could not have set in real time should show little in months neither paper could have known; more than two factors clearing the interval fails the expectation, and the result is reported whichever way it falls.
+**Why these levels.** The reason fixed with E5 on 10 November, in `src/sq/constants.py`: the study's own question, with the prior the critique gives. Gains an investor could not have set in real time should show little in months neither paper could have known; more than two factors clearing the interval fails the expectation, and the result is reported whichever way it falls. The reason's words "months neither paper could have known" are too wide: Cederburg et al.'s sample holds the first 20 of the 136 months, and 116 lie after both samples.
 
 **What I expect to see, and where it comes from.** E5 met. On their own sample Cederburg et al. found the real-time combination's Sharpe ratio below S2's for four of the six factors, with momentum's difference the only significant one (notebook 04). With 136 months, the intervals are wide: for the volatility-managed factor against the original, notebook 06's intervals on 621 to 1,065 months had half-widths of 0.21 to 0.44, and a sample a fifth to an eighth as long widens them by a factor of about 2 to 3.
 """),

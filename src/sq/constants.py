@@ -375,6 +375,9 @@ EXPECTATIONS = {
             "real time should show little in months neither paper could have known. If more than two factors clear "
             "the interval, the expectation fails and the finding is reported as such."
         ),
+        # 17 November 2026: the reason stays word for word as committed on 10 November.
+        # The reason's words "months neither paper could have known" are too wide: Cederburg et al.'s sample holds
+        # the first 20 of the 136 months, and 116 lie after both samples.
     },
     "E6": {
         "date": "2026-11-10",
