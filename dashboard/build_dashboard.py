@@ -486,8 +486,8 @@ def writers():
 WRITER = writers()
 
 
-def gh(rel):
-    return f'<a href="{GITHUB}/blob/{committed(rel)}/{rel}">{rel.split("/")[-1]}</a>'
+def gh(rel, text=None):
+    return f'<a href="{GITHUB}/blob/{committed(rel)}/{rel}">{text or rel.split("/")[-1]}</a>'
 
 
 prov_rows = []
@@ -499,9 +499,9 @@ for kind, key in ORDER:
     notebooks = sorted({next(iter(WRITER[table])) for table in files})
     a, label = anchor(key)
     prov_rows.append([f'<a href="#{a}">{label}</a> | {title}', ("<br>".join(gh(f"results/{VINTAGE}/{table}_{VINTAGE}.csv") for table in files), "l"),
-                      ("<br>".join(gh(f"notebooks/{nb}") for nb in notebooks), "l")])
-PROV_HTML = ('<p>Each exhibit is drawn from the committed tables in the second column, each linked to the file on GitHub at the commit that last changed it. The third column names the notebook that writes each table.</p>'
-             + html_table([("Exhibit", "l"), ("Committed tables", "l"), ("Notebook", "l")], prov_rows, cls="prov"))
+                      ("<br>".join(gh(f"notebooks/{nb}", f"notebook {nb[:2]}") for nb in notebooks), "l")])
+PROV_HTML = ('<p>The committed tables each exhibit is drawn from, each linked on GitHub at the commit that last changed it, and the notebooks that write them.</p>'
+             + html_table([("Exhibit", "l"), ("Committed tables", "l"), ("Written by", "l")], prov_rows, cls="prov"))
 
 METHOD = f"""<section id="method" class="view method">
 <p class="ch-view-lead">The data, the constructions, what is known at each date, the costs, and what the study cannot show.</p>
