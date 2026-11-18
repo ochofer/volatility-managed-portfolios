@@ -87,7 +87,7 @@
     Plotly.newPlot("c-position", traces, layout, CONFIG);
   }
 
-  var VIEWS = { summary: [fAfter], after: [], "in-sample": [fMM, fCosts, fPos], replication: [], method: [] };
+  var VIEWS = { summary: [fAfter], replication: [], "in-sample": [fMM, fCosts, fPos], after: [], method: [] };
   function drawView(name) { if (drawn[name]) { return; } VIEWS[name].forEach(function (fn) { fn(); }); drawn[name] = true; }
   function showView(name, scrollTo) {
     current = name;
@@ -109,6 +109,8 @@
     var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
     if (!a) { return; }
     var id = a.getAttribute("href").slice(1), v = viewOf(id);
+    // a piece of the study map opens its part's view as its tab does
+    if (VIEWS[id] && a.classList.contains("ch-map__piece")) { e.preventDefault(); history.replaceState(null, "", "#" + id); showView(id); window.scrollTo(0, 0); return; }
     if (v && v !== current) { e.preventDefault(); history.replaceState(null, "", "#" + id); showView(v, id); }
   });
   var timer = null;

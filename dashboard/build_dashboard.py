@@ -8,12 +8,16 @@ by hand. The page embeds the data its four charts draw, so it opens from a file;
 drawn in the browser by Plotly, loaded from its content delivery network, and every chart has its
 numbers in a table under it, so nothing depends on the chart loading or on hover. The build stops,
 naming the file, if a table is missing. Exhibits are numbered in page order across the views, and
-every reference in the text is written from the exhibit it points to.
+every reference in the text is written from the exhibit it points to. The Method view's table "Where
+each exhibit comes from" links each exhibit's tables and notebook on GitHub at the commit that last
+changed each file, so the build runs in a clone of the repository and stops if a table it reads
+differs from its last commit.
 """
 import datetime
 import json
 import os
 import re
+import subprocess
 import sys
 import zoneinfo
 
@@ -24,7 +28,8 @@ REPO = os.path.dirname(SCRIPT_DIR)
 VINTAGE = "202609"
 RESULTS = os.path.join(REPO, "results", VINTAGE)
 OUT = os.path.join(SCRIPT_DIR, "B-Q_dashboard.html")
-FAC = ["Mkt-RF", "SMB", "HML", "Mom", "RMW", "CMA"]
+GITHUB = "https://github.com/ochofer/volatility-managed-portfolios"
+FAC =["Mkt-RF", "SMB", "HML", "Mom", "RMW", "CMA"]
 MINUS = "−"
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
@@ -92,8 +97,11 @@ am["gap"] = (am["original"] - am["managed"]).abs()
 gaps = am.nlargest(3, "gap")
 
 # ---------------------------------------------------------------- exhibits, numbered in page order
-ORDER = [("table", "exp"), ("figure", "after"), ("table", "after-sharpe"), ("table", "e5"), ("figure", "mm"), ("figure", "costs"),
-         ("figure", "position"), ("table", "cowy-pos"), ("table", "mm1"), ("table", "cowy1"), ("table", "cowy5"), ("table", "rmw"), ("table", "bsc")]
+# The views run Summary, Replication, In the sample, After the sample, Method and terms.
+ORDER = [("table", "exp"), ("figure", "after"),
+         ("table", "mm1"), ("table", "cowy1"), ("table", "cowy5"), ("table", "rmw"), ("table", "bsc"),
+         ("figure", "mm"), ("figure", "costs"), ("figure", "position"), ("table", "cowy-pos"),
+         ("table", "after-sharpe"), ("table", "e5")]
 NUM = {}
 _count = {"table": 0, "figure": 0}
 for kind, key in ORDER:
@@ -111,9 +119,10 @@ def anchor(key):
     return f"{kind}-{n}", f"{kind.capitalize()} {n}"
 
 
-def html_table(head, rows, first_left=True):
+def html_table(head, rows, first_left=True, cls=""):
     longest = max([len(re.sub(r"<[^>]+>", "", str(r[0]))) for r in rows] + [0])
-    h = ['<div class="tw"><div class="tscroll"><table' + (' class="wrapfirst"' if longest > 28 else "") + '><thead><tr>']
+    classes = " ".join(c for c in [cls, "wrapfirst" if longest > 28 else ""] if c)
+    h = ['<div class="tw"><div class="tscroll"><table' + (f' class="{classes}"' if classes else "") + '><thead><tr>']
     h += [f'<th class="l">{c[0]}</th>' if isinstance(c, tuple) else f"<th>{c}</th>" for c in head]
     h.append("</tr></thead><tbody>")
     for r in rows:
@@ -130,14 +139,19 @@ def html_table(head, rows, first_left=True):
     return "".join(h)
 
 
-def table_block(key, title, unit, head, rows, note, source):
+PROV = {}  # each exhibit's title and the committed tables it is drawn from, for the Method view's table
+
+
+def table_block(key, title, unit, head, rows, note, source, files):
     a, label = anchor(key)
+    PROV[key] = (title, files)
     return (f'<div class="tblock" id="{a}"><h2>{label} | {title}</h2><p class="cap">{unit}</p>'
             + html_table(head, rows) + (f'<p class="note">{note}</p>' if note else "") + f'<p class="src">{source}</p></div>')
 
 
-def figure_block(key, title, unit, chart_id, head, rows, note, source, cls="chart"):
+def figure_block(key, title, unit, chart_id, head, rows, note, source, files, cls="chart"):
     a, label = anchor(key)
+    PROV[key] = (title, files)
     return (f'<div class="fig" id="{a}"><h2>{label} | {title}</h2><p class="cap">{unit}</p>'
             f'<div id="{chart_id}" class="{cls}"></div>' + html_table(head, rows) + (f'<p class="note">{note}</p>' if note else "")
             + f'<p class="src">{source}</p></div>')
@@ -147,7 +161,28 @@ def verdict(v):
     return ("met", "verdict-met") if v == "met" else ("not met", "verdict-miss")
 
 
-SRC = f"Source: Kenneth R. French Data Library and the author's calculations."
+SRC = "Source: Kenneth R. French Data Library and the author's calculations."
+US = "US equity factors, USD."
+
+
+def published(paper):
+    return f"Source: Kenneth R. French Data Library, {paper} for the published figures, and the author's calculations."
+
+
+# each sample's first month, from the committed counts: the market, SMB and HML, then momentum, then RMW and CMA
+first = {k: pd.Period(smp.loc[k, "first month"], "M") for k in FAC}
+assert first["SMB"] == first["HML"] == first["Mkt-RF"] and first["CMA"] == first["RMW"]
+
+
+def starts(offset=0):
+    s = {k: words(str(first[k] + offset)) for k in ["Mkt-RF", "Mom", "RMW"]}
+    return f"{s['Mkt-RF']} ({s['Mom']} for momentum, {s['RMW']} for RMW and CMA)"
+
+
+MM_MONTHS = f"Monthly, {starts()} to April 2015"
+COWY_MONTHS = f"Monthly, {starts()} to December 2016"
+RT_MONTHS = f"Monthly, {starts(120)} to December 2016"
+AFTER_MONTHS = "Monthly, May 2015 to August 2026"
 
 # Table 1: the six expectations
 exp_rows = [
@@ -166,7 +201,8 @@ exp_rows = [
 ]
 T_EXP = table_block("exp", "The six expectations, written before any run that judged them, and what the run found", "Each expectation is a strict pass or fail, dated 8 or 10 November 2026 in src/sq/constants.py, and no level moved after a run.",
                     ["Expectation", ("What was expected", "l"), ("What the run found", "l"), "Verdict"], exp_rows, "",
-                    f"{SRC} results/{VINTAGE}/e1_verdict_{VINTAGE}.csv to e6_verdict_{VINTAGE}.csv, notebooks 03 to 08.")
+                    f"{SRC} Monthly, {words(str(first['Mkt-RF']))} to August 2026, each expectation on its own sample, {US}",
+                    [f"e{i}_verdict" for i in range(1, 7)] + ["e2_cause_original_factors", "costs_mm_sample"])
 
 # Figure 1: after the sample
 after_rows = []
@@ -180,19 +216,19 @@ F_AFTER = figure_block("after", "Sharpe ratio differences in the 136 months afte
                         "Volatility-managed minus original", "95% interval", "Half-width", "p-value"], after_rows,
                        "These 136 months cannot tell any of the twelve differences from zero, and the sign of a difference on these months says nothing about another sample. "
                        "E5 judges the first comparison, and the second carries no verdict. c is fixed on the months to April 2015, and the real-time combination uses only the months before each decision. Simulated, before costs.",
-                       f"{SRC} Monthly, May 2015 to August 2026, US equity factors, USD. results/{VINTAGE}/e5_real_time_tests_{VINTAGE}.csv and e5_volatility_managed_tests_{VINTAGE}.csv, notebook 07.")
+                       f"{SRC} {AFTER_MONTHS}, {US}", ["e5_real_time_tests", "e5_volatility_managed_tests"])
 
 # Table 2 and 3: after the sample
 T_AFTER_SHARPE = table_block("after-sharpe", "The four Sharpe ratios in the 136 months after the sample, May 2015 to August 2026", "Annualised Sharpe ratio, simulated, before costs",
                              ["Factor", "Original", "Volatility-managed", "Real-time combination (S1)", "Real-time original (S2)"],
                              [[k, f(sh.loc[k, "original"], 3), f(sh.loc[k, "volatility-managed"], 3), f(sh.loc[k, "S1"], 3), f(sh.loc[k, "S2"], 3)] for k in FAC],
                              f"Each difference between two of these columns, with its interval, is in {ref('after')}.",
-                             f"{SRC} Monthly, May 2015 to August 2026. results/{VINTAGE}/after_sample_sharpe_{VINTAGE}.csv, notebook 07.")
+                             f"{SRC} {AFTER_MONTHS}, {US}", ["after_sample_sharpe"])
 T_E5 = table_block("e5", "E5, the expectation for the months after the sample, and the same counts for the volatility-managed factor", "Annualised Sharpe ratio differences",
                    ["Comparison", "Factors with the interval above zero", "Allowed", "Median difference", "Median half-width", "Verdict"],
                    [["Real-time combination minus real-time original", str(int(e["e5"]["count above"])), str(int(e["e5"]["allowed"])), f(e["e5"]["median difference"], 3, True), f(e["e5"]["median half-width"], 3), verdict(e["e5"]["verdict"])],
                     ["Volatility-managed minus original", str(int(e["e5"]["volatility-managed count above, no verdict"])), "", f(vm["difference"].median(), 3, True), f(vm["half_width"].median(), 3), ("no verdict", "")]],
-                   "", f"{SRC} results/{VINTAGE}/e5_verdict_{VINTAGE}.csv and e5_volatility_managed_tests_{VINTAGE}.csv, notebook 07.")
+                   "", f"{SRC} {AFTER_MONTHS}, {US}", ["e5_verdict", "e5_volatility_managed_tests"])
 
 # Figure 2: the test on Moreira and Muir's sample
 mm_rows = []
@@ -207,7 +243,7 @@ F_MM = figure_block("mm", "Sharpe ratio differences on Moreira and Muir's sample
                      "Correlation &rho;", "&alpha;/&sigma;", "(1 " + MINUS + " &rho;) &times; Sharpe ratio, original"], mm_rows,
                     "The difference equals &alpha;/&sigma; minus (1 " + MINUS + " &rho;) times the original's Sharpe ratio for every factor, to four decimals: the alpha measures what the volatility-managed factor adds to a holding of the original, and the difference measures it held in the original's place. "
                     "The sign of a difference on these months says nothing about another sample. Simulated, before costs.",
-                    f"{SRC} Monthly, August 1926 (January 1927 for momentum, August 1963 for RMW and CMA) to April 2015. results/{VINTAGE}/sharpe_tests_mm_sample_{VINTAGE}.csv and alpha_and_sharpe_difference_{VINTAGE}.csv, notebook 06.")
+                    f"{SRC} {MM_MONTHS}, {US}", ["sharpe_tests_mm_sample", "alpha_and_sharpe_difference"])
 
 # Figure 3: costs
 cost_rows = []
@@ -221,7 +257,7 @@ F_COSTS = figure_block("costs", "The volatility-managed factor's alpha gross and
                        ["Factor", "Turnover, a month", "Alpha, gross", "t", "Net of 10 bp", "t", "Net of 20 bp", "t", "Break-even, bp"], cost_rows,
                        "Turnover is the absolute change in the position from the month before. The cost is charged per unit of it, and the factor's own rebalancing, the same for the managed and the original factor, is left out. "
                        f"Moreira and Muir's Table IV gives the market {f(e6c.iloc[0]['published'])} per cent a year net of 10 basis points. SMB's gross alpha is negative and has no break-even cost. Simulated.",
-                       f"{SRC} Monthly, to April 2015. results/{VINTAGE}/costs_mm_sample_{VINTAGE}.csv, notebook 08.")
+                       f"{SRC} {MM_MONTHS}, {US}", ["costs_mm_sample", "e6_comparison"])
 
 # Figure 4: the market's position
 pos_rows = [["Median", f(mkt_pub["P50"]), f(pm["P50"])], ["75th percentile", f(mkt_pub["P75"]), f(pm["P75"])],
@@ -231,13 +267,14 @@ F_POS = figure_block("position", "The volatility-managed market's position, Augu
                      "c over last month's realised variance, log scale", "c-position",
                      ["Statistic", "Moreira and Muir, Table V", "Computed"], pos_rows,
                      f"The position is above 2 in {above2} of the {n_pos:,} months. For the market, a position of 7 holds seven times the capital in stocks, six of them borrowed at the bill rate. E6 asks the median, 75th and 90th percentiles within 0.15 of Moreira and Muir's and the 99th within 1.0.",
-                     f"{SRC} Monthly, August 1926 to April 2015. results/{VINTAGE}/volatility_managed_mm_sample_{VINTAGE}.csv and position_market_mm_sample_{VINTAGE}.csv, notebook 08.")
+                     f"{published('Moreira and Muir (2017)')} Monthly, {words(str(first['Mkt-RF']))} to April 2015, US equity market factor, USD.",
+                     ["volatility_managed_mm_sample", "position_market_mm_sample", "e6_comparison"])
 
 T_COWY_POS = table_block("cowy-pos", "The volatility-managed position on Cederburg et al.'s sample, published beside computed", "c over last month's realised variance, with their definition of the realised variance",
                          ["Factor", "Median, published", "Median, computed", "99th percentile, published", "99th percentile, computed", "Largest"],
                          [[k, f(pc.loc[k, "P50 published"]), f(pc.loc[k, "P50"]), f(pc.loc[k, "P99 published"]), f(pc.loc[k, "P99"]), f(pc.loc[k, "maximum"], 1)] for k in FAC],
                          "E6 asks each median within 0.15 and each 99th percentile within 1.0 of Cederburg et al.'s Table 1, Panel D.",
-                         f"{SRC} Monthly, to December 2016. results/{VINTAGE}/position_cowy_sample_{VINTAGE}.csv, notebook 08.")
+                         f"{published('Cederburg et al. (2020)')} {COWY_MONTHS}, {US}", ["position_cowy_sample"])
 
 # Replication tables
 T_MM = table_block("mm1", "Moreira and Muir's Table I on their sample, published beside computed", "Alpha of the volatility-managed factor on its original, % a year",
@@ -246,27 +283,28 @@ T_MM = table_block("mm1", "Moreira and Muir's Table I on their sample, published
                      f(e1c.loc[k, "se computed (White)"]), f(e1c.loc[k, "se computed (Newey-West)"]), f(e1c.loc[k, "appraisal published"]), f(e1c.loc[k, "appraisal computed"]),
                      "yes" if e1c.loc[k, "factor matches"] else "no"] for k in FAC],
                    f"The published standard errors are White's, as are the computed ones the verdict uses. The market's volatility-managed Sharpe ratio is {f(e1c.loc['Mkt-RF', 'Sharpe computed'])} against Table V's {f(e1c.loc['Mkt-RF', 'Sharpe published (Table V)'])}.",
-                   f"{SRC} Monthly, each factor from its first month to April 2015. results/{VINTAGE}/e1_comparison_{VINTAGE}.csv, notebook 03.")
+                   f"{published('Moreira and Muir (2017)')} {MM_MONTHS}, {US}", ["e1_comparison"])
 T_C1 = table_block("cowy1", "Cederburg et al.'s Table 1 on their sample, published beside computed", "Annualised Sharpe ratios and the Jobson-Korkie p-value of their difference",
                    ["Factor", "Original, published", "Original, computed", "Volatility-managed, published", "Volatility-managed, computed", "Difference, published", "Difference, computed", "p-value, published", "p-value, computed"],
                    [[k, f(c1.loc[k, "original Sharpe, published"]), f(c1.loc[k, "original Sharpe, computed"], 3), f(c1.loc[k, "managed Sharpe, published"]), f(c1.loc[k, "managed Sharpe, computed"], 3),
                      f(c1.loc[k, "difference, published"], 2, True), f(c1.loc[k, "difference, computed"], 3, True), f(c1.loc[k, "p, published"]), f(c1.loc[k, "p, computed"])] for k in FAC],
                    "E2's first clause asks both Sharpe ratios within 0.05. It fails for RMW alone, its volatility-managed Sharpe ratio 0.006 outside the band.",
-                   f"{SRC} Monthly, each factor from its first month to December 2016. results/{VINTAGE}/cowy_table_1_computed_{VINTAGE}.csv, notebook 04.")
+                   f"{published('Cederburg et al. (2020)')} {COWY_MONTHS}, {US}", ["cowy_table_1_computed"])
 T_C5 = table_block("cowy5", "Cederburg et al.'s Table 5, Panel A, on their sample, published beside computed", "Annualised Sharpe ratios of the real-time combination S1, the real-time original S2 and their differences",
                    ["Factor", "S1, published", "S1, computed", "S2, published", "S2, computed", "S1 " + MINUS + " S2, published", "S1 " + MINUS + " S2, computed", "p-value, published", "p-value, computed", "S1 " + MINUS + " S3, published", "S1 " + MINUS + " S3, computed"],
                    [[k, f(c5.loc[k, "S1, published"]), f(c5.loc[k, "S1, computed"], 3), f(c5.loc[k, "S2, published"]), f(c5.loc[k, "S2, computed"], 3),
                      f(c5.loc[k, "S1-S2, published"], 2, True), f(c5.loc[k, "S1-S2, computed"], 3, True), f(c5.loc[k, "p, published"]), f(c5.loc[k, "p, computed"]),
                      f(c5.loc[k, "S1-S3, published"], 2, True), f(c5.loc[k, "S1-S3, computed"], 3, True)] for k in FAC],
                    "S3 is the ex post optimal combination. E2's second clause fails for RMW alone, in S1, 0.020 outside the band, and its third and fourth hold: S1 " + MINUS + " S2 has the published sign for six of six factors and momentum's is the one significant difference.",
-                   f"{SRC} Monthly, each strategy from 120 months after the factor's first month to December 2016. results/{VINTAGE}/cowy_table_5_computed_{VINTAGE}.csv, notebook 04.")
+                   f"{published('Cederburg et al. (2020)')} {RT_MONTHS}, {US}", ["cowy_table_5_computed"])
 T_RMW = table_block("rmw", "RMW's revision: the miss of E2 and two diagnostics computed after the verdict, which carry none", "RMW, August 1963 to December 2016, 641 months",
                     ["Series", "Mean, % a year", "Standard deviation, % a year"],
                     [[f"Cederburg et al.'s Table 1", f(dib.iloc[0]["mean"]), f(dib.iloc[0]["sd"])],
                      [f"The Internet Archive's copy of French's five-factor file, 9 July 2017", f(dib.iloc[1]["mean"]), f(dib.iloc[1]["sd"])],
                      [f"French's file, vintage {VINTAGE}", f(dib.iloc[2]["mean"]), f(dib.iloc[2]["sd"])]],
                     f"Moving RMW's monthly returns by one constant to Table 1's mean closes the volatility-managed Sharpe ratio's gap to Table 1 from {f(dia.loc['managed Sharpe', 'gap, computed'], 3)} to {f(dia.loc['managed Sharpe', 'gap, mean moved'], 3)}, and S1's from {f(dia.loc['S1', 'gap, computed'], 3)} to {f(dia.loc['S1', 'gap, mean moved'], 3)}. The archived file is fetched at run time and not committed.",
-                    f"{SRC} results/{VINTAGE}/e2_diagnostic_a_rmw_mean_moved_{VINTAGE}.csv and e2_diagnostic_b_rmw_archived_{VINTAGE}.csv, notebook 04.")
+                    "Source: Kenneth R. French Data Library, the Internet Archive's capture of French's five-factor file on 9 July 2017, Cederburg et al. (2020) for the published figures, and the author's calculations. "
+                    f"Monthly, {words(str(first['RMW']))} to December 2016, {US}", ["e2_diagnostic_b_rmw_archived", "e2_diagnostic_a_rmw_mean_moved"])
 bsc_rows = [["Mean, % a year", f(bsc.loc["mean", "WML, published"]), f(bsc.loc["mean", "WML, computed"]), f(bsc.loc["mean", "scaled WML, published"]), f(bsc.loc["mean", "scaled WML, computed"])],
             ["Standard deviation, % a year", f(bsc.loc["standard deviation", "WML, published"]), f(bsc.loc["standard deviation", "WML, computed"]), f(bsc.loc["standard deviation", "scaled WML, published"]), f(bsc.loc["standard deviation", "scaled WML, computed"])],
             ["Sharpe ratio", f(bsc.loc["Sharpe ratio", "WML, published"]), f(bsc.loc["Sharpe ratio", "WML, computed"]), f(bsc.loc["Sharpe ratio", "scaled WML, published"]), f(bsc.loc["Sharpe ratio", "scaled WML, computed"])],
@@ -274,7 +312,7 @@ bsc_rows = [["Mean, % a year", f(bsc.loc["mean", "WML, published"]), f(bsc.loc["
 T_BSC = table_block("bsc", "Barroso and Santa-Clara's Table 3, May 1927 to December 2011, published beside computed", "Momentum (WML) and scaled momentum, 1,016 months",
                     ["Statistic", "WML, published", "WML, computed", "Scaled WML, published", "Scaled WML, computed"], bsc_rows,
                     "The paper's scaled series starts in March 1927. French's daily file of the ten momentum portfolios starts on 3 November 1926, so the first scaled month here is May 1927. E3 judges the two Sharpe ratios and the two maximum drawdowns.",
-                    f"{SRC} Monthly. results/{VINTAGE}/bsc_table_3_computed_{VINTAGE}.csv and e3_comparison_{VINTAGE}.csv, notebook 05.")
+                    f"{published('Barroso and Santa-Clara (2015)')} Monthly, May 1927 to December 2011, US stocks in ten portfolios sorted on prior returns, USD.", ["bsc_table_3_computed", "e3_comparison"])
 
 # ---------------------------------------------------------------- the views
 mkt_rt, mkt_vm = rt.loc["Mkt-RF"], vm.loc["Mkt-RF"]
@@ -319,12 +357,27 @@ FACTS = [
 ]
 FACTS_HTML = "".join(f'<div class="ch-fact"><dt>{a}</dt><dd>{b}</dd></div>' for a, b in FACTS)
 
+# the study map (house standard E11): one piece per part, in the order the study builds them
+PARTS = [("replication", "Replication", "Three papers' published numbers, recomputed"),
+         ("in-sample", "In the sample", "The signal on Moreira and Muir's sample, to April 2015"),
+         ("after", "After the sample", "The 136 months from May 2015 to August 2026")]
+
+
+def study_map(current=None):
+    pieces = "".join(f'<a class="ch-map__piece" href="#{v}"' + (' aria-current="step"' if v == current else "")
+                     + f'><span class="ch-map__n">{i}</span><span class="ch-map__name">{name}</span><span class="ch-map__sub">{sub}</span></a>'
+                     for i, (v, name, sub) in enumerate(PARTS, 1))
+    cls = "ch-map" if current else "ch-map ch-map--summary"
+    return f'<nav class="{cls}" aria-label="The study in three parts">{pieces}</nav>'
+
+
 SUMMARY = f"""<section id="summary" class="view on">
 <p class="ch-view-lead">The six expectations, their verdicts and the study's own question.</p>
 <div class="ch-top">
 <div>
 <div class="ch-kpis">{KPIS}</div>
 <p class="kpnote">The 136 months after the sample cannot tell any of these differences from zero, and the sign of a Sharpe ratio difference on one sample says nothing about another.</p>
+{study_map()}
 <ul class="kp">{''.join(f'<li>{k}</li>' for k in KEYPOINTS)}</ul>
 </div>
 <aside class="ch-facts"><h3>Key facts</h3><dl>{FACTS_HTML}</dl></aside>
@@ -338,6 +391,7 @@ gap_sent = " ".join(
     f"In {words(r['month'])} the position was {f(r['position'], 2 if r['position'] >= 0.1 else 3)}, and the market {'rose' if r['original'] > 0 else 'fell'} {f(abs(100 * r['original']), 2 if abs(100 * r['original']) < 10 else 1)} per cent while the volatility-managed market {'rose' if r['managed'] > 0 else 'fell'} {f(abs(100 * r['managed']), 2 if abs(100 * r['managed']) < 10 else 1)} per cent."
     for _, r in g.iterrows())
 AFTER = f"""<section id="after" class="view">
+{study_map("after")}
 <p class="ch-view-lead">What the signal did in the 136 months after Moreira and Muir's sample, with the volatility-managed factor's scale fixed on the data to April 2015 and the real-time combination carried forward.</p>
 <p class="lead">The study's own question is what the signal did after Moreira and Muir's sample ended. Both constructions run unchanged on May 2015 to August 2026: the volatility-managed factor's scale, c, is fixed on the months to April 2015, and the real-time combination uses only the months before each decision, so no parameter of either was set on these months. {ref('after')} shows each difference with its interval. The intervals are wide because the months are 136: the half-widths of the volatility-managed comparisons, annualised, are {f(vm['half_width'].min())} to {f(vm['half_width'].max())} on these months and {f(st['half_width'].min())} to {f(st['half_width'].max())} on the 1,065 months of Moreira and Muir's sample ({ref('mm')}). These months therefore cannot tell the differences from zero.</p>
 {T_AFTER_SHARPE}
@@ -346,6 +400,7 @@ AFTER = f"""<section id="after" class="view">
 </section>"""
 
 COSTS = f"""<section id="in-sample" class="view">
+{study_map("in-sample")}
 <p class="ch-view-lead">What the volatility-managed factor adds to the original on Moreira and Muir's sample, how the Sharpe ratio test reads it, and what trading it costs.</p>
 <p class="lead">The test of a Sharpe ratio difference is Ledoit and Wolf's (2008) studentised circular block bootstrap. Before it touches a factor it is run on {int(size['pairs']):,} simulated pairs of {int(size['months']):,} months whose Sharpe ratios are equal by construction, and it rejects {int(size['rejected'])} of them at the 5 per cent level, {f(100 * size['rate'], 1)} per cent, inside the range of 3.5 to 6.5 fixed before the run.</p>
 {F_MM}
@@ -355,6 +410,7 @@ COSTS = f"""<section id="in-sample" class="view">
 </section>"""
 
 REPL = f"""<section id="replication" class="view">
+{study_map("replication")}
 <p class="ch-view-lead">Each paper's published numbers beside the computed ones, on each paper's own sample.</p>
 {T_MM}
 {T_C1}
@@ -397,6 +453,56 @@ TERMS_HTML = "".join(f"<dt>{a}</dt><dd>{b}</dd>" for a, b in TERMS)
 
 OTHER = open(os.path.join(SCRIPT_DIR, "other_projects.html")).read()
 
+# ---------------------------------------------------------------- where each exhibit comes from
+def git(*args):
+    try:
+        return subprocess.run(["git", "-C", REPO, *args], capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError) as err:
+        sys.exit(f"dashboard/build_dashboard.py: git {' '.join(args)} failed ({err}); the build links each table to its commit, so it runs in a clone of the repository")
+
+
+def committed(rel):
+    """The commit that last changed a file, once the file is known to equal it."""
+    if git("status", "--porcelain", "--", rel):
+        sys.exit(f"dashboard/build_dashboard.py: {rel} differs from its last commit; commit it first, so the page links the table it is drawn from")
+    h = git("log", "-1", "--format=%H", "--", rel)
+    if not h:
+        sys.exit(f"dashboard/build_dashboard.py: {rel} is not committed")
+    return h
+
+
+def writers():
+    """The notebook that writes each table, read from the notebooks' own code cells."""
+    out = {}
+    for name in sorted(os.listdir(os.path.join(REPO, "notebooks"))):
+        if name.endswith(".ipynb"):
+            cells = json.load(open(os.path.join(REPO, "notebooks", name)))["cells"]
+            code = "".join("".join(c["source"]) for c in cells if c["cell_type"] == "code" and not "".join(c["source"]).startswith("%%writefile"))
+            for table in re.findall(r"outputs/([a-z0-9_]+)_\{VINTAGE\}", code):
+                out.setdefault(table, set()).add(name)
+    return out
+
+
+WRITER = writers()
+
+
+def gh(rel):
+    return f'<a href="{GITHUB}/blob/{committed(rel)}/{rel}">{rel.split("/")[-1]}</a>'
+
+
+prov_rows = []
+for kind, key in ORDER:
+    title, files = PROV[key]
+    for table in files:
+        if len(WRITER.get(table, ())) != 1:
+            sys.exit(f"dashboard/build_dashboard.py: {table} is written by {sorted(WRITER.get(table, ())) or 'no notebook'}, where one is expected")
+    notebooks = sorted({next(iter(WRITER[table])) for table in files})
+    a, label = anchor(key)
+    prov_rows.append([f'<a href="#{a}">{label}</a> | {title}', ("<br>".join(gh(f"results/{VINTAGE}/{table}_{VINTAGE}.csv") for table in files), "l"),
+                      ("<br>".join(gh(f"notebooks/{nb}") for nb in notebooks), "l")])
+PROV_HTML = ('<p>Each exhibit is drawn from the committed tables in the second column, each linked to the file on GitHub at the commit that last changed it. The third column names the notebook that writes each table.</p>'
+             + html_table([("Exhibit", "l"), ("Committed tables", "l"), ("Notebook", "l")], prov_rows, cls="prov"))
+
 METHOD = f"""<section id="method" class="view method">
 <p class="ch-view-lead">The data, the constructions, what is known at each date, the costs, and what the study cannot show.</p>
 <h2>Method</h2>
@@ -406,6 +512,8 @@ METHOD = f"""<section id="method" class="view method">
 <p><strong>The test.</strong> Ledoit and Wolf (2008) take the standard error of a Sharpe ratio difference by the delta method from the prewhitened Parzen kernel, and its interval from a circular block bootstrap of 2,000 samples of 12-month blocks, each sample's difference studentised by its own standard error.<sup><a href="#note-5">5</a></sup> The paper proposes the QS kernel and reports the Parzen kernel's performance as very similar, and it calibrates the block length from the data, where the study fixed it at 12 months before the run.</p>
 <p><strong>Costs.</strong> A month's turnover is the absolute change in the position from the month before. The cost, 10 basis points per unit of turnover and 20 as the sensitivity, is subtracted from the volatility-managed return, and the alpha is estimated again on the net return. The factor's own rebalancing is the same for the managed and the original factor and is left out.</p>
 <p><strong>What the study cannot show.</strong> It holds no view on expected returns and estimates no premium. Its costs are charged on the change in a factor's position, and a book that holds the stocks pays more, so the break-even costs bound what it could pay. French revises history, so a run on a later vintage need not reproduce every digit, as RMW shows. The 136 months after the sample are too few to tell any Sharpe ratio difference from zero: halving the market's half-width would require four times as many. The volatility-managed position is never capped, as in the paper, so its largest positions, up to {f(pm['max'], 1)}, are positions no mandate would allow.</p>
+<h2>Where each exhibit comes from</h2>
+{PROV_HTML}
 <h2>Terms</h2>
 <dl class="terms">{TERMS_HTML}</dl>
 <h2>Notes</h2>
@@ -419,7 +527,7 @@ METHOD = f"""<section id="method" class="view method">
 </section>
 {OTHER}"""
 
-BODY = "\n".join([SUMMARY, AFTER, COSTS, REPL, METHOD])
+BODY = "\n".join([SUMMARY, REPL, COSTS, AFTER, METHOD])
 
 # ---------------------------------------------------------------- the data the charts draw
 def r4(x):

@@ -104,6 +104,8 @@ thead th:first-child, tbody th { text-align: left; position: sticky; left: 0; ba
 thead th:first-child { background: var(--tint); }
 @media (max-width: 700px) { table.wrapfirst tbody th { white-space: normal; min-width: 9em; } }
 tbody th { font-weight: 500; }
+table.prov tbody th, table.prov td { white-space: normal; vertical-align: top; }
+table.prov tbody th { min-width: 12em; }
 td { text-align: right; }
 tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
 .src { font-size: 12px; color: var(--meta); margin: 4px 0 0; overflow-wrap: anywhere; }
@@ -171,6 +173,30 @@ ol.notes li { margin: 0 0 6px; overflow-wrap: anywhere; }
 sup a { text-decoration: none; }
 @media (max-width: 400px) { .tabs button { font-size: 13.5px; } }
 @media (max-width: 368px) { .tabs .wrap { gap: 8px; } .tabs button { font-size: 13px; } }
+/* the study map, house standard E11, as it stands */
+.ch-map { --r: 15px; display: flex; gap: 2px; margin: 0 0 18px; position: relative; isolation: isolate; }
+.ch-map--summary { margin-top: 18px; }
+.ch-map__piece { position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; min-height: 84px; padding: 12px 16px 12px calc(var(--r) + 14px); background: #e9edf3; color: var(--navy); text-decoration: none; }
+.ch-map__piece:first-child { padding-left: 16px; }
+.ch-map__piece:not(:last-child)::after { content: ""; position: absolute; z-index: 2; top: 50%; right: calc(-1px - var(--r)); width: calc(2 * var(--r)); height: calc(2 * var(--r)); margin-top: calc(-1 * var(--r)); border-radius: 50%; background: inherit; }
+.ch-map__piece + .ch-map__piece::before { content: ""; position: absolute; z-index: 1; top: 50%; left: calc(-3px - var(--r)); width: calc(2 * var(--r) + 4px); height: calc(2 * var(--r) + 4px); margin-top: calc(-2px - var(--r)); border-radius: 50%; background: #ffffff; clip-path: inset(0 0 0 calc(var(--r) + 3px)); }
+.ch-map__piece[aria-current="step"] { background: var(--navy); color: #ffffff; }
+.ch-map__n { font-size: 12px; font-weight: 600; line-height: 1.3; color: #5d6470; }
+.ch-map__name { font-size: 15px; font-weight: 600; line-height: 1.25; }
+.ch-map__sub { margin-top: 3px; font-size: 12.5px; line-height: 1.35; color: #5d6470; }
+.ch-map__piece[aria-current="step"] .ch-map__n, .ch-map__piece[aria-current="step"] .ch-map__sub { color: #c9d1de; }
+.ch-map__piece:not([aria-current="step"]):hover { background: #dde3ec; }
+.ch-map__piece:focus-visible { outline: 2px solid var(--navy); outline-offset: -4px; }
+@media (max-width: 599.98px) {
+  .ch-map { --r: 9px; }
+  .ch-map__piece { min-height: 52px; padding: 8px 8px 8px calc(var(--r) + 10px); }
+  .ch-map__piece:first-child { padding-left: 10px; }
+  .ch-map__name { font-size: 13px; }
+  .ch-map__sub { display: none; }
+}
+@media print { .ch-map__piece, .ch-map__piece::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+/* at the top of a part's view, the map takes the lead line's place under the tab bar */
+.view > .ch-map:first-child { margin-top: 26px; }
 </style>
 <script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js" charset="utf-8"></script>
 <script data-goatcounter="https://carlohofer.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
@@ -203,7 +229,7 @@ sup a { text-decoration: none; }
 <div class="ch-docs"><a href="../note/B-Q_note_2026-11.pdf">Note (PDF)</a><a href="https://github.com/ochofer/volatility-managed-portfolios">Code on GitHub</a></div>
 </div></section>
 <nav class="tabs" aria-label="Views"><div class="wrap">
-<button type="button" data-view="summary" aria-selected="true">Summary</button><button type="button" data-view="after" aria-selected="false"><span class="lg">After the sample</span><span class="sh">Since 2015</span></button><button type="button" data-view="in-sample" aria-selected="false"><span class="lg">In the sample</span><span class="sh">To 2015</span></button><button type="button" data-view="replication" aria-selected="false">Replication</button><button type="button" data-view="method" aria-selected="false"><span class="lg">Method and terms</span><span class="sh">Method</span></button>
+<button type="button" data-view="summary" aria-selected="true">Summary</button><button type="button" data-view="replication" aria-selected="false">Replication</button><button type="button" data-view="in-sample" aria-selected="false"><span class="lg">In the sample</span><span class="sh">To 2015</span></button><button type="button" data-view="after" aria-selected="false"><span class="lg">After the sample</span><span class="sh">Since 2015</span></button><button type="button" data-view="method" aria-selected="false"><span class="lg">Method and terms</span><span class="sh">Method</span></button>
 </div></nav>
 <main class="wrap">
 {{BODY}}
