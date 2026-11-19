@@ -226,16 +226,16 @@ SIZE_CHECK_PAIRS = 1000
 SIZE_CHECK_T_DOF = 5
 SIZE_CHECK_SEED = 20261110
 
-# Added on 19 November 2026, after a referee's report on the repository: the
-# test's size at the length the study's own question uses it, 136 months in 11
-# blocks of 12, 132 of the 136 months, with blocks of 6 and 3 as sensitivities,
-# on 1,000 pairs (SIZE_CHECK_PAIRS) at each block length; and the twelve tests
-# after the sample recomputed at blocks of 6 and 3 beside 12. The generator and
-# its settings are the size check's above (the market's mean and standard
-# deviation and its two series' correlation on Moreira and Muir's sample,
-# Student-t shocks with five degrees of freedom, 2,000 bootstrap samples). No
-# expectation is attached: the outcome was known in part before this was
-# written. E5's verdict stays on the blocks of 12 fixed before its run.
+# Added on 19 November 2026: the test's size at the length the study's own
+# question uses it, 136 months in 11 blocks of 12, 132 months long, with
+# blocks of 6 and 3 as sensitivities, on 1,000 pairs (SIZE_CHECK_PAIRS) at each
+# block length; and the twelve tests after the sample recomputed at blocks of 6
+# and 3 beside 12. The generator and its settings are the size check's above
+# (the market's mean and standard deviation and its two series' correlation on
+# Moreira and Muir's sample, Student-t shocks with five degrees of freedom,
+# 2,000 bootstrap samples). No expectation is attached: the outcome was known
+# in part before this was written. E5's verdict stays on the blocks of 12 fixed
+# before its run.
 SIZE_CHECK_SHORT_MONTHS = 136
 SIZE_CHECK_SHORT_SEEDS = {12: 20261122, 6: 20261123, 3: 20261124}   # block length: seed
 AFTER_SAMPLE_SENSITIVITY_BLOCKS = (6, 3)   # on the seed streams of the tests at 12

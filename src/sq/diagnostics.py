@@ -2,7 +2,7 @@
 Diagnostics: checks computed after a verdict, to read its cause. None of them
 carries a verdict, and none changes a level in constants.py.
 
-E2's diagnostics (notebook 04), allowed by the design on 10 November 2026:
+E2's diagnostics (notebook 04), decided on 10 November 2026:
 
   (a) shift_to_mean: the original factor's monthly returns moved by one
       constant so that their mean over given months equals a published mean.

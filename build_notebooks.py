@@ -2,7 +2,7 @@
 Builds the notebooks in notebooks/ from this file and from the modules in src/sq/.
 
 A .ipynb is JSON with outputs and execution counts stored beside the code, so a
-hand-edited notebook cannot be reviewed as a diff. The notebooks here are build
+hand-edited notebook cannot be read as a diff. The notebooks here are build
 artefacts: this script is the source of truth for the prose, and src/sq/ is the
 source of truth for the code. Each notebook writes the modules it needs into
 src/sq/ with %%writefile cells, so it runs standalone in Colab from a blank
@@ -326,7 +326,7 @@ NB02 = [
 
 **Why it comes at this point.** Every later notebook compares returns of positions built here. Before any comparison, the positions themselves have to be right: computed from the months before the one invested in, with each paper's own definition, and of a size a reader can check against the papers' description.
 
-**Which expectations it judges.** None. E6 judges the percentiles of the volatility-managed position against the papers' Table V and Table 1, Panel D, in notebook 08; this notebook reports the 5th, 50th and 95th percentiles and the maximum, which the design names for describing the position.
+**Which expectations it judges.** None. E6 judges the percentiles of the volatility-managed position against the papers' Table V and Table 1, Panel D, in notebook 08; this notebook reports the 5th, 50th and 95th percentiles and the maximum, chosen to describe the position.
 
 **The papers.** Moreira and Muir (2017), "Volatility-Managed Portfolios", Journal of Finance 72(4), 1611-1644; Cederburg, O'Doherty, Wang and Yan (2020), "On the performance of volatility-managed portfolios", Journal of Financial Economics 138(1), 95-117; Barroso and Santa-Clara (2015), "Momentum has its moments", Journal of Financial Economics 116(1), 111-120. Page numbers are the journals'.
 
@@ -604,7 +604,7 @@ NB03 = [
     - the appraisal ratio, computed from Table I's alpha and RMSE with footnote 11's annualisation (p. 1620), lies within 0.05 of the paper's figure.
 2. For the market, the volatility-managed Sharpe ratio also lies within 0.05 of 0.52 (Table V, Panel A), and the market counts as matching only if it does.
 
-**Why these levels.** They are the replication criterion of the design, which dates it 6 September 2026, a date the repository's history cannot show; the history shows it from the first commit, 10 November 2026: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
+**Why these levels.** They are the replication criterion, fixed on 6 September 2026, a date the repository's history cannot show; the history shows it from the first commit, 10 November 2026: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
 
 **What I expect to see, and where it comes from.** E1 met. The published Table I, Panel A, for the six factors (alpha and its standard error in per cent a year, from monthly returns times 12):
 
@@ -790,7 +790,7 @@ NB04 = [
 
 E2 is met when all four clauses hold. All twenty-four comparisons, four for each factor, are reported, whatever the count.
 
-**Why these levels.** The critique's baseline is a real-time combination of the volatility-managed and the original factor (section 4.3, pp. 106-107): the constant c alone does not move a Sharpe ratio (Moreira and Muir, footnote 6, p. 1616; Cederburg et al., p. 98), and the weights of the combination are what an investor cannot know in advance. A margin of 0.05 on a Sharpe ratio is the replication criterion of E1, which the design dates 6 September 2026 and the history shows from 10 November 2026. Clause (iii) asks for the published sign and the published significance, the paper's own reading of its table.
+**Why these levels.** The critique's baseline is a real-time combination of the volatility-managed and the original factor (section 4.3, pp. 106-107): the constant c alone does not move a Sharpe ratio (Moreira and Muir, footnote 6, p. 1616; Cederburg et al., p. 98), and the weights of the combination are what an investor cannot know in advance. A margin of 0.05 on a Sharpe ratio is the replication criterion of E1, fixed on 6 September 2026, which the history shows from 10 November 2026. Clause (iii) asks for the published sign and the published significance, the paper's own reading of its table.
 
 **What I expect to see, and where it comes from.** E2 met. The published Sharpe ratios, annualised, with the Jobson-Korkie p-values of the differences in brackets:
 
@@ -970,7 +970,7 @@ print(cause.round(3).to_string())
     md("""
 On vintage 202609, five of the original factors lie within 0.01 of the Sharpe ratio Table 1's mean and standard deviation give. RMW's lies 0.027 above, with the same standard deviation: its mean is 3.12 per cent a year against Table 1's 2.92. The original factor's mean depends on no choice of signal or construction; it is French's series as downloaded. French's library revises its series: each new file is rebuilt from the current release of the underlying data, and the history of a factor can change with it. RMW is sorted on size and on operating profitability, which comes from firms' accounting data. The one direct test, French's RMW file as Cederburg et al. downloaded it, is not in the design's data.
 
-The design allowed two diagnostics after the result. Each is computed after the verdict and carries none.
+Two diagnostics were chosen after the result. Each is computed after the verdict and carries none.
 
 **Diagnostic (a): RMW with its mean moved to Table 1's.** RMW's monthly returns are moved by one constant so that their mean over the 641 months equals Table 1's 2.92 per cent a year. The daily returns, and so the signal, are left as they are. The four RMW comparisons are rebuilt from the moved series. The part of the miss the shift closes is the part the mean alone accounts for; the part that remains is not explained in this repository.
 """),
@@ -1194,7 +1194,7 @@ print(e3_text)
     md("""
 ## 5. To August 2026
 
-The same two series on May 1927 to August 2026, the study's sample end. No expectation judges these numbers; they are the second period of the specification the design lists for scaled momentum.
+The same two series on May 1927 to August 2026, the study's sample end. No expectation judges these numbers; they are the second period fixed for scaled momentum in `src/sq/constants.py`.
 """),
     code("""
 extended = pd.DataFrame({
@@ -1285,12 +1285,12 @@ NB06 = [
 
 **The test.** The standard error of the sample's difference uses the prewhitened Parzen kernel. Ledoit and Wolf propose the prewhitened QS kernel and report that the prewhitened Parzen kernel gives very similar performance and virtually identical results (section 3.2.2 with its footnote 8, p. 854, and Remark 4.1, p. 857). The paper chooses the block size by its Algorithm 3.1; this study fixes it at 12 months in its constants. The bootstrap draws 2,000 samples from a fixed seed, and the test rejects when the 95 per cent interval excludes 0, as the paper's Remark 3.2 states; the p-value is reported beside it.
 
-**The expectation it judges: E4**, fixed in `src/sq/constants.py`, in the first commit of 10 November 2026 at 15:47, before this notebook's code was written; the design dates E4 8 November, which the history cannot show:
+**The expectation it judges: E4**, fixed in `src/sq/constants.py`, in the first commit of 10 November 2026 at 15:47, before this notebook's code was written; E4 was written on 8 November, a date the history cannot show:
 
 1. the size check rejects between 3.5 and 6.5 per cent of the 1,000 simulated null pairs at the 5 per cent level;
 2. on Moreira and Muir's sample, the bootstrap's verdict on the Sharpe ratio difference agrees in sign and in significance with the Newey-West t-statistic on the alpha for at least five of the six factors.
 
-E4 is met when both parts hold. The second part is read strictly, as the design ruled on 12 November 2026: a factor counts when the sign of its Sharpe ratio difference equals the sign of its alpha, and the bootstrap's verdict at 5 per cent equals the t-statistic's. Both must hold.
+E4 is met when both parts hold. The second part is read strictly, as decided on 12 November 2026: a factor counts when the sign of its Sharpe ratio difference equals the sign of its alpha, and the bootstrap's verdict at 5 per cent equals the t-statistic's. Both must hold.
 
 **Why these levels**, as written with E4: a test that is wrong about its own size is not used; the band is two standard errors of a proportion of 0.05 over 1,000 draws. The alpha and the Sharpe ratio difference are two readings of the same gain and should agree.
 
@@ -1375,7 +1375,7 @@ print(f"annualised: difference {m['difference'] * ANNUAL:.3f}, interval [{m['low
 
 For every factor on Moreira and Muir's sample: the alpha, its Newey-West t-statistic and the t-statistic's two-sided p-value from the normal distribution, beside the Sharpe ratio difference, its interval, its standard error, the critical value z* and its p-value. Differences, intervals and standard errors are annualised.
 
-Each test is read at 5 per cent without adjustment, as E4 reads it. The columns `p_value_holm` and `alpha_p_value_holm`, added on 19 November 2026 after a referee's report on the repository, give each p-value with Holm's correction for the six tests, which multiplies the smallest of the six by six, the next by five and so on, each kept at least as large as the one before and none above one. They carry no verdict.
+Each test is read at 5 per cent without adjustment, as E4 reads it. The columns `p_value_holm` and `alpha_p_value_holm`, added on 19 November 2026 so that the six tests can also be read together, give each p-value with Holm's correction for the six tests, which multiplies the smallest of the six by six, the next by five and so on, each kept at least as large as the one before and none above one. They carry no verdict.
 """),
     code("""
 rows = {}
@@ -1483,7 +1483,7 @@ NB07 = [
 | Critical value z* | the 95th percentile of the bootstrap's studentised statistics, each a bootstrap sample's difference minus the estimate, divided by its own standard error and taken without its sign; it takes the place of 1.96 |
 | Interval | the range the test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus z* times its standard error |
 | Half-width | the distance from the estimate to either end of the interval |
-| Block | a run of consecutive months that the bootstrap resamples as one; a bootstrap sample of 136 months holds 11 blocks of 12, 132 of the 136 months, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months |
+| Block | a run of consecutive months that the bootstrap resamples as one; on 136 months, a bootstrap sample holds 11 blocks of 12, 132 months long, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months |
 | p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
 | Null | the hypothesis that the two true Sharpe ratios are equal |
 | Size | the share of samples in which a test rejects a null that is true; a test at 5 per cent should reject in close to 5 per cent of them |
@@ -1585,7 +1585,7 @@ print(sharpe_after.round(3).to_string())
     md("""
 ## 4. Ledoit and Wolf's test on both comparisons
 
-Each test draws 2,000 bootstrap samples of 11 blocks of 12 months, 132 of the 136 months, from its own stream of the constants' seed. Differences, intervals, half-widths and standard errors annualised, with the critical value z* beside them.
+Each test draws 2,000 bootstrap samples of 11 blocks of 12 months, 132 months long, from its own stream of the constants' seed. Differences, intervals, half-widths and standard errors annualised, with the critical value z* beside them.
 """),
     code("""
 seeds_rt = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED).spawn(len(C.FACTORS))))
@@ -1645,9 +1645,9 @@ What could be wrong, and where each point is tested:
     md("""
 ## 7. The test's size at 136 months, added on 19 November 2026
 
-This section was added on 19 November 2026, after a referee's report on the repository. Its constants, `SIZE_CHECK_SHORT_MONTHS`, `SIZE_CHECK_SHORT_SEEDS` and `AFTER_SAMPLE_SENSITIVITY_BLOCKS`, were committed before it ran. It carries no expectation, since the outcome was known in part before they were written, and E5's verdict stays on the blocks of 12 fixed before its run.
+This section was added on 19 November 2026. Its constants, `SIZE_CHECK_SHORT_MONTHS`, `SIZE_CHECK_SHORT_SEEDS` and `AFTER_SAMPLE_SENSITIVITY_BLOCKS`, were committed before it ran. It carries no expectation, since the outcome was known in part before they were written, and E5's verdict stays on the blocks of 12 fixed before its run.
 
-Notebook 06 checks the test's size at 1,065 months, the length of Moreira and Muir's sample. The question of this notebook is answered on 136 months, so the check is repeated at that length: 1,000 simulated pairs with equal Sharpe ratios, from notebook 06's generator (the market's monthly mean and standard deviation and the correlation of its two series on Moreira and Muir's sample, Student-t shocks with 5 degrees of freedom), each tested with 2,000 bootstrap samples. A bootstrap sample of 136 months holds 11 blocks of 12, 132 of the 136 months, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months, and each block length has its own seed in the constants. Each rejection rate is given with its Wilson interval.
+Notebook 06 checks the test's size at 1,065 months, the length of Moreira and Muir's sample. The question of this notebook is answered on 136 months, so the check is repeated at that length: 1,000 simulated pairs with equal Sharpe ratios, from notebook 06's generator (the market's monthly mean and standard deviation and the correlation of its two series on Moreira and Muir's sample, Student-t shocks with 5 degrees of freedom), each tested with 2,000 bootstrap samples. On 136 months, a bootstrap sample holds 11 blocks of 12, 132 months long, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months, and each block length has its own seed in the constants. Each rejection rate is given with its Wilson interval.
 """),
     code("""
 mkt_mm, _ = M.volatility_managed(monthly["Mkt-RF"], M.rv_mm(daily["Mkt-RF"].dropna()), C.FACTOR_FIRST_MONTH["Mkt-RF"], C.MM_SAMPLE_END)

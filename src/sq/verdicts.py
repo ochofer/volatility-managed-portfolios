@@ -252,7 +252,7 @@ def e4(size_rate: float, factors: pd.DataFrame) -> tuple[pd.DataFrame, dict, boo
     Muir's sample with the alpha, its Newey-West t-statistic (t_nw), the Sharpe ratio difference managed
     minus original (difference) and whether its bootstrap interval excludes zero (excludes_zero).
 
-    The second part is read strictly, as the design ruled on 12 November 2026: a factor counts when
+    The second part is read strictly, as decided on 12 November 2026: a factor counts when
     the sign of its Sharpe ratio difference equals the sign of its alpha, and the bootstrap's verdict at 5
     per cent equals the Newey-West t-statistic's (|t| above 1.96 or not). The count by category, each test
     placing the factor as significantly positive, significantly negative or not significant, is returned
