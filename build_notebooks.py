@@ -105,7 +105,7 @@ NB01 = [
 - Eight files, each with a vintage line. On 10 November 2026 the library served vintage 202609, which runs to September 2026; the loader cuts every file at August 2026, the end of the sample fixed in the constants (`SAMPLE_END`), so a later vintage gives the same months.
 - Monthly rows to August 2026: **1,202** in the three-factor file (from July 1926), **758** in the five-factor file (from July 1963), **1,196** in the momentum file and in the file of ten momentum portfolios (from January 1927).
 - Daily files start on 1 July 1926 (three factors), 1 July 1963 (five factors) and 3 November 1926 (momentum and the ten portfolios), and end on 31 August 2026.
-- Trading days per month run from **17 to 27 before June 1952** and from **15 to 23 from 1953 on**, because the daily files carry Saturday trading days until **24 May 1952**, when the New York Stock Exchange stopped trading on Saturdays. No month has fewer than 15 trading days, the level below which a month is flagged (`TRADING_DAYS_FLAG_BELOW`).
+- Trading days per month run from **17 to 27 before June 1952** and from **15 to 23 from 1953 on**, because the daily files carry Saturday trading days until **24 May 1952**, the last Saturday in French's daily files. No month has fewer than 15 trading days, the level below which a month is flagged (`TRADING_DAYS_FLAG_BELOW`).
 - The samples, each counted from the factor's first month with a volatility-managed return (August 1926 for Mkt-RF, SMB and HML, January 1927 for Mom, August 1963 for RMW and CMA; Cederburg et al., Table 1 note, p. 99):
     - Moreira and Muir's sample, to April 2015: **1,065, 1,060 and 621** months, the N their Table I prints (p. 1619). The paper says only "1926 to 2015"; the end in April 2015 is inferred from these three counts, and this notebook confirms that the data hold a return for every one of those months.
     - Cederburg et al.'s sample, to December 2016: **1,085, 1,080 and 641** months (their Table 1 note, p. 99).
@@ -275,7 +275,7 @@ print(sorted(os.listdir("outputs")))
 | Check | Expected | Where it comes from |
 |---|---|---|
 | Monthly rows to August 2026 | 1,202, 758, 1,196, 1,196 | the files' first months and the sample's end |
-| Trading days per month | 17 to 27 before June 1952, 15 to 23 from 1953 | Saturday trading until 24 May 1952 |
+| Trading days per month | 17 to 27 before June 1952, 15 to 23 from 1953 | the daily files' last Saturday, 24 May 1952 |
 | Months with fewer than 15 trading days | none | `TRADING_DAYS_FLAG_BELOW` |
 | Moreira and Muir's sample to April 2015 | 1,065, 1,060, 621 | their Table I, p. 1619 |
 | Cederburg et al.'s sample to December 2016 | 1,085, 1,080, 641 | their Table 1 note, p. 99 |
@@ -287,7 +287,7 @@ Every assert in the notebook passed if the notebook ran to this cell.
 What could be wrong:
 
 - **The end of Moreira and Muir's sample is inferred.** April 2015 reproduces all three published N exactly; a start eight months later for every factor with an end in December 2015 reproduces them too. The inference is written in the constants with the three counts, and notebook 03 reports the computed N beside the published N.
-- **The vintage differs from the papers'.** Moreira and Muir downloaded French's files around 2015 and Cederburg et al. around 2017; French has revised history since, so a computed number can miss a published one with the code right. The provenance record says which vintage every later number comes from.
+- **The vintage differs from the papers'.** Moreira and Muir's sample ends in 2015 and Cederburg et al.'s in December 2016, so each downloaded French's files after those dates, on days the papers do not give; French has revised history since, so a computed number can miss a published one with the code right. The provenance record says which vintage every later number comes from.
 - **WML starts two months later than the paper's.** The difference is two of the paper's 1,018 months and is disclosed wherever E3 is judged.
 """),
 ]
@@ -554,7 +554,7 @@ What could be wrong:
 
 - **Moreira and Muir's equation 2 is written for a 22-day month.** The module removes the month's own mean, the sum of its daily returns divided by its number of trading days. With the mean as small as it is next to the daily swings, the choice moves the signal by little; notebook 03 shows whether the computed table matches theirs.
 - **The cap is applied by truncation.** Cederburg et al. state the constraint, |y_t| at most 5 (p. 107), without saying how a larger position is brought back to it; truncating at 5 is the direct reading. The share of months at the cap says how often the choice matters.
-- **The vintage differs from the papers'.** French's history has been revised since 2015 and 2017. The provenance record says which vintage every number comes from.
+- **The vintage differs from the papers'.** French's history has been revised since each paper downloaded his files. The provenance record says which vintage every number comes from.
 """),
 ]
 
@@ -604,7 +604,7 @@ NB03 = [
     - the appraisal ratio, computed from Table I's alpha and RMSE with footnote 11's annualisation (p. 1620), lies within 0.05 of the paper's figure.
 2. For the market, the volatility-managed Sharpe ratio also lies within 0.05 of 0.52 (Table V, Panel A), and the market counts as matching only if it does.
 
-**Why these levels.** They are the replication criterion fixed on 6 September 2026, before the study's design: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
+**Why these levels.** They are the replication criterion of the design, which dates it 6 September 2026, a date the repository's history cannot show; the history shows it from the first commit, 10 November 2026: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
 
 **What I expect to see, and where it comes from.** E1 met. The published Table I, Panel A, for the six factors (alpha and its standard error in per cent a year, from monthly returns times 12):
 
@@ -790,7 +790,7 @@ NB04 = [
 
 E2 is met when all four clauses hold. All twenty-four comparisons, four for each factor, are reported, whatever the count.
 
-**Why these levels.** The critique's baseline is a real-time combination of the volatility-managed and the original factor (section 4.3, pp. 106-107): the constant c alone does not move a Sharpe ratio (Moreira and Muir, footnote 6, p. 1616; Cederburg et al., p. 98), and the weights of the combination are what an investor cannot know in advance. A margin of 0.05 on a Sharpe ratio is the replication criterion fixed on 6 September 2026, as in E1. Clause (iii) asks for the published sign and the published significance, the paper's own reading of its table.
+**Why these levels.** The critique's baseline is a real-time combination of the volatility-managed and the original factor (section 4.3, pp. 106-107): the constant c alone does not move a Sharpe ratio (Moreira and Muir, footnote 6, p. 1616; Cederburg et al., p. 98), and the weights of the combination are what an investor cannot know in advance. A margin of 0.05 on a Sharpe ratio is the replication criterion of E1, which the design dates 6 September 2026 and the history shows from 10 November 2026. Clause (iii) asks for the published sign and the published significance, the paper's own reading of its table.
 
 **What I expect to see, and where it comes from.** E2 met. The published Sharpe ratios, annualised, with the Jobson-Korkie p-values of the differences in brackets:
 
@@ -968,7 +968,7 @@ cause["Sharpe, computed minus published"] = cause["Sharpe, computed"] - cause["S
 print(cause.round(3).to_string())
 """),
     md("""
-On vintage 202609, five of the original factors lie within 0.01 of the Sharpe ratio Table 1's mean and standard deviation give. RMW's lies 0.027 above, with the same standard deviation: its mean is 3.12 per cent a year against Table 1's 2.92. The original factor's mean depends on no choice of signal or construction; it is French's series as downloaded. French's library revises its series: each new file is rebuilt from the current release of the underlying data, and the history of a factor can change with it. RMW is sorted on firms' accounting data as well as on their returns. The one direct test, French's RMW file as Cederburg et al. downloaded it, is not in the design's data.
+On vintage 202609, five of the original factors lie within 0.01 of the Sharpe ratio Table 1's mean and standard deviation give. RMW's lies 0.027 above, with the same standard deviation: its mean is 3.12 per cent a year against Table 1's 2.92. The original factor's mean depends on no choice of signal or construction; it is French's series as downloaded. French's library revises its series: each new file is rebuilt from the current release of the underlying data, and the history of a factor can change with it. RMW is sorted on size and on operating profitability, which comes from firms' accounting data. The one direct test, French's RMW file as Cederburg et al. downloaded it, is not in the design's data.
 
 The design allowed two diagnostics after the result. Each is computed after the verdict and carries none.
 
@@ -1100,7 +1100,7 @@ E3 is met when all four comparisons hold. The first scaled month is May 1927, tw
 | WML | 26.18 | -78.96 | 14.46 | 27.53 | 18.24 | -2.47 | 0.53 |
 | scaled WML | 21.95 | -28.40 | 16.50 | 16.95 | 2.68 | -0.42 | 0.97 |
 
-The maximum drawdown is 96.69 per cent for WML and 45.20 per cent for scaled WML (p. 112). Two crashes the paper states (p. 113): WML's compounded return over July and August 1932 is -91.59 per cent, and over March to May 2009 -73.42 per cent. The weight ranges from 0.13 to 2.00 and averages 0.90 (p. 116). The paper's momentum series comes from a different source than French's portfolios (Appendix A), so the unjudged numbers can differ by more than the judged ones.
+The maximum drawdown is 96.69 per cent for WML and 45.20 per cent for scaled WML (p. 112). Two crashes the paper states (p. 113): WML's compounded return over July and August 1932 is -91.59 per cent, and over March to May 2009 -73.42 per cent. The weight ranges from 0.13 to 2.00 and averages 0.90 (p. 116). The paper's monthly returns of the ten momentum portfolios are French's, and its daily returns before July 1963, from which the variance is measured, came from Daniel and Moskowitz (2012) (Appendix A, p. 119), so the unjudged numbers can differ by more than the judged ones.
 """),
     md("""
 ## How this notebook is organised
@@ -1229,7 +1229,7 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **The series.** The paper's WML comes from Daniel and Moskowitz's data, French's from his own portfolios (Appendix A). The two crashes of section 2, compounded from French's series, are set beside the paper's figures as a check of the series and of the compounding.
+- **The series.** The paper's monthly WML is French's. Its daily returns before July 1963, behind the variance, came from Daniel and Moskowitz (2012), and French's daily file of the ten portfolios now starts on 3 November 1926 (Appendix A, p. 119). The two crashes of section 2, compounded from French's series, are set beside the paper's figures as a check of the series and of the compounding.
 - **The start.** French's daily file starts on 3 November 1926, so the first scaled month is May 1927 and both series miss the paper's March and April 1927: 2 of the paper's 1,018 months. Section 4 judges the 1,016 that remain.
 - **The variance.** Equation 5 averages 126 squared daily returns without removing their mean and multiplies the average by 21, a month of trading days; the module follows the equation as printed. Section 2 works one month of it by hand.
 - **The months after 2011.** Section 5 reports them and judges nothing. The study tests a gain after a paper's sample on Moreira and Muir's six factors only (E5, notebook 07), and states no test for scaled momentum after 2011.
@@ -1267,9 +1267,11 @@ NB06 = [
 | Bootstrap sample | one such resampling, the same length as the data rounded down to whole blocks |
 | Studentised statistic | a difference divided by its own standard error |
 | Interval | the range Ledoit and Wolf's test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus the 95th percentile of the bootstrap's studentised statistics times the estimate's standard error |
+| Critical value z* | the 95th percentile of the bootstrap's studentised statistics, which takes the place of 1.96 in the interval |
 | Half-width | the distance from the estimate to either end of the interval |
 | p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
 | Null | the hypothesis that the two true Sharpe ratios are equal |
+| Holm's correction | for n tests read together, the smallest p-value multiplied by n, the next by n - 1 and so on, each kept at least as large as the one before and none above one (Holm 1979) |
 | Size | the share of samples in which a test rejects a null that is true; a test at 5 per cent should reject in close to 5 per cent of them |
 | Student-t distribution | a bell-shaped distribution with fatter tails than the normal one; with 5 degrees of freedom its extreme values are frequent, as in monthly returns |
 | Draw | one random number, or one bootstrap sample, taken by the random number generator |
@@ -1283,18 +1285,18 @@ NB06 = [
 
 **The test.** The standard error of the sample's difference uses the prewhitened Parzen kernel. Ledoit and Wolf propose the prewhitened QS kernel and report that the prewhitened Parzen kernel gives very similar performance and virtually identical results (section 3.2.2 with its footnote 8, p. 854, and Remark 4.1, p. 857). The paper chooses the block size by its Algorithm 3.1; this study fixes it at 12 months in its constants. The bootstrap draws 2,000 samples from a fixed seed, and the test rejects when the 95 per cent interval excludes 0, as the paper's Remark 3.2 states; the p-value is reported beside it.
 
-**The expectation it judges: E4**, fixed in `src/sq/constants.py` on 8 November 2026, before this notebook's code was written:
+**The expectation it judges: E4**, fixed in `src/sq/constants.py`, in the first commit of 10 November 2026 at 15:47, before this notebook's code was written; the design dates E4 8 November, which the history cannot show:
 
 1. the size check rejects between 3.5 and 6.5 per cent of the 1,000 simulated null pairs at the 5 per cent level;
 2. on Moreira and Muir's sample, the bootstrap's verdict on the Sharpe ratio difference agrees in sign and in significance with the Newey-West t-statistic on the alpha for at least five of the six factors.
 
 E4 is met when both parts hold. The second part is read strictly, as the design ruled on 12 November 2026: a factor counts when the sign of its Sharpe ratio difference equals the sign of its alpha, and the bootstrap's verdict at 5 per cent equals the t-statistic's. Both must hold.
 
-**Why these levels**, as written on 8 November: a test that is wrong about its own size is not used; the band is two standard errors of a proportion of 0.05 over 1,000 draws. The alpha and the Sharpe ratio difference are two readings of the same gain and should agree.
+**Why these levels**, as written with E4: a test that is wrong about its own size is not used; the band is two standard errors of a proportion of 0.05 over 1,000 draws. The alpha and the Sharpe ratio difference are two readings of the same gain and should agree.
 
-**The size check.** 1,000 pairs of 1,065 months, the length of the market's series on Moreira and Muir's sample. Both series of a pair have the market's monthly mean and standard deviation on that sample, so their Sharpe ratios are equal, and the correlation of the volatility-managed and the original market there. Each month's shocks are a common Student-t shock and one own Student-t shock per series, with 5 degrees of freedom, scaled to variance 1.
+**The size check.** 1,000 pairs of 1,065 months, the length of the market's series on Moreira and Muir's sample. Notebook 07 repeats it at 136 months. Both series of a pair have the market's monthly mean and standard deviation on that sample, so their Sharpe ratios are equal, and the correlation of the volatility-managed and the original market there. Each month's shocks are a common Student-t shock and one own Student-t shock per series, with 5 degrees of freedom, scaled to variance 1.
 
-**What I expect to see, and where it comes from.** The first part met: a rejection rate between 3.5 and 6.5 per cent. The second part is recorded not met whatever the bootstrap gives. Notebook 03's committed Table I already fixes the signs: HML's alpha is positive (1.73 per cent a year) while its volatility-managed Sharpe ratio lies below the original's (0.354 against 0.395), and CMA's alpha is positive (0.36) with 0.414 against 0.538. At most four of the six factors can count. This was known on 12 November 2026 at 13:40, before the bootstrap had run on any factor. Section 6 shows why the reason written on 8 November does not hold.
+**What I expect to see, and where it comes from.** The first part met: a rejection rate between 3.5 and 6.5 per cent. The second part is recorded not met whatever the bootstrap gives. Notebook 03's committed Table I already fixes the signs: HML's alpha is positive (1.73 per cent a year) while its volatility-managed Sharpe ratio lies below the original's (0.354 against 0.395), and CMA's alpha is positive (0.36) with 0.414 against 0.538. At most four of the six factors can count. The signs were public in the commit of 12 November 2026 at 12:27, before the commit that ran the bootstrap on any factor. Section 6 shows why the reason written with E4 does not hold.
 """),
     md("""
 ## How this notebook is organised
@@ -1317,6 +1319,7 @@ E4 is met when both parts hold. The second part is read strictly, as the design 
     writefile("bootstrap.py"),
     code("""
 import sys
+from statistics import NormalDist
 sys.path.insert(0, "src")
 import numpy as np
 import pandas as pd
@@ -1370,18 +1373,24 @@ print(f"annualised: difference {m['difference'] * ANNUAL:.3f}, interval [{m['low
     md("""
 ## 4. The six factors
 
-For every factor on Moreira and Muir's sample: the alpha and its Newey-West t-statistic, beside the Sharpe ratio difference, its interval and its p-value, annualised.
+For every factor on Moreira and Muir's sample: the alpha, its Newey-West t-statistic and the t-statistic's two-sided p-value from the normal distribution, beside the Sharpe ratio difference, its interval, its standard error, the critical value z* and its p-value. Differences, intervals and standard errors are annualised.
+
+Each test is read at 5 per cent without adjustment, as E4 reads it. The columns `p_value_holm` and `alpha_p_value_holm`, added on 19 November 2026 after a referee's report on the repository, give each p-value with Holm's correction for the six tests, which multiplies the smallest of the six by six, the next by five and so on, each kept at least as large as the one before and none above one. They carry no verdict.
 """),
     code("""
 rows = {}
 for f in C.FACTORS:
     fit = R.ols(mm[f]["managed"].to_numpy(), mm[f]["f"].to_numpy())
     t = lw[f]
-    rows[f] = {"alpha": fit["alpha"] * 1200, "t_nw": fit["alpha"] / fit["alpha_se_nw"],
+    t_nw = fit["alpha"] / fit["alpha_se_nw"]
+    rows[f] = {"alpha": fit["alpha"] * 1200, "t_nw": t_nw, "alpha_p_value": 2 * NormalDist().cdf(-abs(t_nw)),
                "Sharpe managed": R.sharpe(mm[f]["managed"]), "Sharpe original": R.sharpe(mm[f]["f"]),
                "difference": t["difference"] * ANNUAL, "lower": t["lower"] * ANNUAL, "upper": t["upper"] * ANNUAL,
-               "half_width": t["half_width"] * ANNUAL, "p_value": t["p_value"], "excludes_zero": t["excludes_zero"]}
+               "half_width": t["half_width"] * ANNUAL, "se": t["se"] * ANNUAL, "critical": t["critical"],
+               "p_value": t["p_value"], "excludes_zero": t["excludes_zero"]}
 mm_tests = pd.DataFrame(rows).T
+mm_tests.insert(mm_tests.columns.get_loc("alpha_p_value") + 1, "alpha_p_value_holm", B.holm(mm_tests["alpha_p_value"].astype(float)))
+mm_tests.insert(mm_tests.columns.get_loc("p_value") + 1, "p_value_holm", B.holm(mm_tests["p_value"].astype(float)))
 print(mm_tests.to_string())
 """),
     md("""
@@ -1399,7 +1408,7 @@ print(e4_text)
     md("""
 ## 6. Why a positive alpha and a higher Sharpe ratio are two different things
 
-The reason written on 8 November treats the alpha and the Sharpe ratio difference as two readings of the same gain. They answer different questions. The alpha tests what the volatility-managed factor adds to a holding of the original factor; the difference tests the volatility-managed factor in the original's place. With the volatility-managed factor scaled to the original's standard deviation sigma, the regression's slope equals the correlation rho of the two, and
+The reason written with E4 treats the alpha and the Sharpe ratio difference as two readings of the same gain. They answer different questions. The alpha tests what the volatility-managed factor adds to a holding of the original factor; the difference tests the volatility-managed factor in the original's place. With the volatility-managed factor scaled to the original's standard deviation sigma, the regression's slope equals the correlation rho of the two, and
 
 Sharpe ratio, managed - Sharpe ratio, original = alpha / sigma - (1 - rho) x Sharpe ratio, original.
 
@@ -1440,7 +1449,7 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **The simulation is kinder than the data.** The size check draws months independently, with fat tails but without the tendency of volatile months to follow volatile months; real factor returns have both. The 12-month blocks keep that tendency inside a block, and the rate printed in section 2 holds only for data like the simulated ones.
+- **The simulation is kinder than the data.** The size check draws months independently, with fat tails but without the tendency of volatile months to follow volatile months; real factor returns have both. The 12-month blocks keep that tendency inside a block, and the rate printed in section 2 holds only for data like the simulated ones. The check is at 1,065 months; notebook 07 checks the size at the 136 months where the study's own question is answered.
 - **The kernel and the block size.** The paper proposes the QS kernel and a block size chosen by calibration; this study uses the Parzen kernel, which the paper reports gives virtually identical results, and 12 months fixed in advance.
 - **The second part of E4.** Its count is decided by the signs in notebook 03, as section 6 explains; the bootstrap's verdicts are reported in full beside the t-statistics, and the count by category beside the strict count.
 - **One sample.** The sign of each Sharpe ratio difference is a property of these months and says nothing about another sample; notebook 07 asks the same question on the months after.
@@ -1470,9 +1479,15 @@ NB07 = [
 | Sharpe ratio | the average excess return divided by its standard deviation, annualised: times the square root of 12 |
 | Sharpe ratio difference | one strategy's Sharpe ratio minus another's, over the same months |
 | Ledoit-Wolf test | Ledoit and Wolf's (2008) test that two return series over the same months have the same Sharpe ratio, with the circular block bootstrap (notebook 06) |
-| Interval | the range the test gives for the true Sharpe ratio difference at 95 per cent |
+| Standard error | the estimated standard deviation of a Sharpe ratio difference, from the prewhitened Parzen kernel (notebook 06), annualised |
+| Critical value z* | the 95th percentile of the bootstrap's studentised statistics, each a bootstrap sample's difference minus the estimate, divided by its own standard error and taken without its sign; it takes the place of 1.96 |
+| Interval | the range the test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus z* times its standard error |
 | Half-width | the distance from the estimate to either end of the interval |
+| Block | a run of consecutive months that the bootstrap resamples as one; a bootstrap sample of 136 months holds 11 blocks of 12 months, 22 of 6 or 45 of 3 |
 | p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
+| Null | the hypothesis that the two true Sharpe ratios are equal |
+| Size | the share of samples in which a test rejects a null that is true; a test at 5 per cent should reject in close to 5 per cent of them |
+| Student-t distribution | a bell-shaped distribution with fatter tails than the normal one; with 5 degrees of freedom its extreme values are frequent, as in monthly returns |
 | Median | the middle value of a set ranked by size; of six values, the average of the third and the fourth |
 | Draw | one random number, or one bootstrap sample, taken by the random number generator |
 | Seed | the number that starts a random number generator, so that the same draws come out on every run |
@@ -1503,6 +1518,7 @@ E5 is met when both hold. Differences and half-widths are annualised. The same t
 4. Ledoit and Wolf's test on both comparisons.
 5. E5 judged, and the volatility-managed factor's counts beside it.
 6. The outputs, the summary and what could be wrong.
+7. The test's size at 136 months, and the twelve tests with blocks of 6 and 3, added on 19 November 2026.
 """),
     SETUP,
     writefile("constants.py"),
@@ -1568,17 +1584,17 @@ print(sharpe_after.round(3).to_string())
     md("""
 ## 4. Ledoit and Wolf's test on both comparisons
 
-Each test draws 2,000 bootstrap samples of 11 blocks of 12 months, 132 of the 136 months, from its own stream of the constants' seed. Differences, intervals and half-widths annualised.
+Each test draws 2,000 bootstrap samples of 11 blocks of 12 months, 132 of the 136 months, from its own stream of the constants' seed. Differences, intervals, half-widths and standard errors annualised, with the critical value z* beside them.
 """),
     code("""
 seeds_rt = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED).spawn(len(C.FACTORS))))
 seeds_vm = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED + 1).spawn(len(C.FACTORS))))
 
 
-def lw_row(x, y, seed):
-    t = B.test(x, y, block=C.BOOTSTRAP_BLOCK_MONTHS, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL, seed=np.random.default_rng(seed))
+def lw_row(x, y, seed, block=C.BOOTSTRAP_BLOCK_MONTHS):
+    t = B.test(x, y, block=block, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL, seed=np.random.default_rng(seed))
     return {"difference": t["difference"] * ANNUAL, "lower": t["lower"] * ANNUAL, "upper": t["upper"] * ANNUAL,
-            "half_width": t["half_width"] * ANNUAL, "p_value": t["p_value"]}
+            "half_width": t["half_width"] * ANNUAL, "se": t["se"] * ANNUAL, "critical": t["critical"], "p_value": t["p_value"]}
 
 
 rt_tests = pd.DataFrame({f: lw_row(a["s1"], a["s2"], seeds_rt[f]) for f, a in after.items()}).T
@@ -1620,12 +1636,62 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **136 months is a short sample.** The intervals in section 4 are wide, and a difference that lies inside one is not evidence that the two Sharpe ratios are equal; it is a difference these months cannot tell from zero.
+- **136 months is a short sample.** The intervals in section 4 are wide, and a difference that lies inside one is not evidence that the two Sharpe ratios are equal; it is a difference these months cannot tell from zero. Section 7 gives the test's size at this length and the twelve tests with shorter blocks.
 - **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign; the sign of each says nothing about another sample.
 - **c held from April 2015.** The volatility-managed factor uses a c that an investor in May 2015 could have known; its scale differs from one set on the 136 months, which changes no Sharpe ratio.
 - **The vintage.** French's revision of RMW (notebook 04) touches these months as well; the record written at each download names the files used and their checksums.
 """),
+    md("""
+## 7. The test's size at 136 months, added on 19 November 2026
+
+This section was added on 19 November 2026, after a referee's report on the repository. Its constants, `SIZE_CHECK_SHORT_MONTHS`, `SIZE_CHECK_SHORT_SEEDS` and `AFTER_SAMPLE_SENSITIVITY_BLOCKS`, were committed before it ran. It carries no expectation, since the outcome was known in part before they were written, and E5's verdict stays on the blocks of 12 fixed before its run.
+
+Notebook 06 checks the test's size at 1,065 months, the length of Moreira and Muir's sample. The question of this notebook is answered on 136 months, so the check is repeated at that length: 1,000 simulated pairs with equal Sharpe ratios, from notebook 06's generator (the market's monthly mean and standard deviation and the correlation of its two series on Moreira and Muir's sample, Student-t shocks with 5 degrees of freedom), each tested with 2,000 bootstrap samples. A bootstrap sample of 136 months holds 11 blocks of 12, 22 blocks of 6 or 45 blocks of 3, and each block length has its own seed in the constants.
+"""),
+    code("""
+mkt_mm, _ = M.volatility_managed(monthly["Mkt-RF"], M.rv_mm(daily["Mkt-RF"].dropna()), C.FACTOR_FIRST_MONTH["Mkt-RF"], C.MM_SAMPLE_END)
+short_params = {"months": C.SIZE_CHECK_SHORT_MONTHS, "mean": float(mkt_mm["f"].mean()), "sd": float(mkt_mm["f"].std()),
+                "rho": float(np.corrcoef(mkt_mm["managed"], mkt_mm["f"])[0, 1])}
+print({k: round(v, 6) for k, v in short_params.items()})
+short_size = []
+for block, seed in C.SIZE_CHECK_SHORT_SEEDS.items():
+    out = B.size_check(C.SIZE_CHECK_PAIRS, short_params["months"], short_params["mean"], short_params["sd"], short_params["rho"],
+                       C.SIZE_CHECK_T_DOF, seed, block=block, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL)
+    short_size.append({"block": block, "blocks per sample": short_params["months"] // block, "pairs": out["pairs"],
+                       "rejected": out["rejected"], "rate": out["rate"], "share of p-values below 0.05": float((out["p_values"] < 0.05).mean()),
+                       **short_params, "dof": C.SIZE_CHECK_T_DOF, "seed": seed, "draws": C.BOOTSTRAP_DRAWS})
+    print(f"blocks of {block}: rejected {out['rejected']} of {out['pairs']}, a rate of {out['rate']:.1%}")
+short_size = pd.DataFrame(short_size).set_index("block")
+print(short_size[["blocks per sample", "pairs", "rejected", "rate", "share of p-values below 0.05", "seed"]].to_string())
+"""),
+    md("""
+The twelve tests of section 4, recomputed with blocks of 6 and of 3 beside the blocks of 12. Each test at 6 and at 3 draws from the same stream of the constants' seed as its test at 12, so the rows at 12 equal section 4's.
+"""),
+    code("""
+by_block = []
+for block in (C.BOOTSTRAP_BLOCK_MONTHS,) + tuple(C.AFTER_SAMPLE_SENSITIVITY_BLOCKS):
+    for comparison, x, y, seeds in (("S1 - S2", "s1", "s2", seeds_rt), ("volatility-managed - original", "managed", "original", seeds_vm)):
+        for f, a in after.items():
+            row = lw_row(a[x], a[y], seeds[f], block=block)
+            by_block.append({"block": block, "blocks per sample": len(a) // block, "comparison": comparison, "factor": f, **row,
+                             "excludes_zero": bool(row["lower"] > 0 or row["upper"] < 0)})
+by_block = pd.DataFrame(by_block)
+cols = ["difference", "lower", "upper", "half_width", "se", "critical", "p_value"]
+for comparison, tests in (("S1 - S2", rt_tests), ("volatility-managed - original", vm_tests)):
+    at_12 = by_block[(by_block["block"] == C.BOOTSTRAP_BLOCK_MONTHS) & (by_block["comparison"] == comparison)].set_index("factor")
+    assert np.array_equal(at_12[cols].to_numpy(float), tests.loc[at_12.index, cols].to_numpy(float)), comparison
+by_block = by_block.set_index(["block", "comparison", "factor"])
+print(by_block.round(3).to_string())
+print()
+print("intervals that exclude zero, of 12:", by_block.groupby(level="block")["excludes_zero"].sum().to_dict())
+print("critical values z*, lowest and highest of the six:")
+print(by_block.groupby(level=["block", "comparison"])["critical"].agg(["min", "max"]).round(2).to_string())
+short_size.to_csv(f"outputs/size_check_136_months_{VINTAGE}.csv")
+by_block.to_csv(f"outputs/e5_tests_by_block_{VINTAGE}.csv")
+print(sorted(os.listdir("outputs")))
+"""),
 ]
+
 
 
 # ---------------------------------------------------------------------------
@@ -1813,7 +1879,7 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **The cost per unit.** Ten basis points per unit of notional traded is the order Moreira and Muir take from Frazzini, Israel and Moskowitz for liquid large-cap books; small firms' and momentum's books trade at higher costs. Section 3 gives the break-even cost of every factor, so a reader can set any other cost against it.
+- **The cost per unit.** Ten basis points per unit of notional traded is the cost Moreira and Muir take from Frazzini, Israel and Moskowitz (2015) "when trading about 1% of daily volume" (Table IV, p. 1625); small firms' and momentum's books trade at higher costs. Section 3 gives the break-even cost of every factor, so a reader can set any other cost against it.
 - **What turnover counts.** Only the change in the position is charged. Rebalancing the factor portfolio itself costs the same for the managed and the original factor, so it changes neither the comparison nor the alpha's sign, and is left out, as in the paper.
 - **The first month.** It carries no turnover: the position is taken as already held.
 - **Percentiles of the position.** The 99th percentile rests on the most extreme 1 per cent of months, 11 of 1,065 for the market, so a revision of French's data or a different definition of the signal moves it most; E6's margin is 1.0 there for that reason.

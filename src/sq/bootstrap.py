@@ -32,7 +32,8 @@ to be correlated with one another and the returns to have fat tails.
 
 The paper chooses the block size by its Algorithm 3.1, a calibration on data
 simulated from a model fitted to the sample (p. 854); this study fixes it at 12
-months in its constants, and every caller passes it.
+months in its constants, and every caller passes it. Its size is checked at
+1,065 and at 136 months (notebooks 06 and 07).
 
 The module depends on numpy alone, so that another study can import it
 unchanged. Sharpe ratios here are monthly and use the population variance,
@@ -43,7 +44,7 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["sharpe_difference", "standard_error", "circular_block_indices", "test", "simulate_null_pair", "size_check"]
+__all__ = ["sharpe_difference", "standard_error", "circular_block_indices", "test", "simulate_null_pair", "size_check", "holm"]
 
 
 def _moments(r1: np.ndarray, r2: np.ndarray):
@@ -211,3 +212,18 @@ def size_check(pairs: int, months: int, mean: float, sd: float, rho: float, dof:
     rejected = np.array(rejected)
     return {"rate": float(rejected.mean()), "rejected": int(rejected.sum()), "pairs": pairs,
             "p_values": np.array(p_values), "differences": np.array(differences)}
+
+
+def holm(p_values) -> np.ndarray:
+    """Holm's step-down adjustment for tests read together: the smallest p-value multiplied by their
+    number n, the next by n - 1 and so on, each kept at least as large as the one before and none above
+    one. Returns the adjusted p-values in the order given."""
+    p = np.asarray(p_values, dtype=float)
+    n = p.size
+    order = np.argsort(p, kind="stable")
+    adjusted = np.empty(n)
+    running = 0.0
+    for rank, i in enumerate(order):
+        running = max(running, min(1.0, (n - rank) * p[i]))
+        adjusted[i] = running
+    return adjusted

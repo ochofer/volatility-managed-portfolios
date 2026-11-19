@@ -1,6 +1,6 @@
 # Tables of milestones 1 to 3, Ken French's files of vintage 202609
 
-The tables notebooks 01 to 08 wrote to `outputs/` (notebooks 01 to 05 on 10 November 2026, 06 to 08 on 12 November), from Ken French's files of vintage 202609, copied here with the provenance record so that every number of the milestone resolves to a file at a named commit. `provenance_french.json` records each file's address, the SHA-256 of its zip and the vintage line. Each notebook regenerates its files at run time into `outputs/`, the run directory; two runs on the same files give the same tables byte for byte. French revises history, so a run on a later vintage, cut at August 2026, is a confirmation run and need not reproduce every digit.
+The tables notebooks 01 to 08 wrote to `outputs/` (notebooks 01 to 05 on 10 November 2026, 06 to 08 on 12 November, and 03, 06 and 07 again on 19 November, after a referee's report on the repository, with every earlier column unchanged), from Ken French's files of vintage 202609, copied here with the provenance record so that every number of the milestone resolves to a file at a named commit. `provenance_french.json` records each file's address, the SHA-256 of its zip and the vintage line. Each notebook regenerates its files at run time into `outputs/`, the run directory; two runs on the same files give the same tables byte for byte. French revises history, so a run on a later vintage, cut at August 2026, is a confirmation run and need not reproduce every digit.
 
 From notebook 01:
 
@@ -20,7 +20,7 @@ From notebook 02:
 From notebook 03 (E1):
 
 - `mm_table_i_computed_202609.csv`: Moreira and Muir's Table I as computed, for each factor: beta, alpha and its White and Newey-West standard errors, N, R², RMSE, the appraisal ratio and both Sharpe ratios.
-- `e1_comparison_202609.csv`: every number E1 judges beside the published one, with each comparison's result.
+- `e1_comparison_202609.csv`: every number E1 judges beside the published one, with each comparison's result. The appraisal ratio it compares with is the one the published alpha and RMSE give.
 - `e1_verdict_202609.csv`: the factors matching, the number required and the verdict.
 
 From notebook 04 (E2):
@@ -44,7 +44,7 @@ From notebook 05 (E3):
 From notebook 06 (E4):
 
 - `size_check_202609.csv`: the size check's settings (months, the market's monthly mean and standard deviation, the correlation, the degrees of freedom, the seed, the draws, the block) and its rejection rate.
-- `sharpe_tests_mm_sample_202609.csv`: for each factor on Moreira and Muir's sample, the alpha and its Newey-West t-statistic beside both Sharpe ratios, their difference, its Ledoit-Wolf interval and p-value, annualised.
+- `sharpe_tests_mm_sample_202609.csv`: for each factor on Moreira and Muir's sample, the alpha, its Newey-West t-statistic and the t-statistic's two-sided p-value from the normal distribution, beside both Sharpe ratios, their difference, its Ledoit-Wolf interval, standard error, critical value z* and p-value, the Sharpe ratios and their differences annualised. The columns `alpha_p_value_holm` and `p_value_holm`, added on 19 November 2026, give each p-value with Holm's correction for the six tests.
 - `e4_comparison_202609.csv`: each factor's sign and significance under both tests, the strict count and the count by category.
 - `e4_verdict_202609.csv`: the size rate, both parts, both counts and the verdict.
 - `alpha_and_sharpe_difference_202609.csv`: for each factor, both sides of the identity that links the alpha to the Sharpe ratio difference.
@@ -53,9 +53,11 @@ From notebook 07 (E5):
 
 - `after_sample_series_202609.csv`: May 2015 to August 2026, for each factor, the original and volatility-managed returns, the position with c fixed to April 2015, the real-time combination and the real-time original with their positions and windows.
 - `after_sample_sharpe_202609.csv`: the four Sharpe ratios on those 136 months.
-- `e5_real_time_tests_202609.csv`: the real-time combination against the real-time original, with the Ledoit-Wolf interval and p-value, annualised.
+- `e5_real_time_tests_202609.csv`: the real-time combination against the real-time original, with the Ledoit-Wolf interval, standard error, critical value z* and p-value, annualised.
 - `e5_volatility_managed_tests_202609.csv`: the volatility-managed factor against the original, in no verdict.
 - `e5_verdict_202609.csv`: the two counts of E5, the verdict, and the same counts for the volatility-managed factor in no verdict.
+- `size_check_136_months_202609.csv`: the size check at 136 months, added on 19 November 2026 and carrying no expectation: for blocks of 12, 6 and 3, the blocks in each bootstrap sample, the pairs, the rejections and the rate, with the generator's settings and each block length's seed.
+- `e5_tests_by_block_202609.csv`: the twelve tests of the months after the sample at blocks of 12, 6 and 3, each with its difference, interval, half-width, standard error, critical value z*, p-value and whether the interval excludes zero, annualised. The rows at 12 equal those of `e5_real_time_tests_202609.csv` and `e5_volatility_managed_tests_202609.csv`.
 
 From notebook 08 (E6):
 

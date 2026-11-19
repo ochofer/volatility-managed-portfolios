@@ -88,3 +88,15 @@ def test_a_large_true_difference_is_found():
     r1, r2 = _pair(960, 6, shift=0.02)          # S1's Sharpe ratio raised by about 0.37 a month
     out = B.test(r1, r2, draws=499, seed=2)
     assert out["excludes_zero"] and out["lower"] > 0 and out["p_value"] < 0.01
+
+
+def test_holm_by_hand():
+    # 0.005 x 4 = 0.02; 0.01 x 3 = 0.03; 0.03 x 2 = 0.06; 0.04 x 1 = 0.04, kept at 0.06
+    assert B.holm([0.01, 0.04, 0.03, 0.005]) == pytest.approx([0.03, 0.06, 0.06, 0.02])
+    # the cap at one: 0.4 x 3 = 1.2 becomes 1, and the two after it cannot fall below it
+    assert B.holm([0.4, 0.5, 0.9]) == pytest.approx([1.0, 1.0, 1.0])
+    # the six p-values of the tests on Moreira and Muir's sample, rounded: momentum's 0.027 x 6 = 0.162,
+    # then 0.188 x 5 = 0.94, which the four larger ones keep
+    six = B.holm([0.334, 0.188, 0.718, 0.027, 0.209, 0.244])
+    assert six == pytest.approx([0.94, 0.94, 0.94, 0.162, 0.94, 0.94])
+

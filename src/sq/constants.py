@@ -24,7 +24,7 @@ src/sq/published.py, never here.
 """
 
 # ---------------------------------------------------------------------------
-# 1. Data: Ken French's library, downloaded at run time, never committed
+# 1. Data: Ken French's library, downloaded at run time, none of its files committed
 # ---------------------------------------------------------------------------
 
 FRENCH_BASE_URL = "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
@@ -242,11 +242,10 @@ AFTER_SAMPLE_SENSITIVITY_BLOCKS = (6, 3)   # on the seed streams of the tests at
 
 # Costs: one proportional cost per unit of one-way turnover, the turnover of a
 # volatility-managed strategy in a month being the absolute change in its
-# position, |w_t - w_{t-1}|. Factor portfolios are traded through liquid
-# large-cap long-short books, for which 10 basis points per unit of notional
-# traded is the order the literature on implementation costs reports (MM Table
-# IV, p. 1625, takes 10 basis points from Frazzini, Israel and Moskowitz); the
-# one sensitivity doubles it.
+# position, |w_t - w_{t-1}|. Ten basis points per unit of notional traded is
+# the cost Moreira and Muir take from Frazzini, Israel and Moskowitz "when
+# trading about 1% of daily volume" (MM Table IV, p. 1625); the one sensitivity
+# doubles it.
 COST_PER_TURNOVER = 0.0010
 COST_SENSITIVITY = 0.0020
 

@@ -31,7 +31,7 @@ def e1(computed: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
             "alpha published": alpha_p, "alpha computed": c["alpha"],
             "se published": se_p, "se computed (White)": c["alpha_se_white"], "se computed (Newey-West)": c["alpha_se_nw"],
             "t published": t_p, "t computed (White)": t_c,
-            "appraisal published": ar_p, "appraisal computed": c["appraisal"],
+            "appraisal from published alpha and RMSE": ar_p, "appraisal computed": c["appraisal"],
             "N published": n_p, "N computed": int(c["N"]),
             "sign matches": (alpha_p > 0) == (c["alpha"] > 0),
             "5% category matches": (abs(t_p) > Z_5) == (abs(t_c) > Z_5),
