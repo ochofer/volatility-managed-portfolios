@@ -100,3 +100,14 @@ def test_holm_by_hand():
     six = B.holm([0.334, 0.188, 0.718, 0.027, 0.209, 0.244])
     assert six == pytest.approx([0.94, 0.94, 0.94, 0.162, 0.94, 0.94])
 
+
+
+def test_wilson_by_hand():
+    # 5 of 10, z = 1.96: z^2 / n = 0.3841, the centre (0.5 + 0.1921) / 1.3841 = 0.5, and the half-width
+    # 1.96 / 1.3841 x sqrt(0.025 + 0.3841 / 40) = 1.4160 x 0.18602 = 0.2634
+    assert B.wilson(5, 10) == pytest.approx((0.2366, 0.7634), abs=1e-4)
+    # 0 of 10: the centre 0.1921 / 1.3841 = 0.1388 and the half-width 1.4160 x sqrt(0.3841 / 40) = 0.1388,
+    # so the interval starts at zero
+    assert B.wilson(0, 10) == pytest.approx((0.0, 0.2775), abs=1e-4)
+    # the size check at 136 months with blocks of 12, 20 of 1,000: 1.3 to 3.1 per cent
+    assert B.wilson(20, 1000) == pytest.approx((0.01298, 0.03069), abs=1e-5)

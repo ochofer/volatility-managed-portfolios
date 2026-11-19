@@ -972,7 +972,7 @@ On vintage 202609, five of the original factors lie within 0.01 of the Sharpe ra
 
 The design allowed two diagnostics after the result. Each is computed after the verdict and carries none.
 
-**Diagnostic (a): RMW with its mean moved to Table 1's.** RMW's monthly returns are moved by one constant so that their mean over the 641 months equals Table 1's 2.92 per cent a year. The daily returns, and so the signal, are left as they are. The four RMW comparisons are rebuilt from the moved series. The part of the miss the shift closes is the part the mean alone accounts for; the part that remains comes from the revision's change to individual months.
+**Diagnostic (a): RMW with its mean moved to Table 1's.** RMW's monthly returns are moved by one constant so that their mean over the 641 months equals Table 1's 2.92 per cent a year. The daily returns, and so the signal, are left as they are. The four RMW comparisons are rebuilt from the moved series. The part of the miss the shift closes is the part the mean alone accounts for; the part that remains is not explained in this repository.
 """),
     code("""
 first, end = C.FACTOR_FIRST_MONTH["RMW"], C.COWY_SAMPLE_END
@@ -1266,8 +1266,8 @@ NB06 = [
 | Circular block bootstrap | a resampling of the months in blocks of 12 consecutive months, each block starting at a month drawn at random, wrapping from the last month to the first, so that the correlation within a block is kept |
 | Bootstrap sample | one such resampling, the same length as the data rounded down to whole blocks |
 | Studentised statistic | a difference divided by its own standard error |
-| Interval | the range Ledoit and Wolf's test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus the 95th percentile of the bootstrap's studentised statistics times the estimate's standard error |
-| Critical value z* | the 95th percentile of the bootstrap's studentised statistics, which takes the place of 1.96 in the interval |
+| Critical value z* | the 95th percentile of the bootstrap's studentised statistics, each taken without its sign, which takes the place of 1.96 in the interval |
+| Interval | the range Ledoit and Wolf's test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus z* times its standard error |
 | Half-width | the distance from the estimate to either end of the interval |
 | p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
 | Null | the hypothesis that the two true Sharpe ratios are equal |
@@ -1483,10 +1483,11 @@ NB07 = [
 | Critical value z* | the 95th percentile of the bootstrap's studentised statistics, each a bootstrap sample's difference minus the estimate, divided by its own standard error and taken without its sign; it takes the place of 1.96 |
 | Interval | the range the test gives for the true Sharpe ratio difference at 95 per cent: the estimate plus or minus z* times its standard error |
 | Half-width | the distance from the estimate to either end of the interval |
-| Block | a run of consecutive months that the bootstrap resamples as one; a bootstrap sample of 136 months holds 11 blocks of 12 months, 22 of 6 or 45 of 3 |
+| Block | a run of consecutive months that the bootstrap resamples as one; a bootstrap sample of 136 months holds 11 blocks of 12, 132 of the 136 months, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months |
 | p-value | the probability of a difference at least as far from 0 as the one computed, if the two true Sharpe ratios were equal |
 | Null | the hypothesis that the two true Sharpe ratios are equal |
 | Size | the share of samples in which a test rejects a null that is true; a test at 5 per cent should reject in close to 5 per cent of them |
+| Wilson interval | the 95 per cent interval for a share, a count out of a total (Wilson 1927): the shares that a count of 20 out of 1,000, for instance, is consistent with |
 | Student-t distribution | a bell-shaped distribution with fatter tails than the normal one; with 5 degrees of freedom its extreme values are frequent, as in monthly returns |
 | Median | the middle value of a set ranked by size; of six values, the average of the third and the fourth |
 | Draw | one random number, or one bootstrap sample, taken by the random number generator |
@@ -1646,7 +1647,7 @@ What could be wrong, and where each point is tested:
 
 This section was added on 19 November 2026, after a referee's report on the repository. Its constants, `SIZE_CHECK_SHORT_MONTHS`, `SIZE_CHECK_SHORT_SEEDS` and `AFTER_SAMPLE_SENSITIVITY_BLOCKS`, were committed before it ran. It carries no expectation, since the outcome was known in part before they were written, and E5's verdict stays on the blocks of 12 fixed before its run.
 
-Notebook 06 checks the test's size at 1,065 months, the length of Moreira and Muir's sample. The question of this notebook is answered on 136 months, so the check is repeated at that length: 1,000 simulated pairs with equal Sharpe ratios, from notebook 06's generator (the market's monthly mean and standard deviation and the correlation of its two series on Moreira and Muir's sample, Student-t shocks with 5 degrees of freedom), each tested with 2,000 bootstrap samples. A bootstrap sample of 136 months holds 11 blocks of 12, 22 blocks of 6 or 45 blocks of 3, and each block length has its own seed in the constants.
+Notebook 06 checks the test's size at 1,065 months, the length of Moreira and Muir's sample. The question of this notebook is answered on 136 months, so the check is repeated at that length: 1,000 simulated pairs with equal Sharpe ratios, from notebook 06's generator (the market's monthly mean and standard deviation and the correlation of its two series on Moreira and Muir's sample, Student-t shocks with 5 degrees of freedom), each tested with 2,000 bootstrap samples. A bootstrap sample of 136 months holds 11 blocks of 12, 132 of the 136 months, 22 blocks of 6, also 132 months, or 45 blocks of 3, 135 months, and each block length has its own seed in the constants. Each rejection rate is given with its Wilson interval.
 """),
     code("""
 mkt_mm, _ = M.volatility_managed(monthly["Mkt-RF"], M.rv_mm(daily["Mkt-RF"].dropna()), C.FACTOR_FIRST_MONTH["Mkt-RF"], C.MM_SAMPLE_END)
@@ -1658,11 +1659,14 @@ for block, seed in C.SIZE_CHECK_SHORT_SEEDS.items():
     out = B.size_check(C.SIZE_CHECK_PAIRS, short_params["months"], short_params["mean"], short_params["sd"], short_params["rho"],
                        C.SIZE_CHECK_T_DOF, seed, block=block, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL)
     short_size.append({"block": block, "blocks per sample": short_params["months"] // block, "pairs": out["pairs"],
-                       "rejected": out["rejected"], "rate": out["rate"], "share of p-values below 0.05": float((out["p_values"] < 0.05).mean()),
+                       "rejected": out["rejected"], "rate": out["rate"],
+                       "rate lower (Wilson 95%)": B.wilson(out["rejected"], out["pairs"])[0], "rate upper (Wilson 95%)": B.wilson(out["rejected"], out["pairs"])[1],
+                       "share of p-values below 0.05": float((out["p_values"] < 0.05).mean()),
                        **short_params, "dof": C.SIZE_CHECK_T_DOF, "seed": seed, "draws": C.BOOTSTRAP_DRAWS})
-    print(f"blocks of {block}: rejected {out['rejected']} of {out['pairs']}, a rate of {out['rate']:.1%}")
+    low, high = B.wilson(out["rejected"], out["pairs"])
+    print(f"blocks of {block}: rejected {out['rejected']} of {out['pairs']}, a rate of {out['rate']:.1%} (Wilson 95%: {low:.1%} to {high:.1%})")
 short_size = pd.DataFrame(short_size).set_index("block")
-print(short_size[["blocks per sample", "pairs", "rejected", "rate", "share of p-values below 0.05", "seed"]].to_string())
+print(short_size[["blocks per sample", "pairs", "rejected", "rate", "rate lower (Wilson 95%)", "rate upper (Wilson 95%)", "share of p-values below 0.05", "seed"]].to_string())
 """),
     md("""
 The twelve tests of section 4, recomputed with blocks of 6 and of 3 beside the blocks of 12. Each test at 6 and at 3 draws from the same stream of the constants' seed as its test at 12, so the rows at 12 equal section 4's.

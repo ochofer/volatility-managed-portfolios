@@ -44,7 +44,7 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["sharpe_difference", "standard_error", "circular_block_indices", "test", "simulate_null_pair", "size_check", "holm"]
+__all__ = ["sharpe_difference", "standard_error", "circular_block_indices", "test", "simulate_null_pair", "size_check", "wilson", "holm"]
 
 
 def _moments(r1: np.ndarray, r2: np.ndarray):
@@ -212,6 +212,16 @@ def size_check(pairs: int, months: int, mean: float, sd: float, rho: float, dof:
     rejected = np.array(rejected)
     return {"rate": float(rejected.mean()), "rejected": int(rejected.sum()), "pairs": pairs,
             "p_values": np.array(p_values), "differences": np.array(differences)}
+
+
+def wilson(count: int, n: int, z: float = 1.959963984540054) -> tuple[float, float]:
+    """Wilson's (1927) interval for a share of count out of n: the shares p whose normal test does not
+    reject, solved from (count / n - p)^2 = z^2 p (1 - p) / n. The default z, the normal distribution's
+    97.5th percentile, gives the 95 per cent interval the size checks report beside each rejection rate."""
+    share, z2 = count / n, z * z / n
+    centre = (share + z2 / 2) / (1 + z2)
+    half = z / (1 + z2) * np.sqrt(share * (1 - share) / n + z2 / (4 * n))
+    return max(0.0, float(centre - half)), min(1.0, float(centre + half))
 
 
 def holm(p_values) -> np.ndarray:

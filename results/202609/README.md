@@ -56,7 +56,7 @@ From notebook 07 (E5):
 - `e5_real_time_tests_202609.csv`: the real-time combination against the real-time original, with the Ledoit-Wolf interval, standard error, critical value z* and p-value, annualised.
 - `e5_volatility_managed_tests_202609.csv`: the volatility-managed factor against the original, in no verdict.
 - `e5_verdict_202609.csv`: the two counts of E5, the verdict, and the same counts for the volatility-managed factor in no verdict.
-- `size_check_136_months_202609.csv`: the size check at 136 months, added on 19 November 2026 and carrying no expectation: for blocks of 12, 6 and 3, the blocks in each bootstrap sample, the pairs, the rejections and the rate, with the generator's settings and each block length's seed.
+- `size_check_136_months_202609.csv`: the size check at 136 months, added on 19 November 2026 and carrying no expectation: for blocks of 12, 6 and 3, the blocks in each bootstrap sample, the pairs, the rejections, the rate and its 95 per cent Wilson interval, with the generator's settings and each block length's seed.
 - `e5_tests_by_block_202609.csv`: the twelve tests of the months after the sample at blocks of 12, 6 and 3, each with its difference, interval, half-width, standard error, critical value z*, p-value and whether the interval excludes zero, annualised. The rows at 12 equal those of `e5_real_time_tests_202609.csv` and `e5_volatility_managed_tests_202609.csv`.
 
 From notebook 08 (E6):
