@@ -1412,7 +1412,7 @@ The reason written with E4 treats the alpha and the Sharpe ratio difference as t
 
 Sharpe ratio, managed - Sharpe ratio, original = alpha / sigma - (1 - rho) x Sharpe ratio, original.
 
-A positive alpha raises the difference; the second term lowers it, by more when the two series move together less. The cell computes both sides for each factor. Cederburg et al.'s Table 1 already shows the two apart: the market's Sharpe ratio difference has a p-value of 0.30 (p. 99), beside a t-statistic of 3.1 on Moreira and Muir's alpha (Table I, p. 1619).
+A positive alpha raises the difference; the second term lowers it, by more when the two series move together less. The cell computes both sides for each factor. Cederburg et al.'s Table 1 already shows the split: the market's Sharpe ratio difference has a p-value of 0.30 (p. 99), beside a t-statistic of 3.1 on Moreira and Muir's alpha (Table I, p. 1619).
 """),
     code("""
 rows = {}
@@ -1637,7 +1637,7 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **136 months is a short sample.** The intervals in section 4 are wide, and a difference that lies inside one is not evidence that the two Sharpe ratios are equal; it is a difference these months cannot tell from zero. Section 7 gives the test's size at this length and the twelve tests with shorter blocks.
+- **136 months is a short sample.** The intervals in section 4 are wide. A difference that is not statistically significant at the 5 per cent level is not evidence that the two Sharpe ratios are equal: for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. Section 7 gives the test's size at this length and the twelve tests with shorter blocks.
 - **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign; the sign of each says nothing about another sample.
 - **c held from April 2015.** The volatility-managed factor uses a c that an investor in May 2015 could have known; its scale differs from one set on the 136 months, which changes no Sharpe ratio.
 - **The vintage.** French's revision of RMW (notebook 04) touches these months as well; the record written at each download names the files used and their checksums.
