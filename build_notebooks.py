@@ -1520,6 +1520,7 @@ E5 is met when both hold. Differences and half-widths are annualised. The same t
 5. E5 judged, and the volatility-managed factor's counts beside it.
 6. The outputs, the summary and what could be wrong.
 7. The test's size at 136 months, and the twelve tests with blocks of 6 and 3, added on 19 November 2026.
+8. The test's size at the correlations of S1 and S2 after the sample, added on 24 November 2026.
 """),
     SETUP,
     writefile("constants.py"),
@@ -1637,7 +1638,7 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **136 months is a short sample.** The intervals in section 4 are wide. A difference that is not statistically significant at the 5 per cent level is not evidence that the two Sharpe ratios are equal: for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. Section 7 gives the test's size at this length and the twelve tests with shorter blocks.
+- **136 months is a short sample.** The intervals in section 4 are wide. A difference that is not statistically significant at the 5 per cent level is not evidence that the two Sharpe ratios are equal: for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. Section 7 gives the test's size at this length and the twelve tests with shorter blocks, and section 8 its size at the correlations of S1 and S2.
 - **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign; the sign of each says nothing about another sample.
 - **c held from April 2015.** The volatility-managed factor uses a c that an investor in May 2015 could have known; its scale differs from one set on the 136 months, which changes no Sharpe ratio.
 - **The vintage.** French's revision of RMW (notebook 04) touches these months as well; the record written at each download names the files used and their checksums.
@@ -1692,6 +1693,34 @@ print("critical values z*, lowest and highest of the six:")
 print(by_block.groupby(level=["block", "comparison"])["critical"].agg(["min", "max"]).round(2).to_string())
 short_size.to_csv(f"outputs/size_check_136_months_{VINTAGE}.csv")
 by_block.to_csv(f"outputs/e5_tests_by_block_{VINTAGE}.csv")
+print(sorted(os.listdir("outputs")))
+"""),
+    md("""
+## 8. The test's size at the correlations of S1 and S2, added on 24 November 2026
+
+This section was added on 24 November 2026, after the results were known, and carries no expectation. The simulated pairs of section 7 have the correlation of the market's two series on Moreira and Muir's sample, 0.601, while the pairs E5 tests, S1 and S2 after the sample, have correlations of 0.73 to 0.9996. The check of section 7 is repeated at each factor's correlation of S1 and S2 on the 136 months, with blocks of 12, 6 and 3 and the generator, pairs and bootstrap samples of section 7. Each block length uses its seed in `SIZE_CHECK_SHORT_SEEDS`, so the simulated pairs differ from section 7's in their correlation alone. Each rejection rate is given with its Wilson interval.
+"""),
+    code("""
+rho_after = {f: float(np.corrcoef(a["s1"], a["s2"])[0, 1]) for f, a in after.items()}
+print({f: round(r, 4) for f, r in rho_after.items()})
+size_after = []
+for f, rho in rho_after.items():
+    for block, seed in C.SIZE_CHECK_SHORT_SEEDS.items():
+        out = B.size_check(C.SIZE_CHECK_PAIRS, short_params["months"], short_params["mean"], short_params["sd"], rho,
+                           C.SIZE_CHECK_T_DOF, seed, block=block, draws=C.BOOTSTRAP_DRAWS, level=C.BOOTSTRAP_LEVEL)
+        low, high = B.wilson(out["rejected"], out["pairs"])
+        size_after.append({"factor": f, "block": block, "rho": rho, "blocks per sample": short_params["months"] // block,
+                           "pairs": out["pairs"], "rejected": out["rejected"], "rate": out["rate"],
+                           "rate lower (Wilson 95%)": low, "rate upper (Wilson 95%)": high,
+                           "share of p-values below 0.05": float((out["p_values"] < 0.05).mean()),
+                           "months": short_params["months"], "mean": short_params["mean"], "sd": short_params["sd"],
+                           "dof": C.SIZE_CHECK_T_DOF, "seed": seed, "draws": C.BOOTSTRAP_DRAWS})
+size_after = pd.DataFrame(size_after).set_index(["factor", "block"])
+print(size_after[["rho", "blocks per sample", "rejected", "rate", "rate lower (Wilson 95%)", "rate upper (Wilson 95%)"]].round(4).to_string())
+print()
+print("rate by block length, lowest and highest of the six correlations:")
+print(size_after.groupby(level="block")["rate"].agg(["min", "max"]).to_string())
+size_after.to_csv(f"outputs/size_check_after_sample_correlations_{VINTAGE}.csv")
 print(sorted(os.listdir("outputs")))
 """),
 ]

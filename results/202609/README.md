@@ -58,6 +58,7 @@ From notebook 07 (E5):
 - `e5_verdict_202609.csv`: the two counts of E5, the verdict, and the same counts for the volatility-managed factor, which no expectation judges.
 - `size_check_136_months_202609.csv`: the size check at 136 months, which no expectation judges: for blocks of 12, 6 and 3, the blocks in each bootstrap sample, the pairs, the rejections, the rate and its 95 per cent Wilson interval, with the generator's settings and each block length's seed.
 - `e5_tests_by_block_202609.csv`: the twelve tests of the months after the sample at blocks of 12, 6 and 3, each with its difference, interval, half-width, standard error, critical value z*, p-value and whether the interval excludes zero, annualised. The rows at 12 equal those of `e5_real_time_tests_202609.csv` and `e5_volatility_managed_tests_202609.csv`.
+- `size_check_after_sample_correlations_202609.csv`: the size check at 136 months repeated at each factor's correlation of S1 and S2 after the sample, added on 24 November 2026, which no expectation judges: for each factor and blocks of 12, 6 and 3, the correlation, the blocks in each bootstrap sample, the pairs, the rejections, the rate and its 95 per cent Wilson interval, with the generator's other settings and each block length's seed.
 
 From notebook 08 (E6):
 
