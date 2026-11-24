@@ -604,7 +604,7 @@ NB03 = [
     - the appraisal ratio, computed from Table I's alpha and RMSE with footnote 11's annualisation (p. 1620), lies within 0.05 of the paper's figure.
 2. For the market, the volatility-managed Sharpe ratio also lies within 0.05 of 0.52 (Table V, Panel A), and the market counts as matching only if it does.
 
-**Why these levels.** They are the replication criterion, fixed on 6 September 2026, a date the repository's history cannot show; the history shows it from the first commit, 10 November 2026: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
+**Why these levels.** They are the replication criterion, fixed on 6 September 2026: the sign and significance of the alpha, one standard error, and a margin of 0.05 on a ratio. French has revised his data since Moreira and Muir downloaded it, so exact equality is not expected; five of six lets one factor miss on a revised series, and a miss is reported, never chased. The paper prints a Sharpe ratio for the market only, so the third comparison for every factor is the appraisal ratio, which Table I gives through alpha and RMSE. The 5 per cent line is 1.96, from the normal distribution, as the paper's own stars use it.
 
 **What I expect to see, and where it comes from.** E1 met. The published Table I, Panel A, for the six factors (alpha and its standard error in per cent a year, from monthly returns times 12):
 
@@ -1285,7 +1285,7 @@ NB06 = [
 
 **The test.** The standard error of the sample's difference uses the prewhitened Parzen kernel. Ledoit and Wolf propose the prewhitened QS kernel and report that the prewhitened Parzen kernel gives very similar performance and virtually identical results (section 3.2.2 with its footnote 8, p. 854, and Remark 4.1, p. 857). The paper chooses the block size by its Algorithm 3.1; this study fixes it at 12 months in its constants. The bootstrap draws 2,000 samples from a fixed seed, and the test rejects when the 95 per cent interval excludes 0, as the paper's Remark 3.2 states; the p-value is reported beside it.
 
-**The expectation it judges: E4**, fixed in `src/sq/constants.py`, in the first commit of 10 November 2026 at 15:47, before this notebook's code was written; E4 was written on 8 November, a date the history cannot show:
+**The expectation it judges: E4**, written on 8 November 2026 and fixed in `src/sq/constants.py` in the first commit of 10 November 2026, before this notebook's code was written:
 
 1. the size check rejects between 3.5 and 6.5 per cent of the 1,000 simulated null pairs at the 5 per cent level;
 2. on Moreira and Muir's sample, the bootstrap's verdict on the Sharpe ratio difference agrees in sign and in significance with the Newey-West t-statistic on the alpha for at least five of the six factors.
