@@ -345,15 +345,28 @@ assert int(((st["t_nw"] > 1.96) & (st["alpha_p_value_holm"] < 0.05)).sum()) == n
 # the market's alpha net of 20 bp is not significant at 5 per cent, and the upper end of its interval is what the data rule out
 mkt_hi20 = co.loc["Mkt-RF", "alpha net of 20 bp"] + 1.96 * co.loc["Mkt-RF", "se net of 20 bp (Newey-West)"]
 assert co.loc["Mkt-RF", "t net of 10 bp"] > 1.96 > co.loc["Mkt-RF", "t net of 20 bp"] and int(st["excludes_zero"].sum()) == 1
+# the key figures in the order of the study's three parts: replication, in the sample, costs, after the sample
+NAMES = {"Mkt-RF": "the market", "SMB": "SMB", "HML": "HML", "Mom": "momentum", "RMW": "RMW", "CMA": "CMA"}
+
+
+def and_list(items):
+    items = list(items)
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+sig_alpha = [NAMES[k] for k in st.index if st.loc[k, "t_nw"] > 1.96]
+assert len(sig_alpha) == n_t and list(st.index[(st["excludes_zero"]) & (st["difference"] > 0)]) == ["Mom"]
+e2_misses = int(e["e2"]["comparisons"]) - int(e["e2"]["comparisons holding"])
+assert e2_misses == 2
 kpis = [
-    ("After the sample", f"{int(e['e5']['count above'])} of 6",
-     f"factors whose real-time combination's Sharpe ratio is higher than the real-time original's by a margin statistically significant at the 5 per cent level, May 2015 to August 2026, half-widths {f(rt['half_width'].min())} to {f(rt['half_width'].max())}, simulated"),
-    ("In the sample", f"{n_in} of 6",
-     f"factors whose volatility-managed Sharpe ratio is higher than the original's by a margin statistically significant at the 5 per cent level, each factor tested on its own: momentum, {f(mom['difference'], 2, True)} ({f(mom['lower'])} to {f(mom['upper'])}), p {f(mom['p_value'], 3)}, and no factor after Holm's correction for the six tests, momentum's p {f(mom['p_value_holm'])}. The alpha is statistically significant at that level on its Newey-West t-statistic for {n_t} of 6 and stays so after the same correction. To April 2015, simulated"),
+    ("Replication", f"{int(e['e1']['factors matching'])} of 6",
+     f"factors for which the replication matches Moreira and Muir's Table I on their sample (E1). Barroso and Santa-Clara's scaled momentum matches in {int(e['e3']['comparisons holding'])} of {int(e['e3']['comparisons'])} comparisons (E3), and Cederburg et al.'s results in {int(e['e2']['comparisons holding'])} of {int(e['e2']['comparisons'])}, the two misses RMW's, most likely French's revision of it (E2)"),
+    ("In the sample", f"{n_t} of 6",
+     f"factors whose volatility-managed alpha is statistically significant at the 5 per cent level on its Newey-West t-statistic and stays so after Holm's correction for the six tests: {and_list(sig_alpha)}. Held in the original's place, its Sharpe ratio is higher by a margin statistically significant at that level for momentum alone, tested on its own: {f(mom['difference'], 2, True)} ({f(mom['lower'])} to {f(mom['upper'])}), p {f(mom['p_value'], 3)}, and for no factor after the same correction, momentum's p {f(mom['p_value_holm'])}. To April 2015, simulated"),
     ("Market alpha net of costs", f(co.loc["Mkt-RF", "alpha net of 10 bp"]),
      f"% a year at 10 bp per unit of turnover (t {f(co.loc['Mkt-RF', 't net of 10 bp'])}), statistically significant at the 5 per cent level on a Newey-West t-statistic, and {f(co.loc['Mkt-RF', 'alpha net of 20 bp'])} at 20 bp (t {f(co.loc['Mkt-RF', 't net of 20 bp'])}), not statistically significant, with the data ruling out more than {f(mkt_hi20, 1)}, to April 2015, simulated"),
-    ("Expectations met", f"{sum(e[k]['verdict'] == 'met' for k in e)} of 6",
-     f"fixed before any run that judged them. Not met: E2, {int(e['e2']['comparisons holding'])} of {int(e['e2']['comparisons'])} comparisons (most likely French's revision of RMW), and E4, {int(e['e4']['count strict'])} of 6 factors (the alpha and the Sharpe ratio test answer different questions)"),
+    ("After the sample", f"{int(e['e5']['count above'])} of 6",
+     f"factors whose real-time combination's Sharpe ratio is higher than the real-time original's by a margin statistically significant at the 5 per cent level, May 2015 to August 2026, half-widths {f(rt['half_width'].min())} to {f(rt['half_width'].max())}, simulated. The test rejects {f(rate_ci[12][0], 1)} per cent of simulated pairs with equal Sharpe ratios where 5 is intended, so these months are weak evidence either way"),
 ]
 KPIS = "".join(f'<div class="ch-kpi"><div class="ch-kpi__label">{a}</div><div class="ch-kpi__value">{b}</div><div class="ch-kpi__ref">{c}</div></div>' for a, b, c in kpis)
 
@@ -371,6 +384,9 @@ KEYPOINTS = [
     f"On each paper's own sample the replication matches Moreira and Muir's Table I for {int(e['e1']['factors matching'])} of 6 factors (E1, the market's alpha {f(e1c.loc['Mkt-RF', 'alpha computed'])} per cent a year with a White standard error of {f(e1c.loc['Mkt-RF', 'se computed (White)'])}, against {f(e1c.loc['Mkt-RF', 'alpha published'])} and {f(e1c.loc['Mkt-RF', 'se published'])}) and Barroso and Santa-Clara's scaled momentum in {int(e['e3']['comparisons holding'])} of {int(e['e3']['comparisons'])} comparisons (E3, a Sharpe ratio of {f(e3c.loc['WML scaled', 'Sharpe computed'])} against {f(e3c.loc['WML scaled', 'Sharpe published'])} and a worst fall of {f(-e3c.loc['WML scaled', 'maximum drawdown computed (%)'], 1)} per cent against {f(-e3c.loc['WML scaled', 'maximum drawdown published (%)'], 1)}). "
     f"Cederburg et al.'s results reproduce in {int(e['e2']['comparisons holding'])} of {int(e['e2']['comparisons'])} comparisons, and E2 is not met: the two misses are RMW's, most likely because French has revised its history since Cederburg et al. downloaded it: its mean on their months is now {f(rmw_c['mean, computed'])} per cent a year against their {f(rmw_c['mean, published'])}, and moving it to theirs closes about 60 per cent of each gap ({ref('rmw')}).",
 ]
+met = [k.upper() for k in sorted(e) if e[k]["verdict"] == "met"]
+not_met = [k.upper() for k in sorted(e) if e[k]["verdict"] != "met"]
+COUNT_WORD = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six"}
 FACTS = [
     ("Data", f"Kenneth R. French Data Library, six factors and the ten momentum portfolios, daily and monthly, vintage {VINTAGE}, downloaded at run time"),
     ("Factors", "Market (Mkt-RF), size (SMB), value (HML), momentum (Mom), profitability (RMW), investment (CMA)"),
@@ -381,7 +397,7 @@ FACTS = [
     ("Regression", "The volatility-managed factor on the original, Newey-West standard errors at 12 lags, White's for Table I"),
     ("Rebalancing", "Monthly"),
     ("Costs", "10 basis points per unit of turnover, 20 as the sensitivity"),
-    ("Written in advance", "Six expectations, each in src/sq/constants.py, written before the code that tests it ran"),
+    ("Written in advance", f"Six expectations, each in src/sq/constants.py, written before the code that tests it ran. {COUNT_WORD[len(met)]} are met, {and_list(met)}, and {and_list(not_met)} are not ({ref('exp')})"),
 ]
 FACTS_HTML = "".join(f'<div class="ch-fact"><dt>{a}</dt><dd>{b}</dd></div>' for a, b in FACTS)
 
