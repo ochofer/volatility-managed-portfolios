@@ -76,6 +76,10 @@ NB01 = [
     md("""
 # 01. The data: Ken French's daily and monthly factor files, downloaded and counted
 
+**What this notebook does.** It downloads the eight files of Ken French's data library this study reads, records what it downloaded (the date, the address, the SHA-256 checksum of each zip and the CRSP vintage French prints at the top of each file), turns the files into tables of the six factors and of WML, monthly and daily, and counts what is in them: months, trading days, and the months each sample holds.
+
+**Why it comes first.** Every number in the study is computed from these files, and French revises history: a return from 1985 can differ between the file served today and the file Moreira and Muir downloaded in 2015. A replication that misses a published number has to be able to say whether the code or the data moved. The provenance record written here makes that possible, and every later output carries it.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -91,10 +95,6 @@ NB01 = [
 | Vintage | the version of French's files on the download date, named by the release of the CRSP database they were built from (202609 is the September 2026 release) |
 | Provenance | the record of what was downloaded, when, with its checksum and vintage |
 | Sample | the months a comparison runs on. The study uses four, listed below |
-
-**What this notebook does.** It downloads the eight files of Ken French's data library this study reads, records what it downloaded (the date, the address, the SHA-256 checksum of each zip and the CRSP vintage French prints at the top of each file), turns the files into tables of the six factors and of WML, monthly and daily, and counts what is in them: months, trading days, and the months each sample holds.
-
-**Why it comes first.** Every number in the study is computed from these files, and French revises history: a return from 1985 can differ between the file served today and the file Moreira and Muir downloaded in 2015. A replication that misses a published number has to be able to say whether the code or the data moved. The provenance record written here makes that possible, and every later output carries it.
 
 **Which expectations it judges.** None. The six expectations, E1 to E6, are fixed in `src/sq/constants.py` and judged in notebooks 03 to 08. This notebook checks the counts those expectations rest on.
 
@@ -300,6 +300,10 @@ NB02 = [
     md("""
 # 02. The signal: last month's realised variance, and the position each construction takes from it
 
+**What this notebook does.** It builds the signal, last month's realised variance, for each of the six factors under the three papers' definitions, and turns it into a position in two ways: Moreira and Muir's volatility-managed factor, on their sample, and Cederburg et al.'s real-time combination, month by month from the end of its first ten-year training window to August 2026. It reports how large the positions are, works one month of each construction by hand, and writes every series to `outputs/`. No return, Sharpe ratio or alpha is computed here.
+
+**Why it comes at this point.** Every later notebook compares returns of positions built here. Before any comparison, the positions themselves have to be right: computed from the months before the one invested in, with each paper's own definition, and of a size a reader can check against the papers' description.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -321,10 +325,6 @@ NB02 = [
 | Cap | the largest position the real-time constructions may take, 5 in either direction |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
 | Provenance | the record of what was downloaded, when, with its checksum and vintage, written to `outputs/provenance_french.json` |
-
-**What this notebook does.** It builds the signal, last month's realised variance, for each of the six factors under the three papers' definitions, and turns it into a position in two ways: Moreira and Muir's volatility-managed factor, on their sample, and Cederburg et al.'s real-time combination, month by month from the end of its first ten-year training window to August 2026. It reports how large the positions are, works one month of each construction by hand, and writes every series to `outputs/`. No return, Sharpe ratio or alpha is computed here.
-
-**Why it comes at this point.** Every later notebook compares returns of positions built here. Before any comparison, the positions themselves have to be right: computed from the months before the one invested in, with each paper's own definition, and of a size a reader can check against the papers' description.
 
 **Which expectations it judges.** None. E6 judges the percentiles of the volatility-managed position against the papers' Table V and Table 1, Panel D, in notebook 08; this notebook reports the 5th, 50th and 95th percentiles and the maximum, chosen to describe the position.
 
@@ -566,6 +566,10 @@ NB03 = [
     md("""
 # 03. Moreira and Muir's Table I on their sample: every published number beside the computed one (E1)
 
+**What this notebook does.** It builds the volatility-managed version of each of the six factors on Moreira and Muir's sample, regresses it on the original factor, and puts every number of their Table I (p. 1619) beside the computed one: beta, alpha, the standard error of alpha, N, R² and RMSE. It computes the appraisal ratio from both, and the market's volatility-managed Sharpe ratio for comparison with their Table V (p. 1626). It then judges E1.
+
+**Why it comes at this point.** This is the paper's main table. A replication that matches it shows that the data, the signal and the construction of notebooks 01 and 02 are those of the paper; every later notebook builds on them. A replication that misses it stops the study until the miss is explained.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -590,10 +594,6 @@ NB03 = [
 | Annualised | turned from a monthly figure into a yearly one: means times 12, standard deviations and Sharpe ratios times the square root of 12 |
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
-
-**What this notebook does.** It builds the volatility-managed version of each of the six factors on Moreira and Muir's sample, regresses it on the original factor, and puts every number of their Table I (p. 1619) beside the computed one: beta, alpha, the standard error of alpha, N, R² and RMSE. It computes the appraisal ratio from both, and the market's volatility-managed Sharpe ratio for comparison with their Table V (p. 1626). It then judges E1.
-
-**Why it comes at this point.** This is the paper's main table. A replication that matches it shows that the data, the signal and the construction of notebooks 01 and 02 are those of the paper; every later notebook builds on them. A replication that misses it stops the study until the miss is explained.
 
 **The expectation it judges: E1**, fixed in `src/sq/constants.py` before this notebook's code was written:
 
@@ -751,6 +751,10 @@ NB04 = [
     md("""
 # 04. Cederburg, O'Doherty, Wang and Yan's Tables 1 and 5 on their sample: the real-time critique (E2)
 
+**What this notebook does.** It builds, on Cederburg et al.'s sample and with their definition of the signal, the volatility-managed version of each factor (their Table 1, p. 99) and the three strategies of their Table 5, Panel A (p. 106): the real-time combination S1, the real-time original S2 and the ex post optimal combination S3. It puts every computed Sharpe ratio beside the published one, tests the differences with the Jobson-Korkie test, and judges E2. It closes with the cause of the result and two diagnostics.
+
+**Why it comes at this point.** Notebook 03 replicated Moreira and Muir's Table I: the volatility-managed factor has a positive alpha against the original, so a mix of the two had a higher Sharpe ratio than the original alone, with weights chosen after seeing every month. Cederburg et al. ask whether an investor could have chosen those weights at the time. This study uses their real-time combination on the months after the papers' samples (E5), so their published answer is replicated first.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -776,10 +780,6 @@ NB04 = [
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
 | Diagnostic | a number computed after a verdict to read its cause. It carries no verdict and changes no level |
 | Internet Archive | a public library of copies of web pages and files taken on past dates, at web.archive.org |
-
-**What this notebook does.** It builds, on Cederburg et al.'s sample and with their definition of the signal, the volatility-managed version of each factor (their Table 1, p. 99) and the three strategies of their Table 5, Panel A (p. 106): the real-time combination S1, the real-time original S2 and the ex post optimal combination S3. It puts every computed Sharpe ratio beside the published one, tests the differences with the Jobson-Korkie test, and judges E2. It closes with the cause of the result and two diagnostics.
-
-**Why it comes at this point.** Notebook 03 replicated Moreira and Muir's Table I: the volatility-managed factor has a positive alpha against the original, so a mix of the two had a higher Sharpe ratio than the original alone, with weights chosen after seeing every month. Cederburg et al. ask whether an investor could have chosen those weights at the time. This study uses their real-time combination on the months after the papers' samples (E5), so their published answer is replicated first.
 
 **The expectation it judges: E2**, fixed in `src/sq/constants.py` before this notebook's code was written. On Cederburg et al.'s sample (August 1926, January 1927 or August 1963 to December 2016), for each of the six factors:
 
@@ -1057,6 +1057,10 @@ NB05 = [
     md("""
 # 05. Barroso and Santa-Clara's scaled momentum on their sample, and to August 2026 (E3)
 
+**What this notebook does.** It builds WML from French's ten momentum portfolios, monthly and daily, computes Barroso and Santa-Clara's realised variance from the daily series, and scales WML to a 12 per cent target volatility. On their sample it puts every number of their Table 3 (p. 116) and the two maximum drawdowns (p. 112) beside the computed ones and judges E3. It then reports the same two series to August 2026, which no expectation judges.
+
+**Why it comes at this point.** Barroso and Santa-Clara scale momentum by its own recent volatility, the same idea as Moreira and Muir's, built with information available at the time: the target is fixed in advance and the weight uses only the months before. It is the study's one robustness check of the signal on a different series and a different definition of the variance.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -1079,10 +1083,6 @@ NB05 = [
 | Skewness | a measure of the asymmetry of returns; negative when the large moves are mostly falls |
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
-
-**What this notebook does.** It builds WML from French's ten momentum portfolios, monthly and daily, computes Barroso and Santa-Clara's realised variance from the daily series, and scales WML to a 12 per cent target volatility. On their sample it puts every number of their Table 3 (p. 116) and the two maximum drawdowns (p. 112) beside the computed ones and judges E3. It then reports the same two series to August 2026, which no expectation judges.
-
-**Why it comes at this point.** Barroso and Santa-Clara scale momentum by its own recent volatility, the same idea as Moreira and Muir's, built with information available at the time: the target is fixed in advance and the weight uses only the months before. It is the study's one robustness check of the signal on a different series and a different definition of the variance.
 
 **The expectation it judges: E3**, fixed in `src/sq/constants.py` before this notebook's code was written. On May 1927 to December 2011:
 
@@ -1245,6 +1245,10 @@ NB06 = [
     md("""
 # 06. The Sharpe ratio test: its size, then Moreira and Muir's six factors (E4)
 
+**What this notebook does.** It builds Ledoit and Wolf's test of a Sharpe ratio difference, checks on 1,000 simulated pairs with equal Sharpe ratios that it rejects at about its nominal rate, and only then applies it to the six factors on Moreira and Muir's sample: the volatility-managed factor against the original. It sets each factor's bootstrap verdict beside the Newey-West t-statistic on its alpha and judges E4.
+
+**Why it comes at this point.** Notebook 07 asks the study's own question with this test, on the 136 months after Moreira and Muir's sample. A test that rejects too often or too rarely when nothing differs cannot settle it, so its size is checked first, on data where the true difference is known to be 0.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -1278,10 +1282,6 @@ NB06 = [
 | Seed | the number that starts a random number generator, so that the same draws come out on every run |
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
-
-**What this notebook does.** It builds Ledoit and Wolf's test of a Sharpe ratio difference, checks on 1,000 simulated pairs with equal Sharpe ratios that it rejects at about its nominal rate, and only then applies it to the six factors on Moreira and Muir's sample: the volatility-managed factor against the original. It sets each factor's bootstrap verdict beside the Newey-West t-statistic on its alpha and judges E4.
-
-**Why it comes at this point.** Notebook 07 asks the study's own question with this test, on the 136 months after Moreira and Muir's sample. A test that rejects too often or too rarely when nothing differs cannot settle it, so its size is checked first, on data where the true difference is known to be 0.
 
 **The test.** The standard error of the sample's difference uses the prewhitened Parzen kernel. Ledoit and Wolf propose the prewhitened QS kernel and report that the prewhitened Parzen kernel gives very similar performance and virtually identical results (section 3.2.2 with its footnote 8, p. 854, and Remark 4.1, p. 857). The paper chooses the block size by its Algorithm 3.1; this study fixes it at 12 months in its constants. The bootstrap draws 2,000 samples from a fixed seed, and the test rejects when the 95 per cent interval excludes 0, as the paper's Remark 3.2 states; the p-value is reported beside it.
 
@@ -1359,7 +1359,7 @@ print(f"share of p-values below 0.05: {(size['p_values'] < 0.05).mean():.1%}")
     md("""
 ## 3. One test worked: the market
 
-The monthly Sharpe ratio difference, its standard error from the prewhitened Parzen kernel, the 95th percentile z* of the bootstrap's studentised statistics, and the interval: the difference plus or minus z* times the standard error. Each is then annualised by the square root of 12. The sign of a Sharpe ratio difference on these months says nothing about its sign on another sample.
+The monthly Sharpe ratio difference, its standard error from the prewhitened Parzen kernel, the 95th percentile z* of the bootstrap's studentised statistics, and the interval: the difference plus or minus z* times the standard error. Each is then annualised by the square root of 12.
 """),
     code("""
 seeds = dict(zip(C.FACTORS, np.random.SeedSequence(C.BOOTSTRAP_SEED).spawn(len(C.FACTORS))))
@@ -1408,7 +1408,7 @@ print(e4_text)
     md("""
 ## 6. Why a positive alpha and a higher Sharpe ratio are two different things
 
-The reason written with E4 treats the alpha and the Sharpe ratio difference as two readings of the same gain. They answer different questions. The alpha tests what the volatility-managed factor adds to a holding of the original factor; the difference tests the volatility-managed factor in the original's place. With the volatility-managed factor scaled to the original's standard deviation sigma, the regression's slope equals the correlation rho of the two, and
+The reason written with E4 treats the alpha and the Sharpe ratio difference as two readings of the same gain. They answer different questions. The alpha measures what the volatility-managed factor adds to a holding of the original factor; the difference measures the volatility-managed factor held in the original's place. With the volatility-managed factor scaled to the original's standard deviation sigma, the regression's slope equals the correlation rho of the two, and
 
 Sharpe ratio, managed - Sharpe ratio, original = alpha / sigma - (1 - rho) x Sharpe ratio, original.
 
@@ -1449,10 +1449,10 @@ print(sorted(os.listdir("outputs")))
     md("""
 What could be wrong, and where each point is tested:
 
-- **The simulation is kinder than the data.** The size check draws months independently, with fat tails but without the tendency of volatile months to follow volatile months; real factor returns have both. The 12-month blocks keep that tendency inside a block, and the rate printed in section 2 holds only for data like the simulated ones. The check is at 1,065 months; notebook 07 checks the size at the 136 months where the study's own question is answered.
+- **The simulation lacks one feature of the data.** The size check draws months independently, with fat tails but without the tendency of volatile months to follow volatile months; real factor returns have both. The 12-month blocks keep that tendency inside a block, and the rate printed in section 2 holds only for data like the simulated ones. The check is at 1,065 months; notebook 07 checks the size at the 136 months where the study's own question is answered.
 - **The kernel and the block size.** The paper proposes the QS kernel and a block size chosen by calibration; this study uses the Parzen kernel, which the paper reports gives virtually identical results, and 12 months fixed in advance.
 - **The second part of E4.** Its count is decided by the signs in notebook 03, as section 6 explains; the bootstrap's verdicts are reported in full beside the t-statistics, and the count by category beside the strict count.
-- **One sample.** The sign of each Sharpe ratio difference is a property of these months and says nothing about another sample; notebook 07 asks the same question on the months after.
+- **One sample.** Each Sharpe ratio difference is measured on these months alone. Notebook 07 asks the same question on the months after.
 """),
 ]
 
@@ -1464,6 +1464,10 @@ What could be wrong, and where each point is tested:
 NB07 = [
     md("""
 # 07. The months after Moreira and Muir's sample: May 2015 to August 2026 (E5)
+
+**What this notebook does.** It asks the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, the first 20 of which lie in Cederburg et al.'s sample, which ends in December 2016. For each factor it compares, with Ledoit and Wolf's test, the real-time combination against the real-time original, the comparison of Cederburg et al.'s Table 5, and, with no verdict, the volatility-managed factor with the paper's c against the original factor. It judges E5.
+
+**Why it comes at this point.** Notebooks 03 to 05 replicated the three papers on their own samples, and notebook 06 checked that the test rejects at about its nominal rate when nothing differs. Both constructions are now carried forward unchanged, into months that played no part in building them.
 
 **Terms used in this notebook.**
 
@@ -1495,16 +1499,12 @@ NB07 = [
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
 
-**What this notebook does.** It asks the study's own question: what the signal did in the 136 months after Moreira and Muir's sample, the first 20 of which lie in Cederburg et al.'s sample, which ends in December 2016. For each factor it compares, with Ledoit and Wolf's test, the real-time combination against the real-time original, the comparison of Cederburg et al.'s Table 5, and, in no verdict, the volatility-managed factor with the paper's c against the original factor. It judges E5.
-
-**Why it comes at this point.** Notebooks 03 to 05 replicated the three papers on their own samples, and notebook 06 checked that the test rejects at about its nominal rate when nothing differs. Both constructions are now carried forward unchanged, into months that played no part in building them.
-
 **The expectation it judges: E5**, fixed in `src/sq/constants.py` on 10 November 2026, before this notebook's code was written. On the months after Moreira and Muir's sample, May 2015 to August 2026 (136 months), with the paper's c fixed on the data to April 2015 and the real-time combination carried forward from its expanding window: for each factor, the Sharpe ratio of the real-time combination against the real-time original S2, as in Cederburg et al.'s Table 5, and of the volatility-managed factor against the original factor itself, each difference with its Ledoit-Wolf interval.
 
 1. On at most two of the six factors the real-time combination's Sharpe ratio exceeds S2's by more than the interval allows: the interval's lower end lies above 0.
 2. The median across the six of the Sharpe ratio difference lies within plus or minus the median of the six intervals' half-widths.
 
-E5 is met when both hold. Differences and half-widths are annualised. The same two counts are reported for the volatility-managed factor, in no verdict.
+E5 is met when both hold. Differences and half-widths are annualised. The same two counts are reported for the volatility-managed factor, with no verdict.
 
 **Why these levels.** The reason fixed with E5 on 10 November, in `src/sq/constants.py`: the study's own question, with the prior the critique gives. Gains an investor could not have set in real time should show little in months neither paper could have known; more than two factors clearing the interval fails the expectation, and the result is reported whichever way it falls. The reason's words "months neither paper could have known" are too wide: Cederburg et al.'s sample holds the first 20 of the 136 months, and 116 lie after both samples.
 
@@ -1576,7 +1576,7 @@ print(f"real-time original position {row['y2']:.3f}, return {row['s2']:.4f}")
     md("""
 ## 3. The Sharpe ratios on the 136 months
 
-Annualised. The original factor and the volatility-managed factor are compared with each other; the real-time combination S1 and the real-time original S2 are compared with each other. The sign of a Sharpe ratio difference on these months says nothing about its sign on another sample.
+Annualised. The original factor and the volatility-managed factor are compared with each other; the real-time combination S1 and the real-time original S2 are compared with each other.
 """),
     code("""
 sharpe_after = pd.DataFrame({f: {"original": R.sharpe(a["original"]), "volatility-managed": R.sharpe(a["managed"]),
@@ -1604,7 +1604,7 @@ vm_tests = pd.DataFrame({f: lw_row(a["managed"], a["original"], seeds_vm[f]) for
 print("Real-time combination S1 against real-time original S2:")
 print(rt_tests.round(3).to_string())
 print()
-print("Volatility-managed factor (c to April 2015) against the original factor, in no verdict:")
+print("Volatility-managed factor (c to April 2015) against the original factor, with no verdict:")
 print(vm_tests.round(3).to_string())
 """),
     md("""
@@ -1639,7 +1639,7 @@ print(sorted(os.listdir("outputs")))
 What could be wrong, and where each point is tested:
 
 - **136 months is a short sample.** The intervals in section 4 are wide. A difference that is not statistically significant at the 5 per cent level is not evidence that the two Sharpe ratios are equal: for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. Section 7 gives the test's size at this length and the twelve tests with shorter blocks, and section 8 its size at the correlations of S1 and S2.
-- **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign; the sign of each says nothing about another sample.
+- **One period.** The months after the sample hold the calm year of 2017, the crash of March 2020 and the falls of 2022. A different stretch of the same length could give differences of either sign.
 - **c held from April 2015.** The volatility-managed factor uses a c that an investor in May 2015 could have known; its scale differs from one set on the 136 months, which changes no Sharpe ratio.
 - **The vintage.** French's revision of RMW (notebook 04) touches these months as well; the record written at each download names the files used and their checksums.
 """),
@@ -1735,6 +1735,10 @@ NB08 = [
     md("""
 # 08. What trading the signal costs, and how large the position gets (E6)
 
+**What this notebook does.** It measures the turnover of the volatility-managed factor on Moreira and Muir's sample, charges 10 and 20 basis points per unit of it, and reruns the regression of notebook 03 on the net returns, with Newey-West standard errors. It then reports the distribution of the position: for the market on Moreira and Muir's sample beside their Table V, and for all six factors on Cederburg et al.'s sample beside their Table 1, Panel D. It judges E6. Every net figure is shown beside its gross figure.
+
+**Why it comes at this point.** The alpha of notebook 03 assumes the position can be changed every month at no cost. The position moves a lot from month to month (notebook 02: from 0.94 at the median to 16.8 at the most for the market), and every change is a trade. This notebook prices those trades and shows how large the positions are, the two practical limits of the strategy.
+
 **Terms used in this notebook.**
 
 | Term | Meaning |
@@ -1754,10 +1758,6 @@ NB08 = [
 | Percentile | the value below which a given share of the months fall; P50 is the median |
 | Verdict | met or not met: the result of an expectation, read from levels fixed before the code ran |
 | Vintage | the version of French's files on the download date, named by the CRSP release they were built from |
-
-**What this notebook does.** It measures the turnover of the volatility-managed factor on Moreira and Muir's sample, charges 10 and 20 basis points per unit of it, and reruns the regression of notebook 03 on the net returns, with Newey-West standard errors. It then reports the distribution of the position: for the market on Moreira and Muir's sample beside their Table V, and for all six factors on Cederburg et al.'s sample beside their Table 1, Panel D. It judges E6. Every net figure is shown beside its gross figure.
-
-**Why it comes at this point.** The alpha of notebook 03 assumes the position can be changed every month at no cost. The position moves a lot from month to month (notebook 02: from 0.94 at the median to 16.8 at the most for the market), and every change is a trade. This notebook prices those trades and shows how large the positions are, the two practical limits of the strategy.
 
 **The expectation it judges: E6**, fixed in `src/sq/constants.py` before this notebook's code was written:
 
