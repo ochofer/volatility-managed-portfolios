@@ -215,7 +215,7 @@ exp_rows = [
     ["E3", ("Barroso and Santa-Clara's scaled momentum, May 1927 to December 2011: both Sharpe ratios within 0.05, both maximum drawdowns within five points", "w"),
      (f"{int(e['e3']['comparisons holding'])} of {int(e['e3']['comparisons'])} ({ref('bsc')})", "w"), verdict(e["e3"]["verdict"])],
     ["E4", ("Ledoit and Wolf's test rejects 3.5 to 6.5 per cent of 1,000 simulated pairs with equal Sharpe ratios, and agrees with the alpha's Newey-West t-statistic in sign and significance for at least five of six factors", "w"),
-     (f"Size {f(100 * e['e4']['size rate'], 1)} per cent. {int(e['e4']['count strict'])} of 6 agree, because the alpha and the Sharpe ratio difference test different things ({int(e['e4']['count by category, no verdict'])} of 6 by category, in no verdict) ({ref('mm')})", "w"), verdict(e["e4"]["verdict"])],
+     (f"Size {f(100 * e['e4']['size rate'], 1)} per cent. {int(e['e4']['count strict'])} of 6 agree, because the alpha and the Sharpe ratio difference test different things ({int(e['e4']['count by category, no verdict'])} of 6 by category, with no verdict) ({ref('mm')})", "w"), verdict(e["e4"]["verdict"])],
     ["E5", ("May 2015 to August 2026: the real-time combination's Sharpe ratio above the real-time original's beyond the interval on at most two factors, and the median difference within the median half-width", "w"),
      (f"{int(e['e5']['count above'])} of 6, median {f(e['e5']['median difference'], 3, True)} within {f(e['e5']['median half-width'], 3)} ({ref('e5')})", "w"), verdict(e["e5"]["verdict"])],
     ["E6", ("The market's alpha net of 10 basis points per unit of turnover more than two Newey-West standard errors above zero, and the positions' percentiles within their bands", "w"),
@@ -236,8 +236,8 @@ F_AFTER = figure_block("after", "Sharpe ratio differences in the 136 months afte
                        "Annualised Sharpe ratio difference, with Ledoit and Wolf's 95% interval", "c-after",
                        ["Factor", "Real-time combination minus real-time original", "95% interval", "Half-width", "p-value",
                         "Volatility-managed minus original", "95% interval", "Half-width", "p-value"], after_rows,
-                       "None of the twelve differences is statistically significant at the 5 per cent level, and for the volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. The sign of a difference on these months says nothing about another sample. "
-                       "E5 judges the first comparison, and the second carries no verdict. c is fixed on the months to April 2015, and the real-time combination uses only the months before each decision. Simulated, before costs.",
+                       "None of the twelve differences is statistically significant at the 5 per cent level, and for the volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. "
+                       "E5 judges S1 minus S2, and no expectation judges the volatility-managed factor minus the original. c is fixed on the months to April 2015, and the real-time combination uses only the months before each decision. Simulated, before costs.",
                        f"{SRC} {AFTER_MONTHS}, {US}", ["e5_real_time_tests", "e5_volatility_managed_tests"])
 
 # Table 2 and 3: after the sample
@@ -264,7 +264,7 @@ F_MM = figure_block("mm", "Sharpe ratio differences on Moreira and Muir's sample
                     ["Factor", "Alpha, % a year", "t (Newey-West)", "Sharpe ratio, managed", "Sharpe ratio, original", "Difference", "95% interval", "p-value", "p-value, Holm (six tests)",
                      "Correlation &rho;", "&alpha;/&sigma;", "(1 " + MINUS + " &rho;) &times; Sharpe ratio, original"], mm_rows,
                     "The difference equals &alpha;/&sigma; minus (1 " + MINUS + " &rho;) times the original's Sharpe ratio for every factor, to four decimals: the alpha measures what the volatility-managed factor adds to a holding of the original, and the difference measures it held in the original's place. "
-                    "The Holm column gives each p-value with Holm's correction for the six tests. The sign of a difference on these months says nothing about another sample. Simulated, before costs.",
+                    "The Holm column gives each p-value with Holm's correction for the six tests. Each difference is measured on these months alone, and Figure 1 asks the same question on the months after. Simulated, before costs.",
                     f"{SRC} {MM_MONTHS}, {US}", ["sharpe_tests_mm_sample", "alpha_and_sharpe_difference"])
 
 # Figure 3: costs
@@ -362,7 +362,7 @@ kpis = [
     ("Replication", f"{int(e['e1']['factors matching'])} of 6",
      f"factors for which the replication matches Moreira and Muir's Table I on their sample (E1). Barroso and Santa-Clara's scaled momentum matches in {int(e['e3']['comparisons holding'])} of {int(e['e3']['comparisons'])} comparisons (E3), and Cederburg et al.'s results in {int(e['e2']['comparisons holding'])} of {int(e['e2']['comparisons'])}, the two misses RMW's, most likely French's revision of it (E2)"),
     ("In the sample", f"{n_t} of 6",
-     f"factors whose volatility-managed alpha is statistically significant at the 5 per cent level on its Newey-West t-statistic and stays so after Holm's correction for the six tests: {and_list(sig_alpha)}. Held fully in the original's place, as opposed to a mix, its Sharpe ratio is higher by a margin statistically significant at that level for momentum alone, tested on its own: {f(mom['difference'], 2, True)} ({f(mom['lower'])} to {f(mom['upper'])}), p {f(mom['p_value'], 3)}, and for no factor after the same correction, momentum's p {f(mom['p_value_holm'])}. To April 2015, simulated"),
+     f"factors whose volatility-managed alpha is statistically significant at the 5 per cent level on its Newey-West t-statistic and stays so after Holm's correction for the six tests: {and_list(sig_alpha)}. Held fully in the original's place, as opposed to in a mix, the volatility-managed factor has a Sharpe ratio higher by a margin that is statistically significant at that level for momentum alone, tested on its own: {f(mom['difference'], 2, True)} ({f(mom['lower'])} to {f(mom['upper'])}), p {f(mom['p_value'], 3)}, and for no factor after the same correction, momentum's p {f(mom['p_value_holm'])}. To April 2015, simulated"),
     ("Market alpha net of costs", f(co.loc["Mkt-RF", "alpha net of 10 bp"]),
      f"% a year at 10 bp per unit of turnover (t {f(co.loc['Mkt-RF', 't net of 10 bp'])}), statistically significant at the 5 per cent level on a Newey-West t-statistic, and {f(co.loc['Mkt-RF', 'alpha net of 20 bp'])} at 20 bp (t {f(co.loc['Mkt-RF', 't net of 20 bp'])}), not statistically significant, with the data ruling out more than {f(mkt_hi20, 1)}, to April 2015, simulated"),
     ("After the sample", f"{int(e['e5']['count above'])} of 6",
@@ -374,12 +374,12 @@ rmw_c = cause.loc["RMW"]
 KEYPOINTS = [
     f"After the sample, May 2015 to August 2026, no factor's real-time combination has a Sharpe ratio above the real-time original's by a margin that is statistically significant at the 5 per cent level on Ledoit and Wolf's test. E5 is met: the median difference is {f(e['e5']['median difference'], 3, True)}, annualised, and the median half-width {f(e['e5']['median half-width'], 3)}. "
     f"None of the twelve differences after the sample, two for each factor, is statistically significant at that level, and for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. The market's volatility-managed Sharpe ratio is {f(sh.loc['Mkt-RF', 'volatility-managed'])} against the original's {f(sh.loc['Mkt-RF', 'original'])}, a difference of {f(mkt_vm['difference'])} with an interval of {f(mkt_vm['lower'])} to {f(mkt_vm['upper'])} ({ref('after')}).",
-    f"The alpha and the Sharpe ratio answer different questions: the alpha tests what the volatility-managed factor adds to a holding of the original, and the Sharpe ratio difference tests it in the original's place. "
+    f"The alpha and the Sharpe ratio answer different questions: the alpha measures what the volatility-managed factor adds to a holding of the original, and the Sharpe ratio difference measures the volatility-managed factor held in the original's place. "
     f"On Moreira and Muir's sample, scaled, momentum's Sharpe ratio is {f(mom['difference'], 2)} above the original's, annualised ({f(mom['lower'])} to {f(mom['upper'])}), which is statistically significant at the 5 per cent level on Ledoit and Wolf's test when the factor is tested on its own (p {f(mom['p_value'], 3)}) and not after Holm's correction for the six tests<sup><a href=\"#note-6\">6</a></sup> (p {f(mom['p_value_holm'])}). "
     f"The alphas of the market, momentum and RMW are statistically significant at the 5 per cent level on their Newey-West t-statistics and stay so after the same correction ({ref('mm')}). "
-    f"E4 is not met: the two agree in sign and significance for {int(e['e4']['count strict'])} of 6 factors where 5 were expected, though the test rejects {f(100 * size['rate'], 1)} per cent of {int(size['pairs']):,} simulated pairs of {int(size['months']):,} months with equal Sharpe ratios, inside 3.5 to 6.5. "
+    f"E4 is not met: the two tests agree in sign and significance for {int(e['e4']['count strict'])} of 6 factors where 5 were expected. Its other part, the size check, holds: the test rejects {f(100 * size['rate'], 1)} per cent of {int(size['pairs']):,} simulated pairs of {int(size['months']):,} months with equal Sharpe ratios, inside 3.5 to 6.5. "
     f"At the 136 months after the sample, with the same blocks of 12, it rejects {f(rate_ci[12][0], 1)} per cent, too rarely, with a 95 per cent Wilson interval<sup><a href=\"#note-7\">7</a></sup> of {f(rate_ci[12][1], 1)} to {f(rate_ci[12][2], 1)}, the range of rates that {int(s136.loc[12, 'rejected'])} rejections out of {int(s136.loc[12, 'pairs']):,} are consistent with, so these months are weak evidence either way.",
-    f"The market's position changes by {f(co.loc['Mkt-RF', 'average turnover'])} of the factor a month on average, and its alpha net of 10 basis points per unit of that change is {f(co.loc['Mkt-RF', 'alpha net of 10 bp'])} per cent a year, statistically significant at the 5 per cent level on its Newey-West t-statistic of {f(co.loc['Mkt-RF', 't net of 10 bp'])}, and {f(co.loc['Mkt-RF', 'alpha net of 20 bp'])} at 20, with a t-statistic of {f(co.loc['Mkt-RF', 't net of 20 bp'])}, which is not, and the data rule out an alpha above {f(mkt_hi20, 1)} per cent a year at that cost ({ref('costs')}). "
+    f"The market's position changes by {f(co.loc['Mkt-RF', 'average turnover'])} of the factor a month on average, and its alpha net of 10 basis points per unit of that change is {f(co.loc['Mkt-RF', 'alpha net of 10 bp'])} per cent a year, statistically significant at the 5 per cent level on its Newey-West t-statistic of {f(co.loc['Mkt-RF', 't net of 10 bp'])}. At 20 basis points it is {f(co.loc['Mkt-RF', 'alpha net of 20 bp'])}, with a t-statistic of {f(co.loc['Mkt-RF', 't net of 20 bp'])}, which is not statistically significant, and the data rule out an alpha above {f(mkt_hi20, 1)} per cent a year at that cost ({ref('costs')}). "
     f"The position's median is {f(pm['P50'])} and its 99th percentile {f(pm['P99'])}, against Moreira and Muir's {f(mkt_pub['P50'])} and {f(mkt_pub['P99'])} ({ref('position')}). E6 is met, {int(e['e6']['comparisons holding'])} of {int(e['e6']['comparisons'])}.",
     f"On each paper's own sample the replication matches Moreira and Muir's Table I for {int(e['e1']['factors matching'])} of 6 factors (E1, the market's alpha {f(e1c.loc['Mkt-RF', 'alpha computed'])} per cent a year with a White standard error of {f(e1c.loc['Mkt-RF', 'se computed (White)'])}, against {f(e1c.loc['Mkt-RF', 'alpha published'])} and {f(e1c.loc['Mkt-RF', 'se published'])}) and Barroso and Santa-Clara's scaled momentum in {int(e['e3']['comparisons holding'])} of {int(e['e3']['comparisons'])} comparisons (E3, a Sharpe ratio of {f(e3c.loc['WML scaled', 'Sharpe computed'])} against {f(e3c.loc['WML scaled', 'Sharpe published'])} and a worst fall of {f(-e3c.loc['WML scaled', 'maximum drawdown computed (%)'], 1)} per cent against {f(-e3c.loc['WML scaled', 'maximum drawdown published (%)'], 1)}). "
     f"Cederburg et al.'s results reproduce in {int(e['e2']['comparisons holding'])} of {int(e['e2']['comparisons'])} comparisons, and E2 is not met: the two misses are RMW's, most likely because French has revised its history since Cederburg et al. downloaded it: its mean on their months is now {f(rmw_c['mean, computed'])} per cent a year against their {f(rmw_c['mean, published'])}, and moving it to theirs closes about 60 per cent of each gap ({ref('rmw')}).",
@@ -420,7 +420,7 @@ SUMMARY = f"""<section id="summary" class="view on">
 <div class="ch-top">
 <div>
 <div class="ch-kpis">{KPIS}</div>
-<p class="kpnote">In the 136 months after the sample none of the twelve Sharpe ratio differences, two for each factor, is statistically significant at the 5 per cent level, and for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample. The sign of a Sharpe ratio difference on one sample says nothing about another.</p>
+<p class="kpnote">In the 136 months after the sample none of the twelve Sharpe ratio differences, two for each factor, is statistically significant at the 5 per cent level, and for the six volatility-managed factors the intervals are too wide to rule out the differences found on Moreira and Muir's sample.</p>
 {study_map()}
 <ul class="kp">{''.join(f'<li>{k}</li>' for k in KEYPOINTS)}</ul>
 </div>
@@ -437,7 +437,7 @@ gap_sent = " ".join(
 AFTER = f"""<section id="after" class="view">
 {study_map("after")}
 <p class="ch-view-lead">What the signal did in the 136 months after Moreira and Muir's sample, with the volatility-managed factor's scale fixed on the data to April 2015 and the real-time combination carried forward.</p>
-<p class="lead">The study's own question is what the signal did after Moreira and Muir's sample ended. Both constructions run unchanged on May 2015 to August 2026: the volatility-managed factor's scale, c, is fixed on the months to April 2015, and the real-time combination uses only the months before each decision, so no parameter of either was set on these months. {ref('after')} shows each difference with its interval. The intervals are wide for two reasons. On 136 months in place of {mm_n.min():,} to {mm_n.max():,}, the standard errors of the volatility-managed comparisons are {f(se_ratio.min())} to {f(se_ratio.max())} times those on Moreira and Muir's sample. And the critical value, the multiple of the standard error that takes the place of 1.96, is {f(crit_vm[12].min())} to {f(crit_vm[12].max())} here against {f(st['critical'].min())} to {f(st['critical'].max())} there, because each bootstrap sample has only {n_blocks[12]} blocks of 12, {12 * n_blocks[12]} months long: with {n_blocks[6]} blocks of 6, also {6 * n_blocks[6]} months, it is {f(crit_vm[6].min())} to {f(crit_vm[6].max())}, and with {n_blocks[3]} blocks of 3, {3 * n_blocks[3]} months, it is {f(crit_vm[3].min())} to {f(crit_vm[3].max())}. Together they widen the half-widths {f(hw_ratio.min())} to {f(hw_ratio.max())} times, to {f(vm['half_width'].min())} to {f(vm['half_width'].max())}, annualised, against {f(st['half_width'].min())} to {f(st['half_width'].max())} ({ref('mm')}).</p>
+<p class="lead">The study's own question is what the signal did after Moreira and Muir's sample ended. Both constructions run unchanged on May 2015 to August 2026: the volatility-managed factor's scale, c, is fixed on the months to April 2015, and the real-time combination uses only the months before each decision, so no parameter of either was set on these months. {ref('after')} shows each difference with its interval. The intervals are wide for two reasons. First, on 136 months in place of {mm_n.min():,} to {mm_n.max():,}, the standard errors of the volatility-managed comparisons are {f(se_ratio.min())} to {f(se_ratio.max())} times those on Moreira and Muir's sample. Second, the critical value, the multiple of the standard error that takes the place of 1.96, is {f(crit_vm[12].min())} to {f(crit_vm[12].max())} here against {f(st['critical'].min())} to {f(st['critical'].max())} there, because each bootstrap sample has only {n_blocks[12]} blocks of 12, {12 * n_blocks[12]} months long: with {n_blocks[6]} blocks of 6, also {6 * n_blocks[6]} months, it is {f(crit_vm[6].min())} to {f(crit_vm[6].max())}, and with {n_blocks[3]} blocks of 3, {3 * n_blocks[3]} months, it is {f(crit_vm[3].min())} to {f(crit_vm[3].max())}. Together they widen the half-widths {f(hw_ratio.min())} to {f(hw_ratio.max())} times, to {f(vm['half_width'].min())} to {f(vm['half_width'].max())}, annualised, against {f(st['half_width'].min())} to {f(st['half_width'].max())} ({ref('mm')}).</p>
 <p class="lead">At this length the test also rejects too rarely with blocks of 12: on {int(s136.loc[12, 'pairs']):,} simulated pairs of 136 months with equal Sharpe ratios it rejects {rate_with_ci(12)}, against the 5 per cent intended, so, for series like the simulated ones, these intervals are wider than 95 per cent intervals need be. With blocks of 6 it rejects {rate_with_ci(6)}, and with blocks of 3 {rate_with_ci(3)}, whose interval does not rule out 5. A test that rejects too rarely makes E5 easier to meet, so the tests at blocks of 6 and 3 are the check on that verdict: at either length none of the twelve differences is statistically significant at the 5 per cent level. With the test rejecting {f(rate_ci[12][0], 1)} per cent of simulated pairs with equal Sharpe ratios ({f(rate_ci[12][1], 1)} to {f(rate_ci[12][2], 1)}) where 5 is intended, these months are weak evidence either way. @@BLOCK_LINKS@@</p>
 {T_AFTER_SHARPE}
 {T_E5}
@@ -483,7 +483,7 @@ TERMS = [
     ("Delta method", "the standard error of a function of means, from the function's slopes and the means' covariance."),
     ("Appraisal ratio", "the alpha over the residual's standard deviation, annualised."),
     ("RMSE", "root mean squared error, the standard deviation of the regression's residual."),
-    ("Interval", "the 95 per cent interval of Ledoit and Wolf's test for the true Sharpe ratio difference. The test rejects when it excludes zero."),
+    ("Interval", "the 95 per cent interval of Ledoit and Wolf's test for the true Sharpe ratio difference. A difference is statistically significant at the 5 per cent level when zero lies outside its interval."),
     ("Half-width", "the distance from a difference to either end of its interval."),
     ("Critical value", "the multiple of a difference's standard error that gives its interval, from the bootstrap, in the place of the normal distribution's 1.96."),
     ("p-value", "the probability of a difference at least as far from zero as the one computed, if the two true Sharpe ratios were equal."),
@@ -494,7 +494,7 @@ TERMS = [
     ("Break-even cost", "the cost per unit of turnover at which the alpha falls to zero."),
     ("Maximum drawdown", "the largest fall from a peak of the compounded return."),
     ("Band", "the distance from a published number within which a computed one counts as matching, fixed before the code."),
-    ("Verdict", "whether an expectation is met. A count reported in no verdict is shown without one."),
+    ("Verdict", "whether an expectation is met. A count that no expectation judges is shown with no verdict."),
     ("Vintage", "the version of French's files, named by the CRSP release they were built from."),
 ]
 TERMS_HTML = "".join(f"<dt>{a}</dt><dd>{b}</dd>" for a, b in TERMS)
@@ -548,6 +548,13 @@ for kind, key in ORDER:
     a, label = anchor(key)
     prov_rows.append([f'<a href="#{a}">{label}</a> | {title}', ("<br>".join(gh(f"results/{VINTAGE}/{table}_{VINTAGE}.csv") for table in files), "l"),
                       ("<br>".join(gh(f"notebooks/{nb}", f"notebook {nb[:2]}") for nb in notebooks), "l")])
+block_tables = ["size_check_136_months", "e5_tests_by_block"]
+for table in block_tables:
+    if len(WRITER.get(table, ())) != 1:
+        sys.exit(f"dashboard/build_dashboard.py: {table} is written by {sorted(WRITER.get(table, ())) or 'no notebook'}, where one is expected")
+prov_rows.append(['<a href="#after">After the sample</a> | the test\'s size at 136 months and the twelve tests by block length, in the text',
+                  ("<br>".join(gh(f"results/{VINTAGE}/{table}_{VINTAGE}.csv") for table in block_tables), "l"),
+                  ("<br>".join(gh(f"notebooks/{nb}", f"notebook {nb[:2]}") for nb in sorted({next(iter(WRITER[t])) for t in block_tables})), "l")])
 PROV_HTML = ('<p>The committed tables each exhibit is drawn from, each linked on GitHub at the commit that last changed it, and the notebooks that write them.</p>'
              + html_table([("Exhibit", "l"), ("Committed tables", "l"), ("Written by", "l")], prov_rows, cls="prov"))
 
@@ -555,7 +562,7 @@ METHOD = f"""<section id="method" class="view method">
 <p class="ch-view-lead">The data, the constructions, what is known at each date, the costs, and what the study cannot show.</p>
 <h2>Method</h2>
 <p><strong>Data and period.</strong> Kenneth R. French's daily and monthly files of the six factors and of the ten portfolios sorted on prior returns, vintage {VINTAGE}, downloaded at run time. None of the files is committed, and the committed tables carry the monthly factor returns the results are computed from, as downloaded from his library.<sup><a href="#note-4">4</a></sup> The market, SMB and HML start in July 1926, momentum in January 1927, RMW and CMA in July 1963, and every series is cut at August 2026. Each paper's results are compared on its own months: Moreira and Muir's to April 2015,<sup><a href="#note-1">1</a></sup> Cederburg, O'Doherty, Wang and Yan's to December 2016,<sup><a href="#note-2">2</a></sup> Barroso and Santa-Clara's from May 1927 to December 2011.<sup><a href="#note-3">3</a></sup></p>
-<p><strong>The signal and the constructions.</strong> Each construction uses its paper's own realised variance. The volatility-managed factor holds c over last month's realised variance. The real-time combination holds, each month, the mean-variance weights of an investor with a risk aversion of 5 on the volatility-managed and the original factor, estimated from all the months before it once 120 are available, its total position capped at 5. Scaled momentum holds WML at 12 per cent a year over its realised volatility of the previous 126 trading days. Rebalancing is monthly throughout.</p>
+<p><strong>The signal and the constructions.</strong> Each construction uses its paper's own realised variance. The volatility-managed factor's position is c over last month's realised variance. The real-time combination holds, each month, the mean-variance weights of an investor with a risk aversion of 5 on the volatility-managed and the original factor, estimated from all the months before it once 120 are available, its total position capped at 5. Scaled momentum holds WML at 12 per cent a year over its realised volatility of the previous 126 trading days. Rebalancing is monthly throughout.</p>
 <p><strong>What is known at each date.</strong> Each month's position uses only the realised variance of the month before. c is the exception: Moreira and Muir set it on the whole sample, which no investor could have known, and the replication does the same, as the paper does. The real-time combination uses only the months before each decision, and for the months after the sample c is fixed on the months to April 2015, so nothing in those 136 months was set on them.</p>
 <p><strong>The test.</strong> The study's test follows Ledoit and Wolf (2008): the standard error of a Sharpe ratio difference by the delta method from the prewhitened Parzen kernel, and its interval from a circular block bootstrap, each sample's difference studentised by its own standard error.<sup><a href="#note-5">5</a></sup> Here the bootstrap uses 2,000 samples of 12-month blocks, the number and the block length both fixed before the run. The paper proposes the QS kernel and reports the Parzen kernel's performance as very similar, uses 4,999 bootstrap samples in its applications, and calibrates the block length from the data. The test's size is checked on simulated pairs with equal Sharpe ratios at the length of Moreira and Muir's sample and at the 136 months after it, with blocks of 12, 6 and 3.</p>
 <p><strong>Costs.</strong> A month's turnover is the absolute change in the position from the month before. The cost, 10 basis points per unit of turnover and 20 as the sensitivity, is subtracted from the volatility-managed return, and the alpha is estimated again on the net return. The factor's own rebalancing is the same for the managed and the original factor and is left out.</p>
@@ -577,9 +584,8 @@ METHOD = f"""<section id="method" class="view method">
 </section>
 {OTHER}"""
 
-# the after-sample view names the tables behind its figures by block length, linked like the exhibits once the links can be built
-BLOCK_LINKS = (f'The figures by block length are in {gh(f"results/{VINTAGE}/size_check_136_months_{VINTAGE}.csv")} and '
-               f'{gh(f"results/{VINTAGE}/e5_tests_by_block_{VINTAGE}.csv")}, written by {gh("notebooks/07_after_the_sample.ipynb", "notebook 07")}.')
+# the after-sample view's figures by block length come from two tables that no exhibit draws, so Method lists them in a row of their own
+BLOCK_LINKS = "The figures by block length are in the committed tables listed in Method."
 BODY = "\n".join([SUMMARY, REPL, COSTS, AFTER.replace("@@BLOCK_LINKS@@", BLOCK_LINKS), METHOD])
 assert "@@" not in BODY
 
@@ -602,9 +608,10 @@ SCRIPT = open(os.path.join(SCRIPT_DIR, "charts.js")).read().replace("/*DATA*/nul
 
 build_date = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Amsterdam")).date()
 build_words = f"{build_date.day} {MONTHS[build_date.month - 1]} {build_date.year}"
-LEAD = ("Volatility-managed factors scale each month's position by the inverse of last month's realised variance. "
-        "Moreira and Muir (2017) and the real-time critique of Cederburg et al. (2020), replicated on Kenneth R. French's six equity factors, "
-        "then the 136 months after Moreira and Muir's sample, May 2015 to August 2026. Every figure is a simulation drawn from the tables committed with the code.")
+LEAD = ("A volatility-managed factor's position is scaled each month by the inverse of last month's realised variance. "
+        "The study replicates Moreira and Muir (2017) and the real-time critique of Cederburg et al. (2020) on Kenneth R. French's six equity factors, "
+        "then follows the volatility-managed factor and the real-time combination over the 136 months after Moreira and Muir's sample, May 2015 to August 2026. "
+        "Every figure is a simulation drawn from the tables committed with the code.")
 TITLE = "Volatility-managed portfolios: the results"
 DESC = "Moreira and Muir (2017) and Cederburg et al. (2020) replicated on Ken French's six factors, and the 136 months after the sample: key figures and the method."
 page = open(os.path.join(SCRIPT_DIR, "template.html.in")).read()
