@@ -1,6 +1,6 @@
 # Volatility-managed portfolios: a replication, the real-time critique, and the months after the sample
 
-Moreira and Muir (2017) scale a factor's position each month by the inverse of its realised variance in the month before, and find a positive alpha for five of the six factors studied here, statistically significant at the 5 per cent level for the market, momentum and profitability. Cederburg, O'Doherty, Wang and Yan (2020) estimate in real time how an investor would combine the volatility-managed and the original factor, and find, for the six factors studied here, little gain outside momentum. This repository replicates both papers and the scaled momentum of Barroso and Santa-Clara (2015) on Ken French's six factors, tests the Sharpe ratio differences with the bootstrap of Ledoit and Wolf (2008), and measures what the signal did in the 136 months after Moreira and Muir's sample, May 2015 to August 2026.
+Moreira and Muir (2017) scale a factor's position each month by the inverse of its realised variance in the month before. They find that this volatility-managed factor has a positive alpha against the original factor for five of the six factors studied here, statistically significant at the 5 per cent level for the market, momentum and RMW, the profitability factor. Cederburg, O'Doherty, Wang and Yan (2020) estimate in real time how an investor would combine the volatility-managed and the original factor, and find, for the six factors studied here, little gain outside momentum. The study replicates both papers and the scaled momentum of Barroso and Santa-Clara (2015) on Ken French's six factors, measures the Sharpe ratio differences with Ledoit and Wolf's (2008) test, and follows the volatility-managed factor and the real-time combination over the 136 months after Moreira and Muir's sample, May 2015 to August 2026.
 
 The results are on the [dashboard](https://www.carlohofer.com/volatility-managed-portfolios/dashboard/B-Q_dashboard.html) and in the [note](https://www.carlohofer.com/volatility-managed-portfolios/note/B-Q_note_2026-11.pdf). The project page is [carlohofer.com/projects/volatility-managed-portfolios](https://www.carlohofer.com/projects/volatility-managed-portfolios/).
 
@@ -27,7 +27,7 @@ Each notebook writes its tables to `outputs/` with a record of each file's downl
 
 ## What is fixed in advance
 
-Every sample boundary, construction setting and expectation is in `src/sq/constants.py`, each with its source, and the published figures the replications are compared with are in `src/sq/published.py`, each with its page and table. Each notebook opens with the expectations it tests, written before its code ran, and marks the comparisons added after the results were known.
+Every sample boundary, construction setting and expectation is in `src/sq/constants.py`, each with its source, and the published figures the replications are compared with are in `src/sq/published.py`, each with its page and table. Each notebook opens with the expectations it tests, each written before the code that tests it ran.
 
 ## The notebooks
 
@@ -44,14 +44,19 @@ Every sample boundary, construction setting and expectation is in `src/sq/consta
 
 ## Terms
 
-- **Volatility-managed factor**: the factor's return times a constant c over last month's realised variance, c giving it the original's standard deviation over the whole sample.
+- **Factor**: one of the six long-short return series in Ken French's data library, the market, SMB (size), HML (value), momentum, RMW (profitability) and CMA (investment). As French publishes it, it is the **original** factor.
 - **Realised variance**: the variance of a factor computed from its daily returns within one month, each paper with its own definition, given in `src/sq/constants.py`.
+- **Volatility-managed factor**: the factor's return times a constant c over last month's realised variance, c giving it the original's standard deviation over the whole sample.
 - **Real-time combination (S1)**: a mix of the volatility-managed and the original factor whose weights are estimated each month from the months before it. The **real-time original (S2)** is the original factor alone at its real-time weight.
-- **Scaled momentum**: WML, i.e., the top momentum decile's return minus the bottom decile's, held at 12 per cent a year over its realised volatility of the previous 126 trading days.
+- **WML**: winners minus losers, the top momentum decile's return minus the bottom decile's.
+- **Scaled momentum**: WML held at 12 per cent a year over its realised volatility of the previous 126 trading days.
+- **Sharpe ratio**: the mean excess return, i.e., the return minus the one-month Treasury bill rate, over its standard deviation, annualised. Every factor is an excess return.
 - **Alpha**: the intercept of the regression of a volatility-managed factor on its original, in per cent a year.
+- **White and Newey-West standard errors**: White's allows the residual's variance to change from month to month, and Newey and West's, at 12 lags, also allows a month's residual to be correlated with the 12 before it.
 - **Interval**: the 95 per cent interval of Ledoit and Wolf's test for the true Sharpe ratio difference. A difference is statistically significant at the 5 per cent level when zero lies outside its interval.
 - **Holm's correction**: for n tests read together, the smallest p-value is multiplied by n, the next by n − 1 and so on, each kept at least as large as the one before and none above one.
 - **Turnover**: the absolute change in the position from one month to the next.
+- **Expectation**: one of six pass-or-fail criteria, E1 to E6, in `src/sq/constants.py`.
 - **Vintage**: the version of French's files, named by the CRSP database they were built from.
 
 ## Layout
